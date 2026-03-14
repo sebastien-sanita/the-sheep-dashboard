@@ -1,28 +1,34 @@
 import type { ClientSummary, Client, Campaign } from "../types";
 import { apiGet } from "./client";
 
-export async function getWorkspaces(): Promise<ClientSummary[]> {
-  const data = await apiGet<ClientSummary[] | Record<string, unknown>>("/api/workspaces/me");
-
-  // Backend returns array directly
-  if (Array.isArray(data)) return data;
-
-  // Backend wraps in { data: [...] } or { workspaces: [...] }
-  if (data && typeof data === "object") {
-    for (const key of ["data", "workspaces", "items", "results"] as const) {
-      const nested = (data as Record<string, unknown>)[key];
-      if (Array.isArray(nested)) return nested as ClientSummary[];
+/** Unwrap common API response wrappers ({ data: T } or { items: T } etc.) */
+function unwrap<T>(raw: unknown): T {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    const obj = raw as Record<string, unknown>;
+    for (const key of ["data", "workspace", "workspaces", "items", "results", "campaign", "campaigns"]) {
+      if (obj[key] !== undefined) return obj[key] as T;
     }
   }
-
-  // Single workspace object fallback
-  return [data as unknown as ClientSummary];
+  return raw as T;
 }
 
-export function getWorkspace(id: string): Promise<Client> {
-  return apiGet<Client>(`/api/workspaces/${id}`);
+/** Unwrap and ensure array */
+function unwrapArray<T>(raw: unknown): T[] {
+  const inner = unwrap<T[] | T>(raw);
+  return Array.isArray(inner) ? inner : [inner];
 }
 
-export function getWorkspaceCampaigns(id: string): Promise<Campaign[]> {
-  return apiGet<Campaign[]>(`/api/workspaces/${id}/campaigns`);
+export async function getWorkspaces(): Promise<ClientSummary[]> {
+  const raw = await apiGet<unknown>("/api/workspaces/me");
+  return unwrapArray<ClientSummary>(raw);
+}
+
+export async function getWorkspace(id: string): Promise<Client> {
+  const raw = await apiGet<unknown>(`/api/workspaces/${id}`);
+  return unwrap<Client>(raw);
+}
+
+export async function getWorkspaceCampaigns(id: string): Promise<Campaign[]> {
+  const raw = await apiGet<unknown>(`/api/workspaces/${id}/campaigns`);
+  return unwrapArray<Campaign>(raw);
 }

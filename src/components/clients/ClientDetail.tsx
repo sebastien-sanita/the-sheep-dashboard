@@ -133,16 +133,16 @@ export function ClientDetail({
               <Skeleton className="h-28" />
               <Skeleton className="h-28" />
             </>
-          ) : metrics ? (
+          ) : metrics?.metrics ? (
             <>
               <KPICard
-                item={metricToKPI("Depense", metrics.metrics.spend, (v) =>
+                item={metricToKPI("Dépense", metrics.metrics.spend, (v) =>
                   formatCurrency(v),
                 )}
               />
               <KPICard
                 item={metricToKPI(
-                  "Cout / Lead",
+                  "Coût / Lead",
                   metrics.metrics.costPerConversion,
                   (v) => formatCurrency(v),
                   true,
@@ -161,7 +161,7 @@ export function ClientDetail({
             </>
           ) : (
             <p className="col-span-4 text-[12px] text-slate-500">
-              Aucune metrique disponible
+              Aucune métrique disponible
             </p>
           )}
         </div>
