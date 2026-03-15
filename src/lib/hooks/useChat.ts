@@ -74,13 +74,21 @@ async function* parseSseStream(
   const reader = stream.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
+  let chunkCount = 0;
 
   try {
     for (;;) {
       const { done, value } = await reader.read();
 
       if (value) {
-        buffer += decoder.decode(value, { stream: true });
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
+
+        // Debug: log first 3 chunks
+        if (chunkCount < 3) {
+          console.log(`[SSE] Chunk #${chunkCount}:`, JSON.stringify(chunk.slice(0, 200)));
+          chunkCount++;
+        }
       }
 
       // Split on double newline — SSE event boundary
@@ -92,14 +100,40 @@ async function* parseSseStream(
         const trimmed = part.trim();
         if (!trimmed) continue;
         const event = parseSseEventBlock(trimmed);
-        if (event) yield event;
+        if (event) {
+          yield event;
+        } else if (chunkCount <= 3) {
+          console.log("[SSE] Unparsed block:", JSON.stringify(trimmed.slice(0, 200)));
+        }
       }
 
       if (done) {
         // Process any remaining data in buffer
         if (buffer.trim()) {
-          const event = parseSseEventBlock(buffer.trim());
-          if (event) yield event;
+          const remaining = buffer.trim();
+          const event = parseSseEventBlock(remaining);
+          if (event) {
+            yield event;
+          } else {
+            // Fallback: try parsing entire buffer as JSON (non-SSE response)
+            try {
+              const json = JSON.parse(remaining) as Record<string, unknown>;
+              console.log("[SSE] Fallback JSON response detected:", Object.keys(json));
+              if (json.content && typeof json.content === "string") {
+                yield { type: "text_delta", delta: json.content as string };
+                yield { type: "message_complete", message: { id: (json.id as string) ?? `json_${Date.now()}`, role: "ASSISTANT", content: json.content as string, toolCalls: null, createdAt: new Date().toISOString(), conversationId: (json.conversationId as string) ?? "" } } as unknown as ChatStreamEvent;
+              } else if (json.message && typeof json.message === "string") {
+                yield { type: "text_delta", delta: json.message as string };
+              } else if (json.data && typeof json.data === "object") {
+                const data = json.data as Record<string, unknown>;
+                if (data.content && typeof data.content === "string") {
+                  yield { type: "text_delta", delta: data.content as string };
+                }
+              }
+            } catch {
+              console.log("[SSE] Final buffer not JSON:", remaining.slice(0, 200));
+            }
+          }
         }
         break;
       }

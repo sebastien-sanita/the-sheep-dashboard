@@ -138,9 +138,11 @@ export async function apiStream(endpoint: string, body: unknown, signal?: AbortS
     signal,
   });
 
+  console.log("[SSE] Response:", res.status, res.statusText, "Content-Type:", res.headers.get("content-type"));
+
   if (!res.ok) {
-    console.error("[Chat] Stream error:", res.status, res.statusText);
-    await handleError(res);
+    console.error("[SSE] Error body preview:", await res.text().then((t) => t.slice(0, 300)).catch(() => "unreadable"));
+    throw new ApiClientError(`${res.status} ${res.statusText}`, res.status);
   }
 
   if (!res.body) {
