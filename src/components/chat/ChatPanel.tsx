@@ -11,35 +11,14 @@ import { ConversationList } from "./ConversationList";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
 
-interface ChatPanelProps {
-  clientId?: string;
-}
+interface ChatPanelProps { clientId?: string }
 
 export function ChatPanel({ clientId }: ChatPanelProps) {
-  const {
-    messages,
-    isStreaming,
-    streamingContent,
-    activeToolCalls,
-    activeConversationId,
-    sendMessage,
-    stopStreaming,
-    startNewConversation,
-    loadConversation,
-    isLoadingConversation,
-  } = useChat(clientId);
-
+  const { messages, isStreaming, streamingContent, activeToolCalls, activeConversationId, sendMessage, stopStreaming, startNewConversation, loadConversation, isLoadingConversation } = useChat(clientId);
   const activeConversationTitle = useChatStore((s) => s.activeConversationTitle);
-
   const [showHistory, setShowHistory] = useState(false);
 
-  const handleSelectConversation = useCallback(
-    async (id: string) => {
-      await loadConversation(id);
-      setShowHistory(false);
-    },
-    [loadConversation],
-  );
+  const handleSelectConversation = useCallback(async (id: string) => { await loadConversation(id); setShowHistory(false); }, [loadConversation]);
 
   const headerTitle = useMemo(() => {
     if (!activeConversationId && messages.length === 0) return "Nouvelle conversation";
@@ -50,96 +29,58 @@ export function ChatPanel({ clientId }: ChatPanelProps) {
   const isEmpty = messages.length === 0 && !isStreaming && !isLoadingConversation;
 
   return (
-    <div className="relative flex h-full flex-col bg-slate-900">
+    <div className="relative flex h-full flex-col" style={{ background: "var(--color-bg-base)" }}>
       {/* History drawer */}
-      <div
-        className={cn(
-          "absolute inset-y-0 left-0 z-10 w-60 border-r border-slate-700 bg-slate-900 transition-transform duration-200 ease-in-out",
-          showHistory ? "translate-x-0" : "-translate-x-full",
-        )}
-      >
-        <div className="flex h-12 items-center border-b border-slate-700/50 px-3">
-          <span className="text-[12px] font-medium text-slate-400">
-            Historique
-          </span>
+      <div className={cn("absolute inset-y-0 left-0 z-10 w-60 transition-transform duration-200 ease-in-out", showHistory ? "translate-x-0" : "-translate-x-full")}
+        style={{ background: "var(--color-bg-surface)", borderRight: "1px solid var(--color-border-default)" }}>
+        <div className="flex h-12 items-center px-3" style={{ borderBottom: "1px solid var(--color-border-default)" }}>
+          <span style={{ fontSize: 12, fontWeight: 500, color: "var(--color-text-secondary)" }}>Historique</span>
         </div>
-        <ConversationList
-          onSelect={handleSelectConversation}
-          activeConversationId={activeConversationId}
-          clientId={clientId}
-        />
+        <ConversationList onSelect={handleSelectConversation} activeConversationId={activeConversationId} clientId={clientId} />
       </div>
 
-      {/* Click-away overlay when drawer is open */}
-      {showHistory && (
-        <div
-          className="absolute inset-0 z-[5]"
-          onClick={() => setShowHistory(false)}
-        />
-      )}
+      {showHistory && <div className="absolute inset-0 z-[5]" onClick={() => setShowHistory(false)} />}
 
       {/* Header */}
-      <div className="flex h-12 shrink-0 items-center justify-between border-b border-slate-700/50 bg-slate-900 px-4">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setShowHistory((s) => !s)}
-            className={cn(
-              "rounded-md p-1.5 transition-colors",
-              showHistory
-                ? "bg-slate-800 text-primary-400"
-                : "text-slate-400 hover:bg-slate-800 hover:text-slate-200",
-            )}
-            aria-label="Historique des conversations"
-          >
-            <History size={16} />
+      <div className="flex h-12 shrink-0 items-center justify-between px-5" style={{ borderBottom: "1px solid var(--color-border-default)" }}>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => setShowHistory((s) => !s)} aria-label="Historique"
+            className="rounded-md p-1.5" style={{ color: showHistory ? "var(--color-accent)" : "var(--color-text-tertiary)", background: showHistory ? "var(--color-accent-subtle)" : "transparent", transition: "all var(--transition-fast)" }}>
+            <History size={15} />
           </button>
-          <span className="truncate text-[13px] font-medium text-slate-300">
-            {headerTitle}
-          </span>
+          <span className="truncate" style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>{headerTitle}</span>
         </div>
-        <button
-          type="button"
-          onClick={startNewConversation}
-          className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
-          aria-label="Nouvelle conversation"
-        >
-          <Plus size={16} />
+        <button type="button" onClick={startNewConversation} aria-label="Nouvelle conversation"
+          className="rounded-md p-1.5" style={{ color: "var(--color-text-tertiary)", transition: "all var(--transition-fast)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-text-secondary)"; e.currentTarget.style.background = "var(--color-bg-elevated)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-tertiary)"; e.currentTarget.style.background = "transparent"; }}>
+          <Plus size={15} />
         </button>
       </div>
 
       {/* Content */}
       {isLoadingConversation ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-600 border-t-primary-400" />
-          <span className="text-[12px] text-slate-500">Chargement de la conversation...</span>
+          <div className="h-5 w-5 animate-spin rounded-full" style={{ border: "2px solid var(--color-border-emphasis)", borderTopColor: "var(--color-accent)" }} />
+          <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Chargement...</span>
         </div>
       ) : isEmpty ? (
-        <SuggestedPrompts onSend={sendMessage} clientId={clientId} />
+        <div className="flex flex-1 flex-col items-center justify-center">
+          <span style={{ fontSize: 44 }}>🐑</span>
+          <span style={{ fontSize: 18, fontWeight: 600, color: "var(--color-text-primary)", marginTop: 12 }}>The Sheep</span>
+          <span style={{ fontSize: 13, color: "var(--color-text-secondary)", marginTop: 4 }}>Interroge tes données marketing</span>
+          <div style={{ marginTop: 28, width: "100%", maxWidth: 480 }}>
+            <SuggestedPrompts onSend={sendMessage} clientId={clientId} />
+          </div>
+        </div>
       ) : (
         <>
-          <MessageList
-            messages={messages}
-            isStreaming={isStreaming}
-            streamingContent={streamingContent}
-            activeToolCalls={activeToolCalls}
-          />
-          <ChatInput
-            onSend={sendMessage}
-            isStreaming={isStreaming}
-            onStop={stopStreaming}
-          />
+          <MessageList messages={messages} isStreaming={isStreaming} streamingContent={streamingContent} activeToolCalls={activeToolCalls} />
+          <ChatInput onSend={sendMessage} isStreaming={isStreaming} onStop={stopStreaming} />
         </>
       )}
 
-      {isEmpty && (
-        <ChatInput
-          onSend={sendMessage}
-          isStreaming={isStreaming}
-          onStop={stopStreaming}
-          placeholder="Ou tape ta question directement..."
-        />
-      )}
+      {isEmpty && <ChatInput onSend={sendMessage} isStreaming={isStreaming} onStop={stopStreaming} placeholder="Pose ta question..." />}
     </div>
   );
 }

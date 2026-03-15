@@ -48,32 +48,27 @@ export function SuggestedPrompts({ onSend, clientId }: SuggestedPromptsProps) {
   const suggestions = clientId ? CLIENT_SUGGESTIONS : GLOBAL_SUGGESTIONS;
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-6">
-      <div className="mb-1 text-xl font-semibold text-slate-300">
-        🐑 The Sheep
-      </div>
-      <div className="mb-8 text-[13px] text-slate-500">
-        Assistant Ads Intelligence
-      </div>
-
-      <div className="grid w-full max-w-lg grid-cols-2 gap-3">
-        {suggestions.map(({ text, icon: Icon }) => (
-          <button
-            key={text}
-            type="button"
-            onClick={() => onSend(text)}
-            className="group rounded-xl border border-slate-700 bg-slate-800 p-3 text-left transition-colors hover:border-primary-500 hover:bg-slate-800/80"
-          >
-            <Icon
-              size={16}
-              className="mb-2 text-slate-400 transition-colors group-hover:text-primary-400"
-            />
-            <span className="text-[13px] leading-snug text-slate-300">
-              {text}
-            </span>
-          </button>
-        ))}
-      </div>
+    <div className="grid w-full grid-cols-2 gap-2 px-4">
+      {suggestions.map(({ text, icon: Icon }, i) => (
+        <button
+          key={text}
+          type="button"
+          onClick={() => onSend(text)}
+          className="group flex items-start gap-2.5 rounded-lg p-3 text-left animate-fade-in"
+          style={{
+            background: "transparent",
+            border: "1px solid var(--color-border-default)",
+            borderRadius: "var(--radius-md)",
+            transition: "all var(--transition-fast)",
+            animationDelay: `${i * 0.04}s`,
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--color-border-emphasis)"; e.currentTarget.style.background = "var(--color-bg-surface)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--color-border-default)"; e.currentTarget.style.background = "transparent"; }}
+        >
+          <Icon size={14} style={{ color: "var(--color-text-muted)", marginTop: 1, flexShrink: 0 }} />
+          <span style={{ fontSize: 12, color: "var(--color-text-secondary)", lineHeight: 1.4 }}>{text}</span>
+        </button>
+      ))}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from "react";
-import { SendHorizontal, Square } from "lucide-react";
+import { ArrowUp, Square } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (content: string) => void;
@@ -10,17 +10,11 @@ interface ChatInputProps {
   placeholder?: string;
 }
 
-export function ChatInput({
-  onSend,
-  isStreaming,
-  onStop,
-  placeholder = "Pose ta question sur les performances...",
-}: ChatInputProps) {
+export function ChatInput({ onSend, isStreaming, onStop, placeholder = "Pose ta question..." }: ChatInputProps) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const prevStreamingRef = useRef(isStreaming);
 
-  // Auto-resize textarea
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -28,16 +22,10 @@ export function ChatInput({
     el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
   }, [value]);
 
-  // Focus on mount
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
+  useEffect(() => { textareaRef.current?.focus(); }, []);
 
-  // Re-focus when streaming ends
   useEffect(() => {
-    if (prevStreamingRef.current && !isStreaming) {
-      textareaRef.current?.focus();
-    }
+    if (prevStreamingRef.current && !isStreaming) textareaRef.current?.focus();
     prevStreamingRef.current = isStreaming;
   }, [isStreaming]);
 
@@ -48,18 +36,12 @@ export function ChatInput({
     setValue("");
   }, [value, isStreaming, onSend]);
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleSend();
-      }
-    },
-    [handleSend],
-  );
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  }, [handleSend]);
 
   return (
-    <div className="shrink-0 border-t border-slate-700/50 bg-slate-900 p-3">
+    <div className="shrink-0 p-3" style={{ background: "var(--color-bg-surface)", borderTop: "1px solid var(--color-border-default)" }}>
       <div className="relative mx-auto max-w-3xl">
         <label htmlFor="chat-input" className="sr-only">Message</label>
         <textarea
@@ -71,28 +53,33 @@ export function ChatInput({
           disabled={isStreaming}
           placeholder={placeholder}
           rows={1}
-          className="w-full resize-none rounded-xl border border-slate-700 bg-slate-800 py-3 pl-4 pr-12 text-[13px] text-slate-50 outline-none placeholder:text-slate-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 disabled:opacity-60"
+          className="w-full resize-none outline-none disabled:opacity-60"
+          style={{
+            background: "var(--color-bg-elevated)",
+            border: "1px solid var(--color-border-default)",
+            borderRadius: "var(--radius-lg)",
+            padding: "10px 48px 10px 16px",
+            color: "var(--color-text-primary)",
+            fontSize: 13,
+            fontFamily: "var(--font-sans)",
+            transition: "border-color var(--transition-fast), box-shadow var(--transition-fast)",
+          }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-accent)"; e.currentTarget.style.boxShadow = "0 0 0 2px var(--color-accent-muted)"; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = "var(--color-border-default)"; e.currentTarget.style.boxShadow = "none"; }}
         />
-
-        <div className="absolute bottom-2.5 right-2.5">
+        <div className="absolute bottom-[7px] right-[7px]">
           {isStreaming ? (
-            <button
-              type="button"
-              onClick={onStop}
-              className="rounded-lg bg-danger-600 p-1.5 text-white transition-colors hover:bg-danger-500"
-              aria-label="Arrêter la génération"
-            >
-              <Square size={16} />
+            <button type="button" onClick={onStop} aria-label="Arrêter"
+              className="flex items-center justify-center text-white" style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--color-danger)", transition: "all var(--transition-fast)" }}>
+              <Square size={13} />
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={handleSend}
-              disabled={!value.trim()}
-              className="rounded-lg bg-primary-600 p-1.5 text-white transition-colors hover:bg-primary-500 disabled:opacity-40"
-              aria-label="Envoyer le message"
-            >
-              <SendHorizontal size={16} />
+            <button type="button" onClick={handleSend} disabled={!value.trim()} aria-label="Envoyer"
+              className="flex items-center justify-center text-white disabled:opacity-25 disabled:cursor-not-allowed"
+              style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--color-accent)", transition: "all var(--transition-fast)" }}
+              onMouseEnter={(e) => { if (value.trim()) { e.currentTarget.style.background = "var(--color-accent-hover)"; e.currentTarget.style.boxShadow = "var(--shadow-glow-accent)"; } }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "var(--color-accent)"; e.currentTarget.style.boxShadow = "none"; }}>
+              <ArrowUp size={15} />
             </button>
           )}
         </div>

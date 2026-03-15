@@ -43,7 +43,7 @@ export function ConversationList({
   if (sorted.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center p-4">
-        <p className="text-[12px] text-slate-500">Aucune conversation</p>
+        <p style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Aucune conversation</p>
       </div>
     );
   }
@@ -58,24 +58,26 @@ export function ConversationList({
               key={conv.id}
               type="button"
               onClick={() => onSelect(conv.id)}
-              className={cn(
-                "w-full rounded-lg p-2 text-left transition-colors",
-                isActive
-                  ? "border-l-2 border-primary-500 bg-slate-800/80"
-                  : "border-l-2 border-transparent hover:bg-slate-800",
-              )}
+              className="w-full rounded-lg p-2 text-left"
+              style={{
+                borderLeft: isActive ? "2px solid var(--color-accent)" : "2px solid transparent",
+                background: isActive ? "var(--color-accent-subtle)" : "transparent",
+                transition: "all var(--transition-fast)",
+              }}
+              onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "var(--color-bg-elevated)"; }}
+              onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-[13px] text-slate-300">
+                <span className="truncate" style={{ fontSize: 13, color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)" }}>
                   {conv.title || "Conversation sans titre"}
                 </span>
                 {conv.messageCount !== undefined && conv.messageCount > 0 && (
-                  <span className="shrink-0 text-[10px] text-slate-500">
+                  <span className="shrink-0" style={{ fontSize: 10, color: "var(--color-text-muted)" }}>
                     {conv.messageCount}
                   </span>
                 )}
               </div>
-              <div className="mt-0.5 text-[11px] text-slate-500">
+              <div className="mt-0.5" style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
                 {formatDate(conv.updatedAt, "short")}
               </div>
             </button>
