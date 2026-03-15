@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { AdSetWithMetrics, AdWithMetrics, CreativeData } from "@/lib/types";
 import { getCampaignAdsets, getCampaignAds } from "@/lib/api/campaigns";
 import { formatCurrency, formatCompact, formatPercent } from "@/lib/utils/format";
-import { type CategoryKey, getObjectiveConfig, formatKpi, type ObjectiveMetricsConfig } from "@/lib/utils/objective-metrics";
+import { type CategoryKey, getObjectiveConfig, formatKpi, type ObjectiveMetricsConfig, hasConversionData } from "@/lib/utils/objective-metrics";
 import { CreativePreviewModal } from "./CreativePreviewModal";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
@@ -223,7 +223,7 @@ function TierSection({ tier, ads, config, defaultOpen, onAdClick }: { tier: type
 // Creatives tab with tiers
 // ---------------------------------------------------------------------------
 
-function CreativesTab({ ads, config, onAdClick }: { ads: AdWithMetrics[]; config: ObjectiveMetricsConfig; onAdClick: (id: string) => void }) {
+function CreativesTab({ ads, config, usingFallback, onAdClick }: { ads: AdWithMetrics[]; config: ObjectiveMetricsConfig; usingFallback?: boolean; onAdClick: (id: string) => void }) {
   const tiers = useMemo(() => classifyAds(ads, config), [ads, config]);
 
   const scores = ads.map((a) => config.scoringExtract(a.metrics)).filter((v): v is number => v != null);
@@ -250,7 +250,7 @@ function CreativesTab({ ads, config, onAdClick }: { ads: AdWithMetrics[]; config
       <div className="rounded-lg bg-slate-800/50 p-3">
         <div className="text-[12px] text-slate-300">
           <span className="font-medium">{total} créatifs</span>
-          {avgScore != null && <span className="text-slate-500"> · {config.primaryKpiLabel} moyen {formatKpi(avgScore, primaryFormat)}</span>}
+          {avgScore != null && <span className="text-slate-500"> · {config.primaryKpiLabel} moy. {formatKpi(avgScore, primaryFormat)}</span>}
           {bestAd && bestScore != null && (
             <span className="text-slate-500"> · Meilleur : <span className="text-emerald-400">{bestAd.name.slice(0, 30)}{bestAd.name.length > 30 ? "…" : ""}</span> ({config.primaryKpiLabel} {formatKpi(bestScore, primaryFormat)})</span>
           )}
@@ -268,6 +268,9 @@ function CreativesTab({ ads, config, onAdClick }: { ads: AdWithMetrics[]; config
               <span><span className="inline-block h-2 w-2 rounded-full bg-amber-500" /> À opt. {lowCount}</span>
             </div>
           </>
+        )}
+        {usingFallback && (
+          <p className="mt-2 text-[10px] italic text-slate-500">Classement par CTR (conversions non disponibles)</p>
         )}
       </div>
 
@@ -289,7 +292,16 @@ export function CampaignDrilldown({ workspaceId, campaignId, categoryKey, catego
   const [loading, setLoading] = useState(true);
   const [previewAdId, setPreviewAdId] = useState<string | null>(null);
 
-  const config = getObjectiveConfig(categoryKey);
+  // Resolve config after data loads — pass sample metrics for fallback detection
+  const config = useMemo(() => {
+    const sample = ads?.[0]?.metrics ?? adsets?.[0]?.metrics;
+    return getObjectiveConfig(categoryKey, sample);
+  }, [categoryKey, ads, adsets]);
+
+  const usingFallback = useMemo(() => {
+    const baseConfig = getObjectiveConfig(categoryKey);
+    return baseConfig.needsConversions && config.primaryKpi !== baseConfig.primaryKpi;
+  }, [categoryKey, config]);
 
   useEffect(() => {
     let cancelled = false;
@@ -301,12 +313,8 @@ export function CampaignDrilldown({ workspaceId, campaignId, categoryKey, catego
           getCampaignAds(workspaceId, campaignId, startDate, endDate),
         ]);
         if (!cancelled) {
-          const sortedAdsets = adsetsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0));
-          const sortedAds = adsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0));
-          console.log("[DEBUG] ADSET DATA:", JSON.stringify(sortedAdsets.slice(0, 2), null, 2));
-          console.log("[DEBUG] AD DATA:", JSON.stringify(sortedAds.slice(0, 2), null, 2));
-          setAdsets(sortedAdsets);
-          setAds(sortedAds);
+          setAdsets(adsetsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0)));
+          setAds(adsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0)));
         }
       } catch {
         if (!cancelled) { setAdsets([]); setAds([]); }
@@ -341,7 +349,7 @@ export function CampaignDrilldown({ workspaceId, campaignId, categoryKey, catego
             ) : tab === "audiences" ? (
               adsets && adsets.length > 0 ? <AudiencesTab adsets={adsets} config={config} /> : <p className="py-6 text-center text-[12px] text-slate-500">Aucune audience trouvée</p>
             ) : (
-              ads && ads.length > 0 ? <CreativesTab ads={ads} config={config} onAdClick={setPreviewAdId} /> : <p className="py-6 text-center text-[12px] text-slate-500">Aucun créatif trouvé</p>
+              ads && ads.length > 0 ? <CreativesTab ads={ads} config={config} usingFallback={usingFallback} onAdClick={setPreviewAdId} /> : <p className="py-6 text-center text-[12px] text-slate-500">Aucun créatif trouvé</p>
             )}
           </div>
         </div>

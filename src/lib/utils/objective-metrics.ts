@@ -5,18 +5,7 @@ import { formatCurrency, formatCompact, formatPercent } from "./format";
 // Conversions helper
 // ---------------------------------------------------------------------------
 
-let _debuggedConversions = false;
-
 export function getConversions(metrics: EntityMetrics): ConversionsMap {
-  if (!_debuggedConversions && typeof window !== "undefined") {
-    _debuggedConversions = true;
-    console.log("[DEBUG] CONVERSIONS EXTRACT:", {
-      metricsKeys: Object.keys(metrics),
-      conversionsType: typeof metrics.conversions,
-      conversionsValue: metrics.conversions,
-      rawMetrics: JSON.stringify(metrics).slice(0, 300),
-    });
-  }
   if (!metrics.conversions) return {};
   if (typeof metrics.conversions === "number") return {};
   return metrics.conversions;
@@ -28,6 +17,13 @@ function convSum(conv: ConversionsMap, ...keys: string[]): number {
     total += Number(conv[k]) || 0;
   }
   return total;
+}
+
+/** Check if an EntityMetrics has usable conversion data */
+export function hasConversionData(metrics: EntityMetrics): boolean {
+  if (!metrics.conversions) return false;
+  if (typeof metrics.conversions === "number") return false;
+  return Object.keys(metrics.conversions).length > 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,8 +47,9 @@ export interface ObjectiveMetricsConfig {
   primaryKpiLabel: string;
   scoringDirection: ScoringDirection;
   kpis: KpiDef[];
-  /** Extract the primary scoring value for tier classification */
   scoringExtract: (m: EntityMetrics) => number | null;
+  /** True if this config requires conversion data to be useful */
+  needsConversions: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -80,14 +77,14 @@ const leads: ObjectiveMetricsConfig = {
   primaryKpi: "cpl",
   primaryKpiLabel: "CPL",
   scoringDirection: "asc",
+  needsConversions: true,
   scoringExtract: (m) => {
-    const conv = getConversions(m);
-    const l = convSum(conv, "lead", "onsite_web_lead");
+    const l = convSum(getConversions(m), "lead", "onsite_web_lead");
     return l > 0 && m.spend ? m.spend / l : null;
   },
   kpis: [
-    { key: "leads", label: "Leads", format: "number", extract: (m) => { const c = getConversions(m); const v = convSum(c, "lead", "onsite_web_lead"); return v || null; } },
-    { key: "cpl", label: "CPL", format: "currency", extract: (m) => { const c = getConversions(m); const l = convSum(c, "lead", "onsite_web_lead"); return l > 0 && m.spend ? m.spend / l : null; } },
+    { key: "leads", label: "Leads", format: "number", extract: (m) => convSum(getConversions(m), "lead", "onsite_web_lead") || null },
+    { key: "cpl", label: "CPL", format: "currency", extract: (m) => { const l = convSum(getConversions(m), "lead", "onsite_web_lead"); return l > 0 && m.spend ? m.spend / l : null; } },
     { key: "spend", label: "Dépense", format: "currency", extract: (m) => m.spend ?? null },
     { key: "ctr", label: "CTR", format: "percent", extract: (m) => m.ctr ?? null },
   ],
@@ -98,6 +95,7 @@ const traffic: ObjectiveMetricsConfig = {
   primaryKpi: "cpc",
   primaryKpiLabel: "CPC",
   scoringDirection: "asc",
+  needsConversions: false,
   scoringExtract: (m) => m.cpc ?? null,
   kpis: [
     { key: "clicks", label: "Clics", format: "compact", extract: (m) => m.clicks ?? null },
@@ -112,6 +110,7 @@ const awareness: ObjectiveMetricsConfig = {
   primaryKpi: "cpm",
   primaryKpiLabel: "CPM",
   scoringDirection: "asc",
+  needsConversions: false,
   scoringExtract: (m) => m.cpm ?? null,
   kpis: [
     { key: "impressions", label: "Impressions", format: "compact", extract: (m) => m.impressions ?? null },
@@ -126,14 +125,14 @@ const engagement: ObjectiveMetricsConfig = {
   primaryKpi: "costPerEngagement",
   primaryKpiLabel: "Coût/Eng",
   scoringDirection: "asc",
+  needsConversions: true,
   scoringExtract: (m) => {
-    const conv = getConversions(m);
-    const e = convSum(conv, "page_engagement", "post_engagement");
+    const e = convSum(getConversions(m), "page_engagement", "post_engagement");
     return e > 0 && m.spend ? m.spend / e : null;
   },
   kpis: [
-    { key: "engagements", label: "Engagements", format: "compact", extract: (m) => { const c = getConversions(m); const v = convSum(c, "page_engagement", "post_engagement"); return v || null; } },
-    { key: "costPerEngagement", label: "Coût/Eng", format: "currency", extract: (m) => { const c = getConversions(m); const e = convSum(c, "page_engagement", "post_engagement"); return e > 0 && m.spend ? m.spend / e : null; } },
+    { key: "engagements", label: "Engagements", format: "compact", extract: (m) => convSum(getConversions(m), "page_engagement", "post_engagement") || null },
+    { key: "costPerEngagement", label: "Coût/Eng", format: "currency", extract: (m) => { const e = convSum(getConversions(m), "page_engagement", "post_engagement"); return e > 0 && m.spend ? m.spend / e : null; } },
     { key: "spend", label: "Dépense", format: "currency", extract: (m) => m.spend ?? null },
     { key: "ctr", label: "CTR", format: "percent", extract: (m) => m.ctr ?? null },
   ],
@@ -144,14 +143,14 @@ const video: ObjectiveMetricsConfig = {
   primaryKpi: "costPerView",
   primaryKpiLabel: "Coût/Vue",
   scoringDirection: "asc",
+  needsConversions: true,
   scoringExtract: (m) => {
-    const conv = getConversions(m);
-    const v = convSum(conv, "video_view");
+    const v = convSum(getConversions(m), "video_view");
     return v > 0 && m.spend ? m.spend / v : null;
   },
   kpis: [
-    { key: "videoViews", label: "Vues vidéo", format: "compact", extract: (m) => { const c = getConversions(m); return convSum(c, "video_view") || null; } },
-    { key: "costPerView", label: "Coût/Vue", format: "currency", extract: (m) => { const c = getConversions(m); const v = convSum(c, "video_view"); return v > 0 && m.spend ? m.spend / v : null; } },
+    { key: "videoViews", label: "Vues vidéo", format: "compact", extract: (m) => convSum(getConversions(m), "video_view") || null },
+    { key: "costPerView", label: "Coût/Vue", format: "currency", extract: (m) => { const v = convSum(getConversions(m), "video_view"); return v > 0 && m.spend ? m.spend / v : null; } },
     { key: "spend", label: "Dépense", format: "currency", extract: (m) => m.spend ?? null },
     { key: "impressions", label: "Impressions", format: "compact", extract: (m) => m.impressions ?? null },
   ],
@@ -162,11 +161,12 @@ const sales: ObjectiveMetricsConfig = {
   primaryKpi: "roas",
   primaryKpiLabel: "ROAS",
   scoringDirection: "desc",
+  needsConversions: true,
   scoringExtract: (m) => m.roas ?? null,
   kpis: [
-    { key: "purchases", label: "Achats", format: "number", extract: (m) => { const c = getConversions(m); return convSum(c, "purchase") || null; } },
+    { key: "purchases", label: "Achats", format: "number", extract: (m) => convSum(getConversions(m), "purchase") || null },
     { key: "roas", label: "ROAS", format: "number", extract: (m) => m.roas ?? null },
-    { key: "cpa", label: "CPA", format: "currency", extract: (m) => { const c = getConversions(m); const p = convSum(c, "purchase"); return p > 0 && m.spend ? m.spend / p : null; } },
+    { key: "cpa", label: "CPA", format: "currency", extract: (m) => { const p = convSum(getConversions(m), "purchase"); return p > 0 && m.spend ? m.spend / p : null; } },
     { key: "spend", label: "Dépense", format: "currency", extract: (m) => m.spend ?? null },
   ],
 };
@@ -176,14 +176,14 @@ const messages: ObjectiveMetricsConfig = {
   primaryKpi: "costPerMessage",
   primaryKpiLabel: "Coût/Msg",
   scoringDirection: "asc",
+  needsConversions: true,
   scoringExtract: (m) => {
-    const conv = getConversions(m);
-    const msg = convSum(conv, "messaging_conversation_started_7d");
+    const msg = convSum(getConversions(m), "messaging_conversation_started_7d");
     return msg > 0 && m.spend ? m.spend / msg : null;
   },
   kpis: [
-    { key: "messages", label: "Messages", format: "number", extract: (m) => { const c = getConversions(m); return convSum(c, "messaging_conversation_started_7d") || null; } },
-    { key: "costPerMessage", label: "Coût/Msg", format: "currency", extract: (m) => { const c = getConversions(m); const msg = convSum(c, "messaging_conversation_started_7d"); return msg > 0 && m.spend ? m.spend / msg : null; } },
+    { key: "messages", label: "Messages", format: "number", extract: (m) => convSum(getConversions(m), "messaging_conversation_started_7d") || null },
+    { key: "costPerMessage", label: "Coût/Msg", format: "currency", extract: (m) => { const msg = convSum(getConversions(m), "messaging_conversation_started_7d"); return msg > 0 && m.spend ? m.spend / msg : null; } },
     { key: "spend", label: "Dépense", format: "currency", extract: (m) => m.spend ?? null },
     { key: "ctr", label: "CTR", format: "percent", extract: (m) => m.ctr ?? null },
   ],
@@ -194,6 +194,7 @@ const fallback: ObjectiveMetricsConfig = {
   primaryKpi: "ctr",
   primaryKpiLabel: "CTR",
   scoringDirection: "desc",
+  needsConversions: false,
   scoringExtract: (m) => m.ctr ?? null,
   kpis: [
     { key: "impressions", label: "Impressions", format: "compact", extract: (m) => m.impressions ?? null },
@@ -208,18 +209,23 @@ const fallback: ObjectiveMetricsConfig = {
 // ---------------------------------------------------------------------------
 
 const CONFIG_MAP: Record<CategoryKey, ObjectiveMetricsConfig> = {
-  leads,
-  traffic,
-  awareness,
-  engagement,
-  video,
-  sales,
-  messages,
-  other: fallback,
+  leads, traffic, awareness, engagement, video, sales, messages, other: fallback,
 };
 
-export function getObjectiveConfig(categoryKey: CategoryKey): ObjectiveMetricsConfig {
-  return CONFIG_MAP[categoryKey] ?? fallback;
+/**
+ * Get the objective config for a category.
+ * If the config needs conversions but the sample metrics don't have them,
+ * fall back to the generic CTR-based config.
+ */
+export function getObjectiveConfig(categoryKey: CategoryKey, sampleMetrics?: EntityMetrics): ObjectiveMetricsConfig {
+  const config = CONFIG_MAP[categoryKey] ?? fallback;
+
+  // If this objective needs conversions but they're not available, use fallback
+  if (config.needsConversions && sampleMetrics && !hasConversionData(sampleMetrics)) {
+    return { ...fallback, label: config.label };
+  }
+
+  return config;
 }
 
 /** Map "engagement" category to "video" if campaign name suggests video */
