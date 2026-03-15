@@ -164,6 +164,9 @@ export function useChat(clientId?: string) {
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
 
+      // Timeout: abort after 2 minutes if no response
+      const timeoutId = setTimeout(() => abortController.abort(), 120_000);
+
       // 1. Add user message
       const userMessage: Message = {
         id: `temp_${Date.now()}`,
@@ -195,6 +198,9 @@ export function useChat(clientId?: string) {
           },
           abortController.signal,
         );
+
+        // Clear timeout once stream is connected
+        clearTimeout(timeoutId);
 
         // 4-6. Parse events
         for await (const event of parseSseStream(stream)) {
@@ -291,6 +297,7 @@ export function useChat(clientId?: string) {
           }
         }
       } catch (err: unknown) {
+        clearTimeout(timeoutId);
         // Don't treat abort as an error
         if (err instanceof DOMException && err.name === "AbortError") {
           // Stream was intentionally aborted — finalize if we have content
@@ -306,17 +313,30 @@ export function useChat(clientId?: string) {
             };
             addMessage(partialMessage);
             setStreamingContent("");
+          } else if (!abortControllerRef.current) {
+            // Timeout abort (controller was cleared) with no content
+            addMessage({
+              id: `error_${Date.now()}`,
+              role: "ASSISTANT",
+              content: "La réponse a pris trop de temps. L'IA est peut-être surchargée — réessayez dans quelques instants.",
+              toolCalls: null,
+              createdAt: new Date().toISOString(),
+              conversationId: activeConversationId ?? "",
+            });
           }
         } else {
-          const errorMessage: Message = {
+          const errMsg = err instanceof Error ? err.message : "";
+          const isNetworkError = errMsg.includes("fetch") || errMsg.includes("network") || errMsg.includes("Failed");
+          addMessage({
             id: `error_${Date.now()}`,
             role: "ASSISTANT",
-            content: "Erreur de connexion. Veuillez reessayer.",
+            content: isNetworkError
+              ? "Impossible de contacter le serveur. Vérifiez votre connexion et réessayez."
+              : `Erreur : ${errMsg || "Une erreur est survenue. Veuillez réessayer."}`,
             toolCalls: null,
             createdAt: new Date().toISOString(),
             conversationId: activeConversationId ?? "",
-          };
-          addMessage(errorMessage);
+          });
         }
         setIsStreaming(false);
         clearToolCalls();
