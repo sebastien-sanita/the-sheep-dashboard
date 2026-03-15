@@ -7,14 +7,15 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { ResponsiveContainer, LineChart, Line } from "recharts";
-import type { Campaign, AggregatedMetrics, Metrics30d } from "@/lib/types";
+import type { Campaign, AggregatedMetrics, Metrics30d, InsightMetrics } from "@/lib/types";
 import { formatCurrency, formatCompact, formatPercent } from "@/lib/utils/format";
 import { type CategoryKey, getObjectiveConfig, formatKpi } from "@/lib/utils/objective-metrics";
+import { formatDate } from "@/lib/utils/dates";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
 
 // ---------------------------------------------------------------------------
-// Category detection (same logic as CampaignsByObjective)
+// Category detection
 // ---------------------------------------------------------------------------
 
 const CATEGORY_OBJECTIVES: Record<CategoryKey, string[]> = {
@@ -52,17 +53,17 @@ function detectCategory(c: Campaign): CategoryKey {
 }
 
 // ---------------------------------------------------------------------------
-// Visual config per category
+// Visual config
 // ---------------------------------------------------------------------------
 
 interface CategoryVisual {
   icon: LucideIcon;
   label: string;
-  color: string;       // hex for sparkline
-  border: string;      // tailwind border-l color
-  bg: string;          // tailwind bg
-  text: string;        // tailwind text
-  labelColor: string;  // tailwind text for labels
+  color: string;
+  border: string;
+  bg: string;
+  text: string;
+  labelColor: string;
 }
 
 const CATEGORY_VISUALS: Record<CategoryKey, CategoryVisual> = {
@@ -77,20 +78,34 @@ const CATEGORY_VISUALS: Record<CategoryKey, CategoryVisual> = {
 };
 
 // ---------------------------------------------------------------------------
-// Aggregate helper
+// Aggregated objective data
 // ---------------------------------------------------------------------------
 
-function aggregateFromResponse(data: AggregatedMetrics | undefined): Partial<Metrics30d> | undefined {
-  if (!data) return undefined;
-  const mm = data.metrics;
-  if (mm && (mm.spend?.value != null || mm.impressions?.value != null)) {
-    return { spend: mm.spend?.value, impressions: mm.impressions?.value, clicks: mm.clicks?.value, ctr: mm.ctr?.value, cpc: mm.cpc?.value, cpm: mm.cpm?.value };
-  }
-  const daily = data.daily;
-  if (!daily?.length) return undefined;
-  let spend = 0, impressions = 0, clicks = 0;
-  for (const d of daily) { const m = d.metrics ?? {}; spend += Number(m.spend) || 0; impressions += Number(m.impressions) || 0; clicks += Number(m.clicks) || 0; }
-  return { spend, impressions, clicks, ctr: impressions > 0 ? (clicks / impressions) * 100 : 0, cpc: clicks > 0 ? spend / clicks : 0, cpm: impressions > 0 ? (spend / impressions) * 1000 : 0 };
+interface ObjectiveAggregated {
+  key: CategoryKey;
+  campaignCount: number;
+  campaignIds: Set<string>;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  reach: number;
+  ctr: number;
+  cpc: number;
+  cpm: number;
+  // Conversion sums
+  leads: number;
+  engagements: number;
+  videoViews: number;
+  purchases: number;
+  messages: number;
+  // Derived
+  cpl: number | null;
+  costPerEngagement: number | null;
+  costPerView: number | null;
+  roas: number | null;
+  costPerMessage: number | null;
+  // Sparkline data
+  dailySpend: { date: string; spend: number }[];
 }
 
 function computeTrend(current: number | undefined, previous: number | undefined): number | undefined {
@@ -114,30 +129,167 @@ interface ExecutiveSummaryProps {
 }
 
 // ---------------------------------------------------------------------------
+// Build per-objective aggregated data
+// ---------------------------------------------------------------------------
+
+function buildObjectiveData(
+  campaigns: Campaign[],
+  daily: Array<{ date: string; metrics: InsightMetrics; entityId?: string }> | undefined,
+): ObjectiveAggregated[] {
+  // Group campaigns by objective
+  const groups = new Map<CategoryKey, { ids: Set<string>; count: number }>();
+  const active = campaigns.filter((c) => c.status === "ACTIVE");
+
+  for (const c of active) {
+    const cat = detectCategory(c);
+    if (cat === "other") continue;
+    if (!groups.has(cat)) groups.set(cat, { ids: new Set(), count: 0 });
+    const g = groups.get(cat)!;
+    g.ids.add(c.id);
+    g.count++;
+  }
+
+  const results: ObjectiveAggregated[] = [];
+
+  for (const [key, { ids, count }] of groups) {
+    let spend = 0, impressions = 0, clicks = 0, reach = 0;
+    let leadSum = 0, engagementSum = 0, videoViewSum = 0, purchaseSum = 0, messageSum = 0;
+    const dailySpendMap = new Map<string, number>();
+
+    if (daily) {
+      for (const d of daily) {
+        // If daily has entityId, filter by campaign. Otherwise use all data (split evenly later)
+        if (d.entityId && !ids.has(d.entityId)) continue;
+
+        const m = d.metrics ?? {} as Record<string, unknown>;
+        spend += Number(m.spend) || 0;
+        impressions += Number(m.impressions) || 0;
+        clicks += Number(m.clicks) || 0;
+        reach += Number((m as Record<string, unknown>).reach) || 0;
+
+        // Extract conversions
+        const conv = (m as Record<string, unknown>).conversions;
+        if (conv && typeof conv === "object") {
+          const c = conv as Record<string, number>;
+          leadSum += (c.lead || 0) + (c.onsite_web_lead || 0);
+          engagementSum += (c.page_engagement || 0) + (c.post_engagement || 0);
+          videoViewSum += c.video_view || 0;
+          purchaseSum += c.purchase || 0;
+          messageSum += c.messaging_conversation_started_7d || 0;
+        }
+
+        // Daily spend for sparkline
+        const dateKey = d.date;
+        dailySpendMap.set(dateKey, (dailySpendMap.get(dateKey) ?? 0) + (Number(m.spend) || 0));
+      }
+    }
+
+    // If no daily data with entityId, use campaign budgets as spend proxy
+    if (spend === 0 && !daily?.some((d) => d.entityId)) {
+      for (const c of active) {
+        if (ids.has(c.id)) spend += c.budget ?? 0;
+      }
+    }
+
+    const dailySpend = Array.from(dailySpendMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, s]) => ({ date: formatDate(date, "short"), spend: s }));
+
+    results.push({
+      key,
+      campaignCount: count,
+      campaignIds: ids,
+      spend,
+      impressions,
+      clicks,
+      reach,
+      ctr: impressions > 0 ? (clicks / impressions) * 100 : 0,
+      cpc: clicks > 0 ? spend / clicks : 0,
+      cpm: impressions > 0 ? (spend / impressions) * 1000 : 0,
+      leads: leadSum,
+      engagements: engagementSum,
+      videoViews: videoViewSum,
+      purchases: purchaseSum,
+      messages: messageSum,
+      cpl: leadSum > 0 ? spend / leadSum : null,
+      costPerEngagement: engagementSum > 0 ? spend / engagementSum : null,
+      costPerView: videoViewSum > 0 ? spend / videoViewSum : null,
+      roas: null, // Would need conversion value data
+      costPerMessage: messageSum > 0 ? spend / messageSum : null,
+      dailySpend,
+    });
+  }
+
+  return results.sort((a, b) => b.spend - a.spend);
+}
+
+// ---------------------------------------------------------------------------
+// KPI display helpers per objective
+// ---------------------------------------------------------------------------
+
+interface DisplayKpi { label: string; value: string; trend?: number; invertTrend?: boolean }
+
+function getDisplayKpis(obj: ObjectiveAggregated): DisplayKpi[] {
+  switch (obj.key) {
+    case "leads":
+      return [
+        { label: "Leads", value: obj.leads > 0 ? String(obj.leads) : "—" },
+        { label: "CPL", value: obj.cpl != null ? formatCurrency(obj.cpl) : "—", invertTrend: true },
+        { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      ];
+    case "traffic":
+      return [
+        { label: "Clics", value: formatCompact(obj.clicks) },
+        { label: "CPC", value: formatCurrency(obj.cpc), invertTrend: true },
+        { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      ];
+    case "awareness":
+      return [
+        { label: "Impressions", value: formatCompact(obj.impressions) },
+        { label: "CPM", value: formatCurrency(obj.cpm), invertTrend: true },
+        { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      ];
+    case "engagement":
+      return [
+        { label: "Engagements", value: obj.engagements > 0 ? formatCompact(obj.engagements) : "—" },
+        { label: "Coût/Eng", value: obj.costPerEngagement != null ? formatCurrency(obj.costPerEngagement) : "—", invertTrend: true },
+        { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      ];
+    case "video":
+      return [
+        { label: "Vues vidéo", value: obj.videoViews > 0 ? formatCompact(obj.videoViews) : "—" },
+        { label: "Coût/Vue", value: obj.costPerView != null ? formatCurrency(obj.costPerView) : "—", invertTrend: true },
+        { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      ];
+    case "sales":
+      return [
+        { label: "Achats", value: obj.purchases > 0 ? String(obj.purchases) : "—" },
+        { label: "CPA", value: obj.purchases > 0 ? formatCurrency(obj.spend / obj.purchases) : "—", invertTrend: true },
+        { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      ];
+    case "messages":
+      return [
+        { label: "Messages", value: obj.messages > 0 ? String(obj.messages) : "—" },
+        { label: "Coût/Msg", value: obj.costPerMessage != null ? formatCurrency(obj.costPerMessage) : "—", invertTrend: true },
+        { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      ];
+    default:
+      return [
+        { label: "Impressions", value: formatCompact(obj.impressions) },
+        { label: "CTR", value: formatPercent(obj.ctr, 2) },
+        { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      ];
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Objective KPI Block
 // ---------------------------------------------------------------------------
 
-function ObjectiveKpiBlock({
-  catKey,
-  activeCampaigns,
-  currentMetrics,
-  prevM,
-  chartData,
-  index,
-}: {
-  catKey: CategoryKey;
-  activeCampaigns: number;
-  currentMetrics: Partial<Metrics30d> | undefined;
-  prevM: Partial<Metrics30d> | undefined;
-  chartData: Array<Record<string, string | number>>;
-  index: number;
-}) {
-  const visual = CATEGORY_VISUALS[catKey];
-  const config = getObjectiveConfig(catKey);
+function ObjectiveKpiBlock({ obj, index }: { obj: ObjectiveAggregated; index: number }) {
+  const visual = CATEGORY_VISUALS[obj.key];
   const Icon = visual.icon;
-
-  // Extract top 2 KPIs from the config
-  const kpis = config.kpis.slice(0, 3);
+  const kpis = getDisplayKpis(obj);
 
   return (
     <motion.div
@@ -146,18 +298,16 @@ function ObjectiveKpiBlock({
       transition={{ duration: 0.3, delay: index * 0.06 }}
       className={cn("rounded-xl border-l-4 p-5", visual.border, visual.bg)}
     >
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Icon size={16} className={visual.text} />
           <span className={cn("text-[13px] font-semibold", visual.text)}>{visual.label}</span>
-          <span className="text-[11px] text-slate-500">{activeCampaigns} campagne{activeCampaigns > 1 ? "s" : ""}</span>
+          <span className="text-[11px] text-slate-500">{obj.campaignCount} campagne{obj.campaignCount > 1 ? "s" : ""}</span>
         </div>
-        {/* Mini sparkline */}
-        {chartData.length > 3 && (
+        {obj.dailySpend.length > 3 && (
           <div className="h-8 w-16">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
+              <LineChart data={obj.dailySpend}>
                 <Line type="monotone" dataKey="spend" stroke={visual.color} strokeWidth={1.5} dot={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -165,40 +315,20 @@ function ObjectiveKpiBlock({
         )}
       </div>
 
-      {/* KPIs */}
       <div className="mt-4 grid grid-cols-3 gap-4">
-        {kpis.map((kpi) => {
-          const val = currentMetrics ? kpi.extract(currentMetrics as Record<string, unknown> as import("@/lib/types").EntityMetrics) : null;
-          // For standard metrics, try direct access
-          const directVal = val ?? (currentMetrics as Record<string, number | undefined> | undefined)?.[kpi.key === "clicks" ? "clicks" : kpi.key === "ctr" ? "ctr" : kpi.key === "cpc" ? "cpc" : kpi.key === "cpm" ? "cpm" : kpi.key === "impressions" ? "impressions" : kpi.key === "spend" ? "spend" : ""] ?? null;
-          const prevVal = prevM ? (prevM as Record<string, number | undefined>)?.[kpi.key === "clicks" ? "clicks" : kpi.key === "ctr" ? "ctr" : kpi.key === "cpc" ? "cpc" : kpi.key === "cpm" ? "cpm" : kpi.key === "impressions" ? "impressions" : kpi.key === "spend" ? "spend" : ""] ?? null : null;
-          const trend = computeTrend(directVal ?? undefined, prevVal ?? undefined);
-          const invertTrend = kpi.key === "cpc" || kpi.key === "cpm" || kpi.key === "spend" || kpi.key === "cpl" || kpi.key === "costPerEngagement" || kpi.key === "costPerView" || kpi.key === "costPerMessage" || kpi.key === "cpa";
-          const isPositive = trend != null && Math.abs(trend) >= 1 && (invertTrend ? trend < 0 : trend > 0);
-          const isNegative = trend != null && Math.abs(trend) >= 1 && (invertTrend ? trend > 0 : trend < 0);
-
-          return (
-            <div key={kpi.key}>
-              <div className={cn("text-[10px] font-medium uppercase tracking-wider", visual.labelColor)}>{kpi.label}</div>
-              <div className="mt-1 text-xl font-semibold text-slate-50">
-                {directVal != null && isFinite(directVal) ? formatKpi(directVal, kpi.format) : "—"}
-              </div>
-              {trend != null && isFinite(trend) && (
-                <div className={cn("mt-1 flex items-center gap-1 text-[11px] font-medium", isPositive && "text-emerald-400", isNegative && "text-rose-400", !isPositive && !isNegative && "text-slate-500")}>
-                  {trend > 1 ? <TrendingUp size={11} /> : trend < -1 ? <TrendingDown size={11} /> : null}
-                  <span>{trend >= 0 ? "+" : ""}{trend.toFixed(1)}%</span>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {kpis.map((kpi) => (
+          <div key={kpi.label}>
+            <div className={cn("text-[10px] font-medium uppercase tracking-wider", visual.labelColor)}>{kpi.label}</div>
+            <div className="mt-1 text-xl font-semibold text-slate-50">{kpi.value}</div>
+          </div>
+        ))}
       </div>
     </motion.div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Main component
+// Main
 // ---------------------------------------------------------------------------
 
 export function ExecutiveSummary({
@@ -209,34 +339,24 @@ export function ExecutiveSummary({
   prevMetricsLoading,
   currentMetrics,
   prevM,
-  chartData,
 }: ExecutiveSummaryProps) {
-  // Detect active objectives
-  const activeObjectives = useMemo(() => {
+  // Build per-objective data from daily metrics
+  const objectiveData = useMemo(() => {
     if (!campaigns) return [];
-    const seen = new Set<CategoryKey>();
-    const result: { key: CategoryKey; count: number; spend: number }[] = [];
-    const active = campaigns.filter((c) => c.status === "ACTIVE");
-    for (const c of active) {
-      const cat = detectCategory(c);
-      if (cat === "other") continue;
-      if (!seen.has(cat)) {
-        seen.add(cat);
-        result.push({ key: cat, count: 0, spend: 0 });
-      }
-      const entry = result.find((r) => r.key === cat)!;
-      entry.count++;
-      entry.spend += c.budget ?? 0;
-    }
-    return result.sort((a, b) => b.spend - a.spend);
-  }, [campaigns]);
+    // Extract daily with entityId if available
+    const daily = metrics?.daily?.map((d) => ({
+      date: d.date,
+      metrics: d.metrics,
+      entityId: (d as unknown as Record<string, string>).entityId,
+    }));
+    return buildObjectiveData(campaigns, daily);
+  }, [campaigns, metrics]);
 
-  const totalSpend = currentMetrics?.spend ?? 0;
+  const totalSpend = currentMetrics?.spend ?? objectiveData.reduce((s, o) => s + o.spend, 0);
   const prevSpend = prevM?.spend;
   const globalTrend = computeTrend(totalSpend, prevSpend);
 
-  // Grid layout based on number of objectives
-  const gridCols = activeObjectives.length === 1 ? "grid-cols-1" : activeObjectives.length === 2 ? "grid-cols-1 md:grid-cols-2" : activeObjectives.length === 3 ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-2";
+  const gridCols = objectiveData.length === 1 ? "grid-cols-1" : objectiveData.length === 2 ? "grid-cols-1 md:grid-cols-2" : objectiveData.length === 3 ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-2";
 
   if (metricsLoading || !campaigns) {
     return (
@@ -247,8 +367,7 @@ export function ExecutiveSummary({
     );
   }
 
-  if (activeObjectives.length === 0) {
-    // Fallback: show global metrics
+  if (objectiveData.length === 0) {
     return (
       <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
         <div className="flex items-center gap-2 text-[13px] text-slate-400">
@@ -261,6 +380,8 @@ export function ExecutiveSummary({
     );
   }
 
+  const totalObjSpend = objectiveData.reduce((s, o) => s + o.spend, 0);
+
   return (
     <div className="space-y-4">
       {/* Global spend bar */}
@@ -270,32 +391,29 @@ export function ExecutiveSummary({
           <div className="text-2xl font-semibold text-slate-50">{formatCurrency(totalSpend)}</div>
         </div>
 
-        {/* Objective distribution bar */}
-        {activeObjectives.length > 1 && totalSpend > 0 && (
+        {objectiveData.length > 1 && totalObjSpend > 0 && (
           <div className="flex-1 max-w-md">
             <div className="flex h-3 overflow-hidden rounded-full">
-              {activeObjectives.map(({ key, spend }) => {
-                const pct = (spend / totalSpend) * 100;
+              {objectiveData.map(({ key, spend }) => {
+                const pct = (spend / totalObjSpend) * 100;
                 if (pct < 1) return null;
                 const visual = CATEGORY_VISUALS[key];
                 return <div key={key} className="transition-all" style={{ width: `${pct}%`, backgroundColor: visual.color }} title={`${visual.label} : ${formatCurrency(spend)} (${pct.toFixed(0)}%)`} />;
               })}
             </div>
             <div className="mt-1 flex gap-3 text-[10px] text-slate-500">
-              {activeObjectives.map(({ key }) => {
-                const visual = CATEGORY_VISUALS[key];
-                return <span key={key}><span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: visual.color }} /> {visual.label}</span>;
-              })}
+              {objectiveData.map(({ key, spend }) => (
+                <span key={key}><span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: CATEGORY_VISUALS[key].color }} /> {CATEGORY_VISUALS[key].label} {formatCurrency(spend)}</span>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Global trend */}
         {globalTrend != null && isFinite(globalTrend) && (
           <div className={cn("flex items-center gap-1 text-[13px] font-medium", globalTrend < 0 ? "text-emerald-400" : globalTrend > 0 ? "text-rose-400" : "text-slate-400")}>
             {globalTrend > 1 ? <TrendingUp size={14} /> : globalTrend < -1 ? <TrendingDown size={14} /> : null}
             <span>{globalTrend >= 0 ? "+" : ""}{globalTrend.toFixed(1)}%</span>
-            <span className="text-[11px] text-slate-500">vs période préc.</span>
+            <span className="text-[11px] text-slate-500">vs préc.</span>
           </div>
         )}
         {prevMetricsLoading && <Skeleton className="h-5 w-24" />}
@@ -303,16 +421,8 @@ export function ExecutiveSummary({
 
       {/* Objective blocks */}
       <div className={cn("grid gap-4", gridCols)}>
-        {activeObjectives.map(({ key, count }, i) => (
-          <ObjectiveKpiBlock
-            key={key}
-            catKey={key}
-            activeCampaigns={count}
-            currentMetrics={currentMetrics}
-            prevM={prevM}
-            chartData={chartData}
-            index={i}
-          />
+        {objectiveData.map((obj, i) => (
+          <ObjectiveKpiBlock key={obj.key} obj={obj} index={i} />
         ))}
       </div>
     </div>
