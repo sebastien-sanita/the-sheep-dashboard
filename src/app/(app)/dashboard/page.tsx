@@ -17,10 +17,10 @@ import { formatDateRange } from "@/lib/utils/dates";
 import type { KPIItem, AlertBlock, ClientSummary } from "@/lib/types";
 
 function buildKPIs(clients: ClientSummary[]): KPIItem[] {
-  const totalSpend = clients.reduce((s, c) => s + (c.totalSpend ?? 0), 0);
-  const activeClients = clients.filter((c) => (c.totalSpend ?? 0) > 0).length;
+  const totalSpend = clients.reduce((s, c) => s + (c.totalSpend30d ?? c.totalSpend ?? 0), 0);
+  const activeClients = clients.filter((c) => c.isActive === true && (c.connectedAccountsCount ?? c.adAccountsCount ?? 0) > 0).length;
   const totalCampaigns = clients.reduce((s, c) => s + (c.activeCampaignsCount ?? 0), 0);
-  const totalAccounts = clients.reduce((s, c) => s + (c.adAccountsCount ?? 0), 0);
+  const totalAccounts = clients.reduce((s, c) => s + (c.connectedAccountsCount ?? c.adAccountsCount ?? 0), 0);
 
   const now = Date.now();
   const staleClients = clients.filter(
@@ -89,7 +89,7 @@ export default function DashboardPage() {
   const topClients = useMemo(
     () =>
       clients
-        ? [...clients].sort((a, b) => (b.totalSpend ?? 0) - (a.totalSpend ?? 0)).slice(0, 10)
+        ? [...clients].sort((a, b) => (b.totalSpend30d ?? b.totalSpend ?? 0) - (a.totalSpend30d ?? a.totalSpend ?? 0)).slice(0, 10)
         : [],
     [clients],
   );
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3 font-mono text-slate-200">
-                        {formatCurrency(c.totalSpend ?? 0)}
+                        {formatCurrency(c.totalSpend30d ?? c.totalSpend ?? 0)}
                       </td>
                       <td className="px-4 py-3 text-slate-300">
                         {c.activeCampaignsCount ?? 0}

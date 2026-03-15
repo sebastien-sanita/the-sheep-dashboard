@@ -63,9 +63,15 @@ function normalizeClientSummary(raw: Record<string, unknown>): ClientSummary {
     createdAt: raw.createdAt as string,
     updatedAt: raw.updatedAt as string,
     adAccountsCount: safeNum(raw.adAccountsCount) ?? safeNum(count?.adAccounts) ?? safeNum(count?.AdAccount) ?? adAccounts?.length,
+    connectedAccountsCount: safeNum(raw.connectedAccountsCount) ?? safeNum(raw.adAccountsCount) ?? adAccounts?.length,
     activeCampaignsCount: campaignCount,
     totalSpend: safeNum(raw.totalSpend),
+    totalSpend30d: safeNum(raw.totalSpend30d),
+    totalImpressions30d: safeNum(raw.totalImpressions30d),
+    totalClicks30d: safeNum(raw.totalClicks30d),
     platforms,
+    sector: (raw.sector as string) ?? undefined,
+    isActive: typeof raw.isActive === "boolean" ? raw.isActive : undefined,
   };
 }
 

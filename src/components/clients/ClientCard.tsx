@@ -63,7 +63,9 @@ export function ClientCard({ client }: ClientCardProps) {
       <div className="mt-3 flex gap-4">
         <div>
           <div className="text-[13px] text-slate-300">
-            {client.totalSpend != null ? formatCurrency(client.totalSpend) : "—"}
+            {(client.totalSpend30d ?? client.totalSpend) != null
+              ? formatCurrency(client.totalSpend30d ?? client.totalSpend ?? 0)
+              : "—"}
           </div>
           <div className="text-[11px] text-slate-500">Dépense</div>
         </div>

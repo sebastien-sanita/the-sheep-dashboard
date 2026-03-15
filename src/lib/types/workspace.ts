@@ -89,7 +89,7 @@ export interface Client {
 
 // --- API-specific response shapes ---
 
-/** Lightweight client returned by GET /api/workspaces (list view). */
+/** Lightweight client returned by GET /api/workspaces/me (list view). */
 export interface ClientSummary {
   id: string;
   name: string;
@@ -98,9 +98,15 @@ export interface ClientSummary {
   createdAt: string;
   updatedAt: string;
   adAccountsCount?: number;
+  connectedAccountsCount?: number;
   activeCampaignsCount?: number;
   totalSpend?: number;
+  totalSpend30d?: number;
+  totalImpressions30d?: number;
+  totalClicks30d?: number;
   platforms?: Platform[];
+  sector?: string;
+  isActive?: boolean;
 }
 
 // --- Sync ---
