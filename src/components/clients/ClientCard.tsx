@@ -63,9 +63,9 @@ export function ClientCard({ client }: ClientCardProps) {
       <div className="mt-3 flex gap-4">
         <div>
           <div className="text-[13px] text-slate-300">
-            {formatCurrency(client.totalSpend ?? 0)}
+            {client.totalSpend != null ? formatCurrency(client.totalSpend) : "—"}
           </div>
-          <div className="text-[11px] text-slate-500">Depense</div>
+          <div className="text-[11px] text-slate-500">Dépense</div>
         </div>
         <div>
           <div className="text-[13px] text-slate-300">
@@ -73,6 +73,14 @@ export function ClientCard({ client }: ClientCardProps) {
           </div>
           <div className="text-[11px] text-slate-500">Actives</div>
         </div>
+        {client.adAccountsCount != null && (
+          <div>
+            <div className="text-[13px] text-slate-300">
+              {client.adAccountsCount}
+            </div>
+            <div className="text-[11px] text-slate-500">Comptes</div>
+          </div>
+        )}
       </div>
 
       {/* Footer */}

@@ -218,7 +218,7 @@ export function ClientDetail({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-slate-200">
-                      {c.budget !== null ? formatCurrency(c.budget) : "—"}
+                      {c.budget != null && isFinite(c.budget) ? formatCurrency(c.budget) : "—"}
                     </td>
                     <td className="px-4 py-3 text-slate-400">
                       {c.objective ?? "—"}

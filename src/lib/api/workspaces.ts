@@ -1,4 +1,4 @@
-import type { ClientSummary, Client, Campaign } from "../types";
+import type { ClientSummary, Client, Campaign, Platform } from "../types";
 import { apiGet } from "./client";
 
 /** Unwrap common API response wrappers ({ data: T } or { items: T } etc.) */
@@ -18,9 +18,61 @@ function unwrapArray<T>(raw: unknown): T[] {
   return Array.isArray(inner) ? inner : [inner];
 }
 
+/** Safe number: handles null, undefined, strings, NaN */
+function safeNum(v: unknown): number | undefined {
+  if (v == null) return undefined;
+  const n = typeof v === "string" ? parseFloat(v) : (v as number);
+  return isNaN(n) ? undefined : n;
+}
+
+/** Normalize a raw workspace object into a ClientSummary */
+function normalizeClientSummary(raw: Record<string, unknown>): ClientSummary {
+  // Prisma _count pattern: { _count: { adAccounts: 3, campaigns: 5 } }
+  const count = (raw._count ?? raw.count) as Record<string, number> | undefined;
+  const adAccounts = raw.adAccounts as Array<Record<string, unknown>> | undefined;
+
+  // Extract platforms from nested adAccounts if not provided at top level
+  let platforms = raw.platforms as Platform[] | undefined;
+  if (!platforms && adAccounts) {
+    const set = new Set<Platform>();
+    for (const acc of adAccounts) {
+      if (acc.platform) set.add(acc.platform as Platform);
+    }
+    platforms = set.size > 0 ? Array.from(set) : undefined;
+  }
+
+  // Compute campaign count from nested data if not at top level
+  let campaignCount = safeNum(raw.activeCampaignsCount);
+  if (campaignCount === undefined) {
+    campaignCount = safeNum(count?.campaigns) ?? safeNum(count?.Campaign);
+  }
+  if (campaignCount === undefined && adAccounts) {
+    let total = 0;
+    for (const acc of adAccounts) {
+      const camps = acc.campaigns as unknown[] | undefined;
+      if (camps) total += camps.length;
+    }
+    if (total > 0) campaignCount = total;
+  }
+
+  return {
+    id: raw.id as string,
+    name: raw.name as string,
+    slug: (raw.slug as string) ?? "",
+    notes: (raw.notes as string | null) ?? null,
+    createdAt: raw.createdAt as string,
+    updatedAt: raw.updatedAt as string,
+    adAccountsCount: safeNum(raw.adAccountsCount) ?? safeNum(count?.adAccounts) ?? safeNum(count?.AdAccount) ?? adAccounts?.length,
+    activeCampaignsCount: campaignCount,
+    totalSpend: safeNum(raw.totalSpend),
+    platforms,
+  };
+}
+
 export async function getWorkspaces(): Promise<ClientSummary[]> {
   const raw = await apiGet<unknown>("/api/workspaces/me");
-  return unwrapArray<ClientSummary>(raw);
+  const items = unwrapArray<Record<string, unknown>>(raw);
+  return items.map(normalizeClientSummary);
 }
 
 export async function getWorkspace(id: string): Promise<Client> {
@@ -30,5 +82,10 @@ export async function getWorkspace(id: string): Promise<Client> {
 
 export async function getWorkspaceCampaigns(id: string): Promise<Campaign[]> {
   const raw = await apiGet<unknown>(`/api/workspaces/${id}/campaigns`);
-  return unwrapArray<Campaign>(raw);
+  const items = unwrapArray<Record<string, unknown>>(raw);
+  // Normalize budget fields
+  return items.map((c) => ({
+    ...c,
+    budget: safeNum(c.budget) ?? safeNum(c.dailyBudget) ?? safeNum(c.lifetime_budget) ?? safeNum(c.lifetimeBudget) ?? null,
+  })) as Campaign[];
 }
