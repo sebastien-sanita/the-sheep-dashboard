@@ -1,0 +1,52 @@
+export const chartColors = {
+  series: ["#6366f1", "#34d399", "#fbbf24", "#f43f5e", "#60a5fa", "#a78bfa", "#f97316", "#ec4899"],
+  platforms: {
+    meta: "#1877F2",
+    google: "#EA4335",
+    linkedin: "#0A66C2",
+    tiktok: "#ff0050",
+    instagram: "#E4405F",
+    facebook: "#1877F2",
+  },
+} as const;
+
+export const chartGrid = {
+  stroke: "rgba(255, 255, 255, 0.03)",
+  strokeDasharray: "2 4",
+  horizontal: true,
+  vertical: false,
+};
+
+export const chartAxis = {
+  axisLine: false,
+  tickLine: false,
+  tick: {
+    fill: "#5a5a6e",
+    fontSize: 11,
+    fontFamily: "var(--font-mono)",
+  },
+};
+
+export const chartTooltipStyle = {
+  contentStyle: {
+    background: "#1a1a24",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
+    borderRadius: "8px",
+    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5)",
+    padding: "10px 14px",
+  },
+  labelStyle: {
+    color: "#8b8b9e",
+    fontSize: "11px",
+    fontWeight: 600,
+    marginBottom: "6px",
+    fontFamily: "var(--font-sans)",
+  },
+  itemStyle: {
+    color: "#f0f0f5",
+    fontSize: "12px",
+    fontFamily: "var(--font-mono)",
+    padding: "2px 0",
+  },
+  cursor: { stroke: "rgba(255, 255, 255, 0.08)", strokeWidth: 1 },
+};

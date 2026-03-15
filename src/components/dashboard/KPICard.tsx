@@ -2,58 +2,57 @@
 
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { KPIItem } from "@/lib/types";
-import { cn } from "@/lib/utils/cn";
 
-interface KPICardProps {
-  item: KPIItem;
-}
-
-const COLOR_MAP: Record<string, string> = {
-  success: "text-emerald-400",
-  warning: "text-amber-400",
-  danger: "text-rose-400",
-  default: "text-slate-500",
+const ACCENT_GRADIENT: Record<string, string> = {
+  success: "linear-gradient(90deg, var(--color-success) 0%, transparent 80%)",
+  warning: "linear-gradient(90deg, var(--color-warning) 0%, transparent 80%)",
+  danger: "linear-gradient(90deg, var(--color-danger) 0%, transparent 80%)",
+  default: "linear-gradient(90deg, var(--color-accent) 0%, transparent 80%)",
 };
 
-const ACCENT_MAP: Record<string, string> = {
-  success: "from-emerald-500 to-emerald-400",
-  warning: "from-amber-500 to-amber-400",
-  danger: "from-rose-500 to-rose-400",
-  default: "from-primary-500 to-primary-400",
+const TREND_COLORS: Record<string, { bg: string; text: string }> = {
+  success: { bg: "var(--color-success-muted)", text: "var(--color-success)" },
+  warning: { bg: "var(--color-warning-muted)", text: "var(--color-warning)" },
+  danger: { bg: "var(--color-danger-muted)", text: "var(--color-danger)" },
+  default: { bg: "var(--color-bg-elevated)", text: "var(--color-text-secondary)" },
 };
 
 function TrendIcon({ direction }: { direction?: string }) {
-  switch (direction) {
-    case "up": return <TrendingUp size={13} />;
-    case "down": return <TrendingDown size={13} />;
-    default: return <Minus size={13} />;
-  }
+  if (direction === "up") return <TrendingUp size={13} />;
+  if (direction === "down") return <TrendingDown size={13} />;
+  return <Minus size={13} />;
 }
 
-export function KPICard({ item }: KPICardProps) {
-  const trendColor = COLOR_MAP[item.color ?? "default"];
-  const accent = ACCENT_MAP[item.color ?? "default"];
+export function KPICard({ item }: { item: KPIItem }) {
+  const color = item.color ?? "default";
+  const trend = TREND_COLORS[color];
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-slate-800 p-5 transition-all duration-200 hover:border-white/[0.1] hover:-translate-y-0.5">
-      {/* Top accent bar */}
-      <div className={cn("absolute left-0 right-0 top-0 h-[3px] bg-gradient-to-r opacity-50", accent)} />
+    <div
+      className="group relative overflow-hidden"
+      style={{
+        background: "var(--color-bg-surface)",
+        border: "1px solid var(--color-border-default)",
+        borderRadius: "var(--radius-lg)",
+        padding: "20px 20px 16px",
+        transition: "transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base)",
+      }}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "var(--shadow-md)"; e.currentTarget.style.borderColor = "var(--color-border-emphasis)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "var(--color-border-default)"; }}
+    >
+      {/* Accent bar */}
+      <div className="absolute left-0 right-0 top-0 transition-opacity group-hover:opacity-100" style={{ height: 2, background: ACCENT_GRADIENT[color], opacity: 0.6, transition: "opacity var(--transition-base)" }} />
 
-      <div className="text-[11px] font-medium uppercase tracking-[0.05em] text-slate-500">
-        {item.label}
-      </div>
-      <div className="mt-1.5 text-[26px] font-semibold tracking-tight text-white tabular-nums" style={{ letterSpacing: "-0.02em" }}>
-        {item.value}
-      </div>
+      <div className="text-caption" style={{ color: "var(--color-text-muted)", marginBottom: 10 }}>{item.label}</div>
+      <div className="text-metric-lg" style={{ color: "var(--color-text-primary)" }}>{item.value}</div>
+
       {item.trend && (
-        <div className={cn("mt-2 flex items-center gap-1.5", trendColor)}>
-          <TrendIcon direction={item.trendDirection} />
-          <span className="text-[12px] font-medium tabular-nums">{item.trend}</span>
-        </div>
-      )}
-      {item.previousValue && (
-        <div className="mt-1 text-[11px] text-slate-600">
-          vs {item.previousValue}
+        <div className="mt-2.5 flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1" style={{ padding: "2px 7px", borderRadius: "var(--radius-xs)", background: trend.bg, color: trend.text, fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 600 }}>
+            <TrendIcon direction={item.trendDirection} />
+            {item.trend}
+          </span>
+          {item.previousValue && <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>vs {item.previousValue}</span>}
         </div>
       )}
     </div>

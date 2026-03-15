@@ -20,9 +20,7 @@ const DATE_PRESETS = [
   { key: "lastQuarter", label: "Trimestre dernier" },
 ] as const;
 
-const ROUTE_LABELS: Record<string, string> = {
-  dashboard: "Dashboard", chat: "Chat", clients: "Clients", settings: "Paramètres",
-};
+const ROUTE_LABELS: Record<string, string> = { dashboard: "Dashboard", chat: "Chat", clients: "Clients", settings: "Paramètres" };
 
 export function TopBar() {
   const pathname = usePathname();
@@ -48,61 +46,71 @@ export function TopBar() {
     });
   }, [pathname, workspace, wsLoading]);
 
-  const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!dateDropdownOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setDateDropdownOpen(false);
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [dateDropdownOpen]);
+    if (!open) return;
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [open]);
 
-  const activePresetLabel = DATE_PRESETS.find((p) => p.key === datePreset)?.label ?? "30 derniers jours";
+  const label = DATE_PRESETS.find((p) => p.key === datePreset)?.label ?? "30 jours";
 
   return (
-    <header className="flex h-[var(--topbar-height)] shrink-0 items-center justify-between border-b border-white/[0.06] px-4 md:px-5">
+    <header className="flex shrink-0 items-center justify-between px-6" style={{ height: "var(--topbar-height)", borderBottom: "1px solid var(--color-border-default)" }}>
+      {/* Left */}
       <div className="flex items-center gap-2">
-        <button type="button" onClick={toggleSidebar} aria-label="Ouvrir le menu"
-          className="rounded-md p-1.5 text-slate-500 hover:bg-white/[0.04] hover:text-slate-300 md:hidden">
+        <button type="button" onClick={toggleSidebar} aria-label="Menu" className="rounded-md p-1.5 md:hidden" style={{ color: "var(--color-text-tertiary)", transition: "color var(--transition-fast)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-text-secondary)"; }} onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-tertiary)"; }}>
           <Menu size={16} />
         </button>
-        <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-[13px]">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5" style={{ fontSize: 13 }}>
           {breadcrumb.map((item, i) => (
             <span key={i} className="flex items-center gap-1.5">
-              {i > 0 && <ChevronRight size={11} className="text-slate-600" aria-hidden="true" />}
+              {i > 0 && <span style={{ color: "var(--color-text-muted)", fontSize: 11 }}>/</span>}
               {item.loading ? <Skeleton className="inline-block h-4 w-24" /> : (
-                <span className={i === breadcrumb.length - 1 ? "font-medium text-white" : "text-slate-500"}>{item.label}</span>
+                <span style={{ color: i === breadcrumb.length - 1 ? "var(--color-text-primary)" : "var(--color-text-tertiary)", fontWeight: i === breadcrumb.length - 1 ? 500 : 400 }}>{item.label}</span>
               )}
             </span>
           ))}
         </nav>
       </div>
 
+      {/* Right */}
       <div className="flex items-center gap-2">
-        <div className="relative" ref={dropdownRef}>
-          <button type="button" onClick={() => setDateDropdownOpen((o) => !o)} aria-label="Sélectionner la période" aria-expanded={dateDropdownOpen}
-            className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[12px] text-slate-400 transition-all hover:border-white/[0.12] hover:text-slate-200">
-            <Calendar size={13} />
-            <span className="hidden sm:inline">{activePresetLabel}</span>
+        <div className="relative" ref={ref}>
+          <button type="button" onClick={() => setOpen((o) => !o)} aria-label="Période" aria-expanded={open}
+            className="flex items-center gap-2 px-2.5"
+            style={{ height: 30, borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border-default)", background: "transparent", color: "var(--color-text-secondary)", fontSize: 12, transition: "all var(--transition-fast)" }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--color-border-emphasis)"; e.currentTarget.style.background = "var(--color-bg-elevated)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--color-border-default)"; e.currentTarget.style.background = "transparent"; }}
+          >
+            <Calendar size={13} style={{ color: "var(--color-text-tertiary)" }} />
+            <span className="hidden sm:inline">{label}</span>
           </button>
-          {dateDropdownOpen && (
-            <div role="listbox" className="absolute right-0 top-full z-50 mt-1.5 w-48 rounded-xl border border-white/[0.08] bg-slate-900 py-1 shadow-2xl shadow-black/40">
-              {DATE_PRESETS.map(({ key, label }) => (
-                <button key={key} type="button" role="option" aria-selected={key === datePreset} onClick={() => { setDatePreset(key); setDateDropdownOpen(false); }}
-                  className={cn("flex w-full px-3 py-1.5 text-left text-[12px] transition-colors", key === datePreset ? "bg-primary-500/10 text-primary-400" : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200")}>
-                  {label}
-                </button>
+          {open && (
+            <div role="listbox" className="absolute right-0 top-full z-50 mt-1.5 w-48 py-1"
+              style={{ background: "var(--color-bg-overlay)", border: "1px solid var(--color-border-default)", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-lg)" }}>
+              {DATE_PRESETS.map(({ key, label: l }) => (
+                <button key={key} type="button" role="option" aria-selected={key === datePreset} onClick={() => { setDatePreset(key); setOpen(false); }}
+                  className="flex w-full px-3 py-1.5 text-left transition-colors"
+                  style={{ fontSize: 12, color: key === datePreset ? "var(--color-accent)" : "var(--color-text-secondary)", background: key === datePreset ? "var(--color-accent-subtle)" : "transparent", transition: "all var(--transition-fast)" }}
+                  onMouseEnter={(e) => { if (key !== datePreset) { e.currentTarget.style.background = "var(--color-bg-elevated)"; e.currentTarget.style.color = "var(--color-text-primary)"; } }}
+                  onMouseLeave={(e) => { if (key !== datePreset) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--color-text-secondary)"; } }}
+                >{l}</button>
               ))}
             </div>
           )}
         </div>
         <button type="button" onClick={() => { startNewConversation(); router.push("/chat"); }} aria-label="Nouveau chat"
-          className="flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-primary-500">
-          <Plus size={13} />
-          <MessageSquare size={13} />
+          className="flex items-center justify-center"
+          style={{ width: 30, height: 30, borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border-default)", color: "var(--color-text-tertiary)", transition: "all var(--transition-fast)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--color-border-emphasis)"; e.currentTarget.style.background = "var(--color-bg-elevated)"; e.currentTarget.style.color = "var(--color-text-secondary)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--color-border-default)"; e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--color-text-tertiary)"; }}
+        >
+          <Plus size={14} />
         </button>
       </div>
     </header>
