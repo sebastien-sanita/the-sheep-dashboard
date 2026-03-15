@@ -26,12 +26,20 @@ const NAV_ITEMS = [
 const PLATFORM_COLORS: Record<string, string> = {
   META: "bg-blue-500",
   META_ADS: "bg-blue-500",
+  FACEBOOK: "bg-blue-500",
+  FACEBOOK_PAGE: "bg-blue-500",
+  FACEBOOK_ADS: "bg-blue-500",
+  INSTAGRAM: "bg-fuchsia-500",
+  INSTAGRAM_ADS: "bg-fuchsia-500",
   GOOGLE: "bg-red-500",
   GOOGLE_ADS: "bg-red-500",
+  GOOGLE_ANALYTICS: "bg-amber-500",
   LINKEDIN: "bg-sky-600",
   LINKEDIN_ADS: "bg-sky-600",
   TIKTOK: "bg-pink-500",
   TIKTOK_ADS: "bg-pink-500",
+  SNAPCHAT: "bg-yellow-500",
+  SNAPCHAT_ADS: "bg-yellow-500",
 };
 
 export function Sidebar() {

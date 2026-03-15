@@ -18,7 +18,7 @@ import type { KPIItem, AlertBlock, ClientSummary } from "@/lib/types";
 
 function buildKPIs(clients: ClientSummary[]): KPIItem[] {
   const totalSpend = clients.reduce((s, c) => s + (c.totalSpend30d ?? c.totalSpend ?? 0), 0);
-  const activeClients = clients.filter((c) => c.isActive === true && (c.connectedAccountsCount ?? c.adAccountsCount ?? 0) > 0).length;
+  const activeClients = clients.filter((c) => c.isActive !== false && (c.connectedAccountsCount ?? c.adAccountsCount ?? 0) > 0).length;
   const totalCampaigns = clients.reduce((s, c) => s + (c.activeCampaignsCount ?? 0), 0);
   const totalAccounts = clients.reduce((s, c) => s + (c.connectedAccountsCount ?? c.adAccountsCount ?? 0), 0);
 
