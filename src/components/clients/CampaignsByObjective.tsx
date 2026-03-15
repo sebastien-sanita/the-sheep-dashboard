@@ -116,6 +116,9 @@ function ObjectiveBlock({
   endDate,
   openDrilldownId,
   onToggleDrilldown,
+  isExpanded,
+  onToggleExpand,
+  maxCampaignsCompact,
 }: {
   category: CategoryDef;
   campaigns: Campaign[];
@@ -126,9 +129,10 @@ function ObjectiveBlock({
   endDate?: string;
   openDrilldownId: string | null;
   onToggleDrilldown: (id: string) => void;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  maxCampaignsCompact: number;
 }) {
-  const hasActive = campaigns.some((c) => c.status === "ACTIVE");
-  const [expanded, setExpanded] = useState(hasActive);
   const [showComparison, setShowComparison] = useState(false);
   const config = getObjectiveConfig(category.key);
 
@@ -169,6 +173,9 @@ function ObjectiveBlock({
     { label: config.primaryKpiLabel, value: "—" }, // Will show real values when we have aggregated metrics
   ];
 
+  const compactCampaigns = visibleCampaigns.slice(0, maxCampaignsCompact);
+  const hiddenCount = visibleCampaigns.length - compactCampaigns.length;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -176,29 +183,63 @@ function ObjectiveBlock({
       transition={{ duration: 0.3, delay: index * 0.06 }}
       className={cn("overflow-hidden rounded-xl border-l-[3px] bg-slate-800/50", category.border)}
     >
+      {/* Header — always visible, clickable */}
       <button
         type="button"
-        onClick={() => setExpanded((e) => !e)}
-        className="flex w-full items-center justify-between px-6 py-4 text-left"
+        onClick={onToggleExpand}
+        className="flex w-full items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-slate-700/10"
       >
-        <div className="flex items-center gap-3">
-          <span className="text-lg">{category.emoji}</span>
+        <div className="flex items-center gap-2.5">
+          <span className="text-base">{category.emoji}</span>
           <div>
-            <span className="text-[14px] font-medium text-slate-200">{category.label}</span>
+            <span className="text-[13px] font-medium text-slate-200">{category.label}</span>
             <div className="mt-0.5 flex items-center gap-2 text-[11px] text-slate-500">
               {activeCount > 0 && <span className="text-emerald-400">{activeCount} active{activeCount > 1 ? "s" : ""}</span>}
               {activeCount > 0 && pausedCount > 0 && <span>·</span>}
               {pausedCount > 0 && <span className="text-amber-400">{pausedCount} en pause</span>}
               {activeCount === 0 && pausedCount === 0 && <span>Aucune active</span>}
-              <span>· KPI : {config.primaryKpiLabel}</span>
             </div>
           </div>
         </div>
-        {expanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] font-semibold text-slate-300">{formatCurrency(totalSpend)}</span>
+          {isExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
+        </div>
       </button>
 
-      {expanded && (
-        <div className="border-t border-slate-700/30">
+      {/* Compact: mini KPIs + top campaigns */}
+      {!isExpanded && (
+        <div className="border-t border-slate-700/30 px-5 pb-4 pt-3">
+          <div className="grid grid-cols-3 gap-2">
+            {miniKpis.slice(0, 3).map((kpi) => (
+              <div key={kpi.label} className={cn("rounded-lg p-2", category.bg)}>
+                <div className="text-[9px] font-medium uppercase tracking-wider text-slate-500">{kpi.label}</div>
+                <div className={cn("mt-0.5 text-[14px] font-semibold", category.text)}>{kpi.value}</div>
+              </div>
+            ))}
+          </div>
+          {compactCampaigns.length > 0 && (
+            <div className="mt-2 space-y-0.5">
+              {compactCampaigns.map((c) => (
+                <div key={c.id} className={cn("flex items-center gap-2 rounded px-2 py-1 text-[11px]", c.status === "PAUSED" && "opacity-50")}>
+                  <span className="min-w-0 flex-1 truncate text-slate-300" title={c.name}>{cleanCampaignName(c.name)}</span>
+                  <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-medium", STATUS_BADGES[c.status] ?? "bg-slate-500/10 text-slate-400")}>{c.status}</span>
+                </div>
+              ))}
+              {hiddenCount > 0 && (
+                <button type="button" onClick={onToggleExpand} className="w-full pt-1 text-center text-[10px] text-primary-400 hover:underline">
+                  +{hiddenCount} autres campagnes
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Expanded: full content */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden border-t border-slate-700/30">
           <div className="grid grid-cols-2 gap-3 px-6 py-4 md:grid-cols-4">
             {miniKpis.map((kpi) => (
               <div key={kpi.label} className={cn("rounded-lg p-3", category.bg)}>
@@ -299,8 +340,9 @@ function ObjectiveBlock({
               </div>
             )}
           </div>
-        </div>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -313,6 +355,7 @@ export function CampaignsByObjective({ campaigns, loading, workspaceId, startDat
   const [filter, setFilter] = useState<CampaignFilter>("all");
   const [showArchived, setShowArchived] = useState(false);
   const [openDrilldownId, setOpenDrilldownId] = useState<string | null>(null);
+  const [expandedBlock, setExpandedBlock] = useState<CategoryKey | null>(null);
 
   function handleToggleDrilldown(id: string) {
     setOpenDrilldownId((prev) => (prev === id ? null : id));
@@ -359,11 +402,13 @@ export function CampaignsByObjective({ campaigns, loading, workspaceId, startDat
       </div>
 
       {loading ? (
-        <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-48" />)}</div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-48" />)}</div>
       ) : grouped.length > 0 ? (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {grouped.map(({ category, campaigns: cats }, i) => (
-            <ObjectiveBlock key={category.key} category={category} campaigns={cats} index={i} showArchived={showArchived} workspaceId={workspaceId} startDate={startDate} endDate={endDate} openDrilldownId={openDrilldownId} onToggleDrilldown={handleToggleDrilldown} />
+            <motion.div key={category.key} layout className={cn(expandedBlock === category.key && "col-span-full")}>
+              <ObjectiveBlock category={category} campaigns={cats} index={i} showArchived={showArchived} workspaceId={workspaceId} startDate={startDate} endDate={endDate} openDrilldownId={openDrilldownId} onToggleDrilldown={handleToggleDrilldown} isExpanded={expandedBlock === category.key} onToggleExpand={() => setExpandedBlock(expandedBlock === category.key ? null : category.key)} maxCampaignsCompact={5} />
+            </motion.div>
           ))}
         </div>
       ) : (
