@@ -301,8 +301,12 @@ export function CampaignDrilldown({ workspaceId, campaignId, categoryKey, catego
           getCampaignAds(workspaceId, campaignId, startDate, endDate),
         ]);
         if (!cancelled) {
-          setAdsets(adsetsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0)));
-          setAds(adsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0)));
+          const sortedAdsets = adsetsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0));
+          const sortedAds = adsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0));
+          console.log("[DEBUG] ADSET DATA:", JSON.stringify(sortedAdsets.slice(0, 2), null, 2));
+          console.log("[DEBUG] AD DATA:", JSON.stringify(sortedAds.slice(0, 2), null, 2));
+          setAdsets(sortedAdsets);
+          setAds(sortedAds);
         }
       } catch {
         if (!cancelled) { setAdsets([]); setAds([]); }

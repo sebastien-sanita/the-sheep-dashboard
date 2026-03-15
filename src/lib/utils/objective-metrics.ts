@@ -5,7 +5,18 @@ import { formatCurrency, formatCompact, formatPercent } from "./format";
 // Conversions helper
 // ---------------------------------------------------------------------------
 
+let _debuggedConversions = false;
+
 export function getConversions(metrics: EntityMetrics): ConversionsMap {
+  if (!_debuggedConversions && typeof window !== "undefined") {
+    _debuggedConversions = true;
+    console.log("[DEBUG] CONVERSIONS EXTRACT:", {
+      metricsKeys: Object.keys(metrics),
+      conversionsType: typeof metrics.conversions,
+      conversionsValue: metrics.conversions,
+      rawMetrics: JSON.stringify(metrics).slice(0, 300),
+    });
+  }
   if (!metrics.conversions) return {};
   if (typeof metrics.conversions === "number") return {};
   return metrics.conversions;
