@@ -110,10 +110,17 @@ export interface AdSetWithMetrics {
 export interface CreativeData {
   title?: string;
   body?: string;
+  imageUrl?: string;
   image_url?: string;
-  video_url?: string;
+  thumbnailUrl?: string;
   thumbnail_url?: string;
+  videoUrl?: string;
+  video_url?: string;
+  videoId?: string;
+  video_id?: string;
+  linkUrl?: string;
   link_url?: string;
+  ctaType?: string;
   call_to_action?: string;
 }
 
@@ -121,7 +128,8 @@ export interface AdWithMetrics {
   id: string;
   name: string;
   status: string;
-  creativeData: CreativeData | null;
+  creative?: CreativeData | null;
+  creativeData?: CreativeData | null;
   adSetName?: string;
   metrics: EntityMetrics;
 }

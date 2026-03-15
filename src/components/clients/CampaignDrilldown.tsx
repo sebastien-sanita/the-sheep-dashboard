@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { Image as ImageIcon, Film, LayoutGrid, X } from "lucide-react";
 import { motion } from "framer-motion";
-import type { AdSetWithMetrics, AdWithMetrics } from "@/lib/types";
+import type { AdSetWithMetrics, AdWithMetrics, CreativeData } from "@/lib/types";
 import { getCampaignAdsets, getCampaignAds } from "@/lib/api/campaigns";
 import { formatCurrency, formatCompact, formatPercent } from "@/lib/utils/format";
 import { Skeleton } from "../ui/Skeleton";
@@ -33,19 +33,36 @@ const STATUS_BADGES: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Creative data normalizer
 // ---------------------------------------------------------------------------
+
+function getCreative(ad: AdWithMetrics): CreativeData | null {
+  const c = ad.creative ?? ad.creativeData;
+  if (!c) return null;
+  return {
+    imageUrl: c.imageUrl ?? c.image_url,
+    thumbnailUrl: c.thumbnailUrl ?? c.thumbnail_url,
+    videoUrl: c.videoUrl ?? c.video_url,
+    videoId: c.videoId ?? c.video_id,
+    title: c.title,
+    body: c.body,
+    linkUrl: c.linkUrl ?? c.link_url,
+    ctaType: c.ctaType ?? c.call_to_action,
+  };
+}
 
 function getAdFormat(ad: AdWithMetrics): { label: string; icon: typeof ImageIcon } {
   const name = ad.name.toLowerCase();
+  const creative = getCreative(ad);
   if (name.includes("carrousel") || name.includes("carousel")) return { label: "Carrousel", icon: LayoutGrid };
-  if (ad.creativeData?.video_url || name.includes("vidéo") || name.includes("video")) return { label: "Vidéo", icon: Film };
+  if (creative?.videoUrl || creative?.videoId || name.includes("vidéo") || name.includes("video")) return { label: "Vidéo", icon: Film };
   return { label: "Image", icon: ImageIcon };
 }
 
 function getImageUrl(ad: AdWithMetrics): string | null {
-  if (!ad.creativeData) return null;
-  return ad.creativeData.thumbnail_url ?? ad.creativeData.image_url ?? null;
+  const creative = getCreative(ad);
+  if (!creative) return null;
+  return creative.thumbnailUrl ?? creative.imageUrl ?? null;
 }
 
 // ---------------------------------------------------------------------------
