@@ -328,7 +328,12 @@ interface ExecutiveSummaryProps {
 
 export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetricsLoading, currentMetrics, prevM }: ExecutiveSummaryProps) {
   const [expanded, setExpanded] = useState<CategoryKey | null>(null);
-  const totalSpend = currentMetrics?.spend ?? 0;
+  // Compute totalSpend from daily metrics (date-filtered) with fallback to currentMetrics
+  const dailyTotalSpend = useMemo(() => {
+    if (!metrics?.daily?.length) return 0;
+    return metrics.daily.reduce((s, d) => s + (Number(d.metrics?.spend) || 0), 0);
+  }, [metrics]);
+  const totalSpend = dailyTotalSpend > 0 ? dailyTotalSpend : (currentMetrics?.spend ?? 0);
   const prevSpend = prevM?.spend;
   const globalTrend = prevSpend && prevSpend > 0 ? ((totalSpend - prevSpend) / prevSpend) * 100 : undefined;
 

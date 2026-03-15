@@ -100,9 +100,11 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
   const [accountsExpanded, setAccountsExpanded] = useState(accounts.length <= 3);
   const [chartMetric, setChartMetric] = useState<ChartMetricKey>("spend");
 
+  // Prefer date-filtered metrics from API over fixed 30d workspace values
   const currentMetrics = useMemo((): Partial<Metrics30d> | undefined => {
-    if (m30d) return m30d;
-    return aggregateFromResponse(metrics);
+    const fromApi = aggregateFromResponse(metrics);
+    if (fromApi) return fromApi;
+    return m30d; // Fallback only if API metrics not available
   }, [m30d, metrics]);
 
   const prevM = useMemo(() => aggregateFromResponse(prevMetrics), [prevMetrics]);
