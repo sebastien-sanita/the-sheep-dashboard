@@ -276,10 +276,11 @@ export function ClientDashboard({
                     tickLine={false}
                   />
                   <YAxis
+                    domain={[0, "auto"]}
                     tick={{ fontSize: 11, fill: "#64748b" }}
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k€`}
+                    tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k€` : `${Math.round(v)}€`}
                   />
                   <Tooltip content={<ChartTooltip />} />
                   <Area

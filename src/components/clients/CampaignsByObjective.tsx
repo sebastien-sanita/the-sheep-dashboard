@@ -98,10 +98,40 @@ const CATEGORIES: CategoryDef[] = [
   },
 ];
 
-function getCategory(objective: string | null): CategoryDef {
-  if (!objective) return CATEGORIES[CATEGORIES.length - 1]; // "other"
-  const upper = objective.toUpperCase();
-  return CATEGORIES.find((c) => c.objectives.includes(upper)) ?? CATEGORIES[CATEGORIES.length - 1];
+const NAME_PATTERNS: { pattern: RegExp; key: CategoryKey }[] = [
+  { pattern: /lead|leadgen|conversion/i, key: "leads" },
+  { pattern: /trafic|traffic/i, key: "traffic" },
+  { pattern: /notoriet|notoriété|awareness|brand|reach|couverture/i, key: "awareness" },
+  { pattern: /engagement|video_view|video|vue|message/i, key: "engagement" },
+  { pattern: /vente|sale|purchase|catalog/i, key: "sales" },
+];
+
+function getCategoryByName(name: string): CategoryDef | null {
+  for (const { pattern, key } of NAME_PATTERNS) {
+    if (pattern.test(name)) {
+      return CATEGORIES.find((c) => c.key === key) ?? null;
+    }
+  }
+  return null;
+}
+
+function getCategory(objective: string | null, name?: string): CategoryDef {
+  const other = CATEGORIES[CATEGORIES.length - 1];
+
+  // 1. Try official objective field
+  if (objective) {
+    const upper = objective.toUpperCase();
+    const match = CATEGORIES.find((c) => c.objectives.includes(upper));
+    if (match) return match;
+  }
+
+  // 2. Fallback: infer from campaign name
+  if (name) {
+    const fromName = getCategoryByName(name);
+    if (fromName) return fromName;
+  }
+
+  return other;
 }
 
 // ---------------------------------------------------------------------------
@@ -333,6 +363,11 @@ export function CampaignsByObjective({ campaigns, loading }: CampaignsByObjectiv
   const [filter, setFilter] = useState<CampaignFilter>("all");
   const [showArchived, setShowArchived] = useState(false);
 
+  // Debug: log campaign objectives to verify mapping
+  if (typeof window !== "undefined" && campaigns?.length) {
+    console.log("Campaign objectives:", campaigns.slice(0, 5).map((c) => ({ name: c.name, objective: c.objective })));
+  }
+
   // Group campaigns by objective category
   const grouped = useMemo(() => {
     if (!campaigns) return [];
@@ -342,7 +377,7 @@ export function CampaignsByObjective({ campaigns, loading }: CampaignsByObjectiv
     const groups = new Map<CategoryKey, { category: CategoryDef; campaigns: Campaign[] }>();
 
     for (const c of filtered) {
-      const cat = getCategory(c.objective);
+      const cat = getCategory(c.objective, c.name);
       const existing = groups.get(cat.key);
       if (existing) {
         existing.campaigns.push(c);
