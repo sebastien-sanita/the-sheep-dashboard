@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/providers/AppProvider";
 
-const inter = Inter({
-  variable: "--font-inter",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -23,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} bg-slate-950 text-slate-50 antialiased`}>
+      <body className={`${dmSans.variable} antialiased`}>
         <AppProvider>{children}</AppProvider>
       </body>
     </html>
