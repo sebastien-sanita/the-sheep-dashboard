@@ -5,6 +5,7 @@ import { X, ChevronLeft, ChevronRight, ExternalLink, Play, Image as ImageIcon, F
 import { motion } from "framer-motion";
 import type { AdWithMetrics, CreativeData } from "@/lib/types";
 import { formatCurrency, formatCompact, formatPercent } from "@/lib/utils/format";
+import { type ObjectiveMetricsConfig, formatKpi } from "@/lib/utils/objective-metrics";
 import { cn } from "@/lib/utils/cn";
 
 // ---------------------------------------------------------------------------
@@ -73,6 +74,7 @@ interface CreativePreviewModalProps {
   rank: number;
   maxCtr: number;
   maxSpend: number;
+  config: ObjectiveMetricsConfig;
   onClose: () => void;
   onNavigate: (id: string) => void;
 }
@@ -88,6 +90,7 @@ export function CreativePreviewModal({
   rank,
   maxCtr,
   maxSpend,
+  config,
   onClose,
   onNavigate,
 }: CreativePreviewModalProps) {
@@ -234,13 +237,25 @@ export function CreativePreviewModal({
             #{rank} sur {ads.length} créatifs (Top {percentile}%)
           </div>
 
-          {/* KPIs */}
+          {/* KPIs — objective-adaptive */}
           <div className="mt-4 space-y-3">
-            <KpiBar label="CTR" value={ad.metrics.ctr ?? 0} formatted={formatPercent(ad.metrics.ctr ?? 0, 2)} max={maxCtr} />
-            <KpiBar label="CPC" value={ad.metrics.cpc ?? 0} formatted={ad.metrics.cpc != null ? formatCurrency(ad.metrics.cpc) : "—"} max={Math.max(...ads.map((a) => a.metrics.cpc ?? 0), 0.01)} />
-            <KpiBar label="Dépense" value={ad.metrics.spend ?? 0} formatted={formatCurrency(ad.metrics.spend ?? 0)} max={maxSpend} />
-            <KpiBar label="Impressions" value={ad.metrics.impressions ?? 0} formatted={formatCompact(ad.metrics.impressions ?? 0)} max={Math.max(...ads.map((a) => a.metrics.impressions ?? 0), 1)} />
-            <KpiBar label="Clics" value={ad.metrics.clicks ?? 0} formatted={formatCompact(ad.metrics.clicks ?? 0)} max={Math.max(...ads.map((a) => a.metrics.clicks ?? 0), 1)} />
+            {config.kpis.map((kpi) => {
+              const val = kpi.extract(ad.metrics);
+              const maxVal = Math.max(...ads.map((a) => kpi.extract(a.metrics) ?? 0), 0.01);
+              return (
+                <KpiBar
+                  key={kpi.key}
+                  label={kpi.label}
+                  value={val ?? 0}
+                  formatted={formatKpi(val, kpi.format)}
+                  max={maxVal}
+                />
+              );
+            })}
+            {/* Always show spend + impressions if not in config */}
+            {!config.kpis.some((k) => k.key === "impressions") && (
+              <KpiBar label="Impressions" value={ad.metrics.impressions ?? 0} formatted={formatCompact(ad.metrics.impressions ?? 0)} max={Math.max(...ads.map((a) => a.metrics.impressions ?? 0), 1)} />
+            )}
           </div>
 
           {/* Creative text */}

@@ -85,6 +85,21 @@ export interface ConnectedAccount {
   lastSyncAt: string | null;
 }
 
+export interface ConversionsMap {
+  [key: string]: number | undefined;
+  lead?: number;
+  onsite_web_lead?: number;
+  link_click?: number;
+  landing_page_view?: number;
+  video_view?: number;
+  post_reaction?: number;
+  page_engagement?: number;
+  post_engagement?: number;
+  purchase?: number;
+  messaging_conversation_started_7d?: number;
+  like?: number;
+}
+
 export interface EntityMetrics {
   impressions?: number;
   clicks?: number;
@@ -93,8 +108,9 @@ export interface EntityMetrics {
   ctr?: number;
   cpc?: number;
   cpm?: number;
-  conversions?: number;
+  conversions?: number | ConversionsMap;
   frequency?: number;
+  roas?: number;
 }
 
 export interface AdSetWithMetrics {

@@ -8,6 +8,8 @@ import {
   Heart,
   ShoppingCart,
   Layers,
+  Film,
+  MessageCircle,
   ChevronDown,
   ChevronUp,
   ChevronRight,
@@ -15,6 +17,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import type { Campaign } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils/format";
+import { type CategoryKey, getObjectiveConfig, formatKpi, refineCategory } from "@/lib/utils/objective-metrics";
 import { CampaignDrilldown } from "./CampaignDrilldown";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
@@ -22,8 +25,6 @@ import { cn } from "@/lib/utils/cn";
 // ---------------------------------------------------------------------------
 // Objective categories
 // ---------------------------------------------------------------------------
-
-type CategoryKey = "leads" | "traffic" | "awareness" | "engagement" | "sales" | "other";
 
 interface CategoryDef {
   key: CategoryKey;
@@ -37,82 +38,25 @@ interface CategoryDef {
 }
 
 const CATEGORIES: CategoryDef[] = [
-  {
-    key: "leads",
-    label: "Génération de leads",
-    emoji: "🎯",
-    icon: Target,
-    border: "border-l-emerald-500",
-    bg: "bg-emerald-500/5",
-    text: "text-emerald-400",
-    objectives: ["OUTCOME_LEADS", "LEAD_GENERATION", "CONVERSIONS"],
-  },
-  {
-    key: "traffic",
-    label: "Trafic",
-    emoji: "🔗",
-    icon: MousePointerClick,
-    border: "border-l-blue-500",
-    bg: "bg-blue-500/5",
-    text: "text-blue-400",
-    objectives: ["OUTCOME_TRAFFIC", "LINK_CLICKS"],
-  },
-  {
-    key: "awareness",
-    label: "Notoriété",
-    emoji: "📢",
-    icon: Megaphone,
-    border: "border-l-purple-500",
-    bg: "bg-purple-500/5",
-    text: "text-purple-400",
-    objectives: ["OUTCOME_AWARENESS", "BRAND_AWARENESS", "REACH"],
-  },
-  {
-    key: "engagement",
-    label: "Engagement",
-    emoji: "💬",
-    icon: Heart,
-    border: "border-l-amber-500",
-    bg: "bg-amber-500/5",
-    text: "text-amber-400",
-    objectives: ["OUTCOME_ENGAGEMENT", "POST_ENGAGEMENT", "VIDEO_VIEWS", "MESSAGES"],
-  },
-  {
-    key: "sales",
-    label: "Ventes",
-    emoji: "🛒",
-    icon: ShoppingCart,
-    border: "border-l-rose-500",
-    bg: "bg-rose-500/5",
-    text: "text-rose-400",
-    objectives: ["OUTCOME_SALES"],
-  },
-  {
-    key: "other",
-    label: "Autre",
-    emoji: "📊",
-    icon: Layers,
-    border: "border-l-slate-500",
-    bg: "bg-slate-500/5",
-    text: "text-slate-400",
-    objectives: [],
-  },
+  { key: "leads", label: "Génération de leads", emoji: "🎯", icon: Target, border: "border-l-emerald-500", bg: "bg-emerald-500/5", text: "text-emerald-400", objectives: ["OUTCOME_LEADS", "LEAD_GENERATION", "CONVERSIONS"] },
+  { key: "traffic", label: "Trafic", emoji: "🔗", icon: MousePointerClick, border: "border-l-blue-500", bg: "bg-blue-500/5", text: "text-blue-400", objectives: ["OUTCOME_TRAFFIC", "LINK_CLICKS"] },
+  { key: "awareness", label: "Notoriété", emoji: "📢", icon: Megaphone, border: "border-l-purple-500", bg: "bg-purple-500/5", text: "text-purple-400", objectives: ["OUTCOME_AWARENESS", "BRAND_AWARENESS", "REACH"] },
+  { key: "engagement", label: "Engagement", emoji: "💬", icon: Heart, border: "border-l-amber-500", bg: "bg-amber-500/5", text: "text-amber-400", objectives: ["OUTCOME_ENGAGEMENT", "POST_ENGAGEMENT"] },
+  { key: "video", label: "Vues vidéo", emoji: "🎬", icon: Film, border: "border-l-violet-500", bg: "bg-violet-500/5", text: "text-violet-400", objectives: ["VIDEO_VIEWS"] },
+  { key: "sales", label: "Ventes", emoji: "🛒", icon: ShoppingCart, border: "border-l-rose-500", bg: "bg-rose-500/5", text: "text-rose-400", objectives: ["OUTCOME_SALES"] },
+  { key: "messages", label: "Messages", emoji: "💬", icon: MessageCircle, border: "border-l-cyan-500", bg: "bg-cyan-500/5", text: "text-cyan-400", objectives: ["MESSAGES"] },
+  { key: "other", label: "Autre", emoji: "📊", icon: Layers, border: "border-l-slate-500", bg: "bg-slate-500/5", text: "text-slate-400", objectives: [] },
 ];
 
 const NAME_PATTERNS: { pattern: RegExp; key: CategoryKey }[] = [
   { pattern: /lead|leadgen|conversion/i, key: "leads" },
   { pattern: /trafic|traffic/i, key: "traffic" },
   { pattern: /notoriet|notoriété|awareness|brand|reach|couverture/i, key: "awareness" },
-  { pattern: /engagement|video_view|video|vue|message/i, key: "engagement" },
+  { pattern: /video|vidéo|vue/i, key: "video" },
+  { pattern: /engagement/i, key: "engagement" },
+  { pattern: /message/i, key: "messages" },
   { pattern: /vente|sale|purchase|catalog/i, key: "sales" },
 ];
-
-function getCategoryByName(name: string): CategoryDef | null {
-  for (const { pattern, key } of NAME_PATTERNS) {
-    if (pattern.test(name)) return CATEGORIES.find((c) => c.key === key) ?? null;
-  }
-  return null;
-}
 
 function getCategory(objective: string | null, name?: string): CategoryDef {
   const other = CATEGORIES[CATEGORIES.length - 1];
@@ -121,27 +65,11 @@ function getCategory(objective: string | null, name?: string): CategoryDef {
     if (match) return match;
   }
   if (name) {
-    const fromName = getCategoryByName(name);
-    if (fromName) return fromName;
+    for (const { pattern, key } of NAME_PATTERNS) {
+      if (pattern.test(name)) return CATEGORIES.find((c) => c.key === key) ?? other;
+    }
   }
   return other;
-}
-
-// ---------------------------------------------------------------------------
-// Mini KPIs per category
-// ---------------------------------------------------------------------------
-
-interface MiniKPI { label: string; value: string }
-
-function getCategoryKPIs(cat: CategoryKey, campaigns: Campaign[]): MiniKPI[] {
-  const totalSpend = campaigns.reduce((s, c) => s + (c.budget ?? 0), 0);
-  const active = campaigns.filter((c) => c.status === "ACTIVE").length;
-  return [
-    { label: "Campagnes", value: String(campaigns.length) },
-    { label: "Budget total", value: formatCurrency(totalSpend) },
-    { label: "Actives", value: String(active) },
-    { label: "Objectif", value: { leads: "Leads", traffic: "Clics lien", awareness: "Impressions", engagement: "Engagement", sales: "Achats", other: "—" }[cat] },
-  ];
 }
 
 // ---------------------------------------------------------------------------
@@ -196,9 +124,11 @@ function ObjectiveBlock({
 }) {
   const hasActive = campaigns.some((c) => c.status === "ACTIVE");
   const [expanded, setExpanded] = useState(hasActive);
+  const config = getObjectiveConfig(category.key);
 
   const activeCount = campaigns.filter((c) => c.status === "ACTIVE").length;
   const pausedCount = campaigns.filter((c) => c.status === "PAUSED").length;
+  const totalSpend = campaigns.reduce((s, c) => s + (c.budget ?? 0), 0);
 
   const visibleCampaigns = useMemo(() => {
     const filtered = showArchived
@@ -207,7 +137,13 @@ function ObjectiveBlock({
     return [...filtered].sort((a, b) => (b.budget ?? 0) - (a.budget ?? 0));
   }, [campaigns, showArchived]);
 
-  const kpis = getCategoryKPIs(category.key, campaigns);
+  // Mini KPIs: use objective config for labels but campaign-level data
+  const miniKpis = [
+    { label: "Campagnes", value: String(campaigns.length) },
+    { label: "Actives", value: String(activeCount) },
+    { label: "Budget total", value: formatCurrency(totalSpend) },
+    { label: config.primaryKpiLabel, value: "—" }, // Will show real values when we have aggregated metrics
+  ];
 
   return (
     <motion.div
@@ -216,7 +152,6 @@ function ObjectiveBlock({
       transition={{ duration: 0.3, delay: index * 0.06 }}
       className={cn("overflow-hidden rounded-xl border-l-[3px] bg-slate-800/50", category.border)}
     >
-      {/* Header */}
       <button
         type="button"
         onClick={() => setExpanded((e) => !e)}
@@ -231,6 +166,7 @@ function ObjectiveBlock({
               {activeCount > 0 && pausedCount > 0 && <span>·</span>}
               {pausedCount > 0 && <span className="text-amber-400">{pausedCount} en pause</span>}
               {activeCount === 0 && pausedCount === 0 && <span>Aucune active</span>}
+              <span>· KPI : {config.primaryKpiLabel}</span>
             </div>
           </div>
         </div>
@@ -239,9 +175,8 @@ function ObjectiveBlock({
 
       {expanded && (
         <div className="border-t border-slate-700/30">
-          {/* Mini KPIs */}
           <div className="grid grid-cols-2 gap-3 px-6 py-4 md:grid-cols-4">
-            {kpis.map((kpi) => (
+            {miniKpis.map((kpi) => (
               <div key={kpi.label} className={cn("rounded-lg p-3", category.bg)}>
                 <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">{kpi.label}</div>
                 <div className={cn("mt-1 text-[16px] font-semibold", category.text)}>{kpi.value}</div>
@@ -249,7 +184,6 @@ function ObjectiveBlock({
             ))}
           </div>
 
-          {/* Campaign list */}
           <div className="px-6 pb-4">
             {visibleCampaigns.length === 0 ? (
               <p className="py-4 text-center text-[12px] text-slate-500">Aucune campagne visible</p>
@@ -264,27 +198,15 @@ function ObjectiveBlock({
                         onClick={() => onToggleDrilldown(c.id)}
                         className={cn(
                           "flex w-full items-center gap-3 px-4 py-2.5 text-left text-[13px] transition-colors hover:bg-slate-700/20",
-                          i > 0 && !isOpen && "border-t border-slate-700/20",
-                          i > 0 && isOpen && "border-t border-slate-700/20",
+                          i > 0 && "border-t border-slate-700/20",
                           c.status === "PAUSED" && "opacity-60",
                           (c.status === "DELETED" || c.status === "ARCHIVED") && "opacity-40",
                           isOpen && "bg-slate-700/20",
                         )}
                       >
-                        <ChevronRight
-                          size={14}
-                          className={cn(
-                            "shrink-0 text-slate-500 transition-transform duration-200",
-                            isOpen && "rotate-90",
-                          )}
-                        />
+                        <ChevronRight size={14} className={cn("shrink-0 text-slate-500 transition-transform duration-200", isOpen && "rotate-90")} />
                         <span className="min-w-0 flex-1 truncate text-slate-200">{c.name}</span>
-                        <span
-                          className={cn(
-                            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
-                            STATUS_BADGES[c.status] ?? "bg-slate-500/10 text-slate-400",
-                          )}
-                        >
+                        <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium", STATUS_BADGES[c.status] ?? "bg-slate-500/10 text-slate-400")}>
                           {c.status}
                         </span>
                         {c.budget != null && isFinite(c.budget) && (
@@ -294,13 +216,12 @@ function ObjectiveBlock({
                           </span>
                         )}
                       </button>
-
-                      {/* Inline drilldown */}
                       <AnimatePresence>
                         {isOpen && (
                           <CampaignDrilldown
                             workspaceId={workspaceId}
                             campaignId={c.id}
+                            categoryKey={refineCategory(category.key, c.name)}
                             categoryBorder={category.border}
                             startDate={startDate}
                             endDate={endDate}
@@ -321,7 +242,7 @@ function ObjectiveBlock({
 }
 
 // ---------------------------------------------------------------------------
-// Main component
+// Main
 // ---------------------------------------------------------------------------
 
 export function CampaignsByObjective({ campaigns, loading, workspaceId, startDate, endDate }: CampaignsByObjectiveProps) {
@@ -337,17 +258,12 @@ export function CampaignsByObjective({ campaigns, loading, workspaceId, startDat
     if (!campaigns) return [];
     const filtered = filter === "all" ? campaigns : campaigns.filter((c) => c.status === filter);
     const groups = new Map<CategoryKey, { category: CategoryDef; campaigns: Campaign[] }>();
-
     for (const c of filtered) {
       const cat = getCategory(c.objective, c.name);
       const existing = groups.get(cat.key);
-      if (existing) {
-        existing.campaigns.push(c);
-      } else {
-        groups.set(cat.key, { category: cat, campaigns: [c] });
-      }
+      if (existing) { existing.campaigns.push(c); }
+      else { groups.set(cat.key, { category: cat, campaigns: [c] }); }
     }
-
     return Array.from(groups.values()).sort((a, b) => {
       const aActive = a.campaigns.some((c) => c.status === "ACTIVE") ? 1 : 0;
       const bActive = b.campaigns.some((c) => c.status === "ACTIVE") ? 1 : 0;
@@ -358,87 +274,37 @@ export function CampaignsByObjective({ campaigns, loading, workspaceId, startDat
 
   const counts = useMemo(() => {
     if (!campaigns) return { total: 0, active: 0, paused: 0 };
-    return {
-      total: campaigns.length,
-      active: campaigns.filter((c) => c.status === "ACTIVE").length,
-      paused: campaigns.filter((c) => c.status === "PAUSED").length,
-    };
+    return { total: campaigns.length, active: campaigns.filter((c) => c.status === "ACTIVE").length, paused: campaigns.filter((c) => c.status === "PAUSED").length };
   }, [campaigns]);
 
   return (
     <div>
-      {/* Header */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <h2 className="text-[14px] font-medium text-slate-300">Campagnes par objectif</h2>
-          {campaigns && (
-            <span className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[11px] text-slate-400">
-              {counts.total}
-            </span>
-          )}
+          {campaigns && <span className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[11px] text-slate-400">{counts.total}</span>}
         </div>
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
-            {([
-              { key: "all" as const, label: "Toutes" },
-              { key: "ACTIVE" as const, label: `Actives (${counts.active})` },
-              { key: "PAUSED" as const, label: `En pause (${counts.paused})` },
-            ]).map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setFilter(key)}
-                className={cn(
-                  "rounded-md px-3 py-1 text-[12px] font-medium transition-colors",
-                  filter === key ? "bg-primary-500/10 text-primary-400" : "text-slate-400 hover:bg-slate-700 hover:text-slate-200",
-                )}
-              >
-                {label}
-              </button>
+            {([{ key: "all" as const, label: "Toutes" }, { key: "ACTIVE" as const, label: `Actives (${counts.active})` }, { key: "PAUSED" as const, label: `En pause (${counts.paused})` }]).map(({ key, label }) => (
+              <button key={key} type="button" onClick={() => setFilter(key)} className={cn("rounded-md px-3 py-1 text-[12px] font-medium transition-colors", filter === key ? "bg-primary-500/10 text-primary-400" : "text-slate-400 hover:bg-slate-700 hover:text-slate-200")}>{label}</button>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={() => setShowArchived((s) => !s)}
-            className={cn(
-              "rounded-md px-2 py-1 text-[11px] transition-colors",
-              showArchived ? "bg-slate-700 text-slate-300" : "text-slate-500 hover:text-slate-300",
-            )}
-          >
-            {showArchived ? "Masquer archivées" : "Afficher archivées"}
-          </button>
+          <button type="button" onClick={() => setShowArchived((s) => !s)} className={cn("rounded-md px-2 py-1 text-[11px] transition-colors", showArchived ? "bg-slate-700 text-slate-300" : "text-slate-500 hover:text-slate-300")}>{showArchived ? "Masquer archivées" : "Afficher archivées"}</button>
         </div>
       </div>
 
-      {/* Content */}
       {loading ? (
-        <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-48" />
-          ))}
-        </div>
+        <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-48" />)}</div>
       ) : grouped.length > 0 ? (
         <div className="space-y-4">
           {grouped.map(({ category, campaigns: cats }, i) => (
-            <ObjectiveBlock
-              key={category.key}
-              category={category}
-              campaigns={cats}
-              index={i}
-              showArchived={showArchived}
-              workspaceId={workspaceId}
-              startDate={startDate}
-              endDate={endDate}
-              openDrilldownId={openDrilldownId}
-              onToggleDrilldown={handleToggleDrilldown}
-            />
+            <ObjectiveBlock key={category.key} category={category} campaigns={cats} index={i} showArchived={showArchived} workspaceId={workspaceId} startDate={startDate} endDate={endDate} openDrilldownId={openDrilldownId} onToggleDrilldown={handleToggleDrilldown} />
           ))}
         </div>
       ) : (
         <div className="rounded-xl border border-slate-700/50 bg-slate-800 px-5 py-12 text-center">
-          <p className="text-[13px] text-slate-500">
-            {filter === "all" ? "Aucune campagne synchronisée" : "Aucune campagne pour ce filtre"}
-          </p>
+          <p className="text-[13px] text-slate-500">{filter === "all" ? "Aucune campagne synchronisée" : "Aucune campagne pour ce filtre"}</p>
         </div>
       )}
     </div>

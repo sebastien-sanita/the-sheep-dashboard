@@ -21,6 +21,7 @@ export type {
   Page,
   Pixel,
   ConnectedAccount,
+  ConversionsMap,
   EntityMetrics,
   AdSetWithMetrics,
   CreativeData,
