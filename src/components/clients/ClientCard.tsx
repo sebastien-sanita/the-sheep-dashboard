@@ -75,10 +75,10 @@ export function ClientCard({ client }: ClientCardProps) {
           </div>
           <div className="text-[11px] text-slate-500">Actives</div>
         </div>
-        {(client.connectedAccountsCount ?? client.adAccountsCount) != null && (
+        {(client.connectedAccountCount ?? client.adAccountsCount) != null && (
           <div>
             <div className="text-[13px] text-slate-300">
-              {client.connectedAccountsCount ?? client.adAccountsCount}
+              {client.connectedAccountCount ?? client.adAccountsCount}
             </div>
             <div className="text-[11px] text-slate-500">Comptes</div>
           </div>

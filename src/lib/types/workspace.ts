@@ -105,7 +105,7 @@ export interface Client {
   connectedAccounts?: ConnectedAccount[];
   metrics30d?: Metrics30d;
   activeCampaignsCount?: number;
-  connectedAccountsCount?: number;
+  connectedAccountCount?: number;
   platforms?: string[];
   sector?: string;
   isActive?: boolean;
@@ -124,7 +124,7 @@ export interface ClientSummary {
   createdAt: string;
   updatedAt: string;
   adAccountsCount?: number;
-  connectedAccountsCount?: number;
+  connectedAccountCount?: number;
   activeCampaignsCount?: number;
   totalSpend?: number;
   totalSpend30d?: number;

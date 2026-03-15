@@ -21,11 +21,6 @@ function unwrap<T>(raw: unknown): T {
 function normalizeMetrics(raw: unknown, params: MetricsParams): AggregatedMetrics {
   const unwrapped = unwrap<unknown>(raw);
 
-  // Debug log
-  if (typeof window !== "undefined") {
-    console.log("[DEBUG] Metrics response:", JSON.stringify(unwrapped, null, 2)?.slice(0, 500));
-  }
-
   // Case 1: Already correct AggregatedMetrics shape
   if (unwrapped && typeof unwrapped === "object" && !Array.isArray(unwrapped)) {
     const obj = unwrapped as Record<string, unknown>;
