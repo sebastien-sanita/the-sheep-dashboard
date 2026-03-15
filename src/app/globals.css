@@ -1,36 +1,104 @@
 @import "tailwindcss";
 
+/* ============================================================
+   THE SHEEP — Design System "Calm Precision"
+   ============================================================ */
+
 :root {
-  --sidebar-width: 260px;
-  --sidebar-collapsed-width: 64px;
-  --topbar-height: 52px;
-  --chat-min-width: 380px;
+  /* ── Surfaces ── */
+  --color-bg-base: #08080c;
+  --color-bg-subtle: #0d0d14;
+  --color-bg-surface: #111118;
+  --color-bg-elevated: #1a1a24;
+  --color-bg-overlay: #22222e;
 
-  /* Surfaces — deep, rich, blue-tinted blacks */
-  --background: #0a0a0f;
-  --foreground: #e2e8f0;
-  --muted: #1a1a25;
-  --muted-foreground: #94a3b8;
-  --border: rgba(255,255,255,0.08);
-  --ring: #6366f1;
+  /* ── Borders ── */
+  --color-border-subtle: rgba(255, 255, 255, 0.03);
+  --color-border-default: rgba(255, 255, 255, 0.06);
+  --color-border-emphasis: rgba(255, 255, 255, 0.12);
+  --color-border-accent: rgba(99, 102, 241, 0.4);
 
-  /* Card surfaces */
-  --bg-secondary: #12121a;
-  --bg-tertiary: #1a1a25;
-  --bg-elevated: #22222e;
-  --border-subtle: rgba(255,255,255,0.06);
-  --border-emphasis: rgba(255,255,255,0.12);
+  /* ── Text ── */
+  --color-text-primary: #f0f0f5;
+  --color-text-secondary: #8b8b9e;
+  --color-text-tertiary: #5a5a6e;
+  --color-text-muted: #3d3d50;
+
+  /* ── Accent ── */
+  --color-accent: #6366f1;
+  --color-accent-hover: #818cf8;
+  --color-accent-muted: rgba(99, 102, 241, 0.15);
+  --color-accent-subtle: rgba(99, 102, 241, 0.08);
+
+  /* ── Semantic ── */
+  --color-success: #34d399;
+  --color-success-muted: rgba(52, 211, 153, 0.12);
+  --color-warning: #fbbf24;
+  --color-warning-muted: rgba(251, 191, 36, 0.12);
+  --color-danger: #f43f5e;
+  --color-danger-muted: rgba(244, 63, 94, 0.12);
+  --color-info: #60a5fa;
+  --color-info-muted: rgba(96, 165, 250, 0.12);
+
+  /* ── Platforms ── */
+  --color-meta: #1877F2;
+  --color-meta-muted: rgba(24, 119, 242, 0.12);
+  --color-google: #EA4335;
+  --color-google-muted: rgba(234, 67, 53, 0.12);
+  --color-linkedin: #0A66C2;
+  --color-linkedin-muted: rgba(10, 102, 194, 0.12);
+  --color-tiktok: #ff0050;
+  --color-tiktok-muted: rgba(255, 0, 80, 0.12);
+  --color-instagram: #E4405F;
+  --color-instagram-muted: rgba(228, 64, 95, 0.12);
+  --color-facebook: #1877F2;
+  --color-facebook-muted: rgba(24, 119, 242, 0.12);
+
+  /* ── Typography ── */
+  --font-sans: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), 'SF Mono', 'Fira Code', monospace;
+
+  /* ── Shadows ── */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-glow-accent: 0 0 24px rgba(99,102,241,0.15);
+  --shadow-glow-success: 0 0 20px rgba(52,211,153,0.1);
+
+  /* ── Transitions ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 120ms var(--ease-in-out);
+  --transition-base: 200ms var(--ease-out);
+  --transition-slow: 350ms var(--ease-out);
+
+  /* ── Radii ── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* ── Layout ── */
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 56px;
+  --topbar-height: 48px;
+  --chat-min-width: 360px;
+  --content-max-width: 1400px;
 }
 
+/* ── Tailwind theme bridge ── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-ring: var(--ring);
+  --color-background: var(--color-bg-base);
+  --color-foreground: var(--color-text-primary);
+  --color-muted: var(--color-bg-elevated);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-border: var(--color-border-default);
+  --color-ring: var(--color-accent);
 
   --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-jetbrains-mono);
 
   --color-primary-50: #eef2ff;
   --color-primary-100: #e0e7ff;
@@ -44,17 +112,17 @@
   --color-primary-900: #312e81;
   --color-primary-950: #1e1b4b;
 
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-slate-200: #e2e8f0;
-  --color-slate-300: #cbd5e1;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-700: #2a2a3a;
-  --color-slate-800: #1a1a25;
-  --color-slate-900: #12121a;
-  --color-slate-950: #0a0a0f;
+  --color-slate-50: #f0f0f5;
+  --color-slate-100: #e2e2ec;
+  --color-slate-200: #c8c8d8;
+  --color-slate-300: #8b8b9e;
+  --color-slate-400: #5a5a6e;
+  --color-slate-500: #3d3d50;
+  --color-slate-600: #2a2a3a;
+  --color-slate-700: #1a1a24;
+  --color-slate-800: #111118;
+  --color-slate-900: #0d0d14;
+  --color-slate-950: #08080c;
 
   --color-success-50: #ecfdf5;
   --color-success-100: #d1fae5;
@@ -93,62 +161,110 @@
   --color-danger-950: #4c0519;
 }
 
+/* ============================================================
+   Base Styles
+   ============================================================ */
+
 html {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  color: var(--color-text-primary);
+  background: var(--color-bg-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 * {
-  border-color: var(--border);
+  border-color: var(--color-border-default);
 }
 
-/* Tabular nums for all data displays */
-.tabular-nums, table td, [data-kpi] {
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: white;
+}
+
+/* ============================================================
+   Typography Utilities
+   ============================================================ */
+
+.text-display { font-size: 32px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
+.text-title   { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+.text-heading  { font-size: 14px; font-weight: 600; letter-spacing: -0.005em; line-height: 1.4; }
+.text-body    { font-size: 13px; font-weight: 400; line-height: 1.55; }
+.text-small   { font-size: 12px; font-weight: 400; line-height: 1.5; }
+.text-caption  { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.text-metric  { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.text-metric-lg { font-family: var(--font-mono); font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; line-height: 1; }
+.text-metric-xl { font-family: var(--font-mono); font-size: 42px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; line-height: 1; }
+
+/* Tabular nums for data */
+table td, [data-kpi] {
   font-variant-numeric: tabular-nums;
 }
 
-/* Scrollbar — thinner, more subtle */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+/* ============================================================
+   Focus
+   ============================================================ */
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-accent-muted);
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+/* ============================================================
+   Animations
+   ============================================================ */
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.08);
-  border-radius: 4px;
+@keyframes fade-in-scale {
+  from { opacity: 0; transform: scale(0.97) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.15);
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
-/* Blink cursor for streaming */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
 
-.animate-blink {
-  animation: blink 1s step-end infinite;
-}
+.animate-fade-in { animation: fade-in 0.4s var(--ease-out) both; }
+.animate-fade-in-scale { animation: fade-in-scale 0.35s var(--ease-out) both; }
+.animate-pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+.animate-spin { animation: spin 1s linear infinite; }
+.animate-blink { animation: blink 1s step-end infinite; }
 
-/* Premium card hover effect */
-.card-hover {
-  transition: all 0.2s ease;
-}
-
-.card-hover:hover {
-  border-color: var(--border-emphasis);
-  transform: translateY(-1px);
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--color-bg-surface) 0%, var(--color-bg-elevated) 50%, var(--color-bg-surface) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
 }
