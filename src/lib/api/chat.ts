@@ -1,5 +1,5 @@
 import type { SendMessagePayload, Conversation, ConversationSummary } from "../types";
-import { apiGet, apiDelete, apiStream } from "./client";
+import { apiGet, apiDelete, apiStreamRaw } from "./client";
 
 /** Unwrap common API response wrappers */
 function unwrap<T>(raw: unknown): T {
@@ -15,8 +15,8 @@ function unwrapArray<T>(raw: unknown): T[] {
   return Array.isArray(inner) ? inner : [inner];
 }
 
-export function sendMessage(params: SendMessagePayload, signal?: AbortSignal): Promise<ReadableStream<Uint8Array>> {
-  return apiStream("/api/chat/message", params, signal);
+export function sendMessage(params: SendMessagePayload, signal?: AbortSignal): Promise<Response> {
+  return apiStreamRaw("/api/chat/message", params, signal);
 }
 
 export async function getConversations(workspaceId?: string): Promise<ConversationSummary[]> {

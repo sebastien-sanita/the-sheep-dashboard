@@ -122,9 +122,9 @@ export async function apiDelete<T = void>(endpoint: string): Promise<T> {
   return apiClient<T>(endpoint, { method: "DELETE" });
 }
 
-export async function apiStream(endpoint: string, body: unknown, signal?: AbortSignal): Promise<ReadableStream<Uint8Array>> {
+/** Returns the raw Response so callers can inspect Content-Type and choose SSE vs JSON parsing */
+export async function apiStreamRaw(endpoint: string, body: unknown, signal?: AbortSignal): Promise<Response> {
   // Use direct backend URL for streaming — bypasses Next.js rewrite proxy
-  // which buffers SSE responses and causes timeouts
   const streamUrl = `${STREAM_BASE_URL}${endpoint}`;
 
   const res = await fetch(streamUrl, {
@@ -138,16 +138,19 @@ export async function apiStream(endpoint: string, body: unknown, signal?: AbortS
     signal,
   });
 
-  console.log("[SSE] Response:", res.status, res.statusText, "Content-Type:", res.headers.get("content-type"));
-
   if (!res.ok) {
-    console.error("[SSE] Error body preview:", await res.text().then((t) => t.slice(0, 300)).catch(() => "unreadable"));
-    throw new ApiClientError(`${res.status} ${res.statusText}`, res.status);
+    if (res.status === 401) clearAuthAndRedirect();
+    let message = `${res.status} ${res.statusText}`;
+    try { const b = await res.json() as ApiError; if (b.message) message = b.message; } catch { /* ignore */ }
+    throw new ApiClientError(message, res.status);
   }
 
-  if (!res.body) {
-    throw new ApiClientError("Response body is null — SSE stream unavailable", 0);
-  }
+  return res;
+}
 
+/** Backward-compatible: returns ReadableStream (for settings page test) */
+export async function apiStream(endpoint: string, body: unknown, signal?: AbortSignal): Promise<ReadableStream<Uint8Array>> {
+  const res = await apiStreamRaw(endpoint, body, signal);
+  if (!res.body) throw new ApiClientError("Response body is null", 0);
   return res.body;
 }

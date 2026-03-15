@@ -74,21 +74,12 @@ async function* parseSseStream(
   const reader = stream.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
-  let chunkCount = 0;
-
   try {
     for (;;) {
       const { done, value } = await reader.read();
 
       if (value) {
-        const chunk = decoder.decode(value, { stream: true });
-        buffer += chunk;
-
-        // Debug: log first 3 chunks
-        if (chunkCount < 3) {
-          console.log(`[SSE] Chunk #${chunkCount}:`, JSON.stringify(chunk.slice(0, 200)));
-          chunkCount++;
-        }
+        buffer += decoder.decode(value, { stream: true });
       }
 
       // Split on double newline — SSE event boundary
@@ -100,11 +91,7 @@ async function* parseSseStream(
         const trimmed = part.trim();
         if (!trimmed) continue;
         const event = parseSseEventBlock(trimmed);
-        if (event) {
-          yield event;
-        } else if (chunkCount <= 3) {
-          console.log("[SSE] Unparsed block:", JSON.stringify(trimmed.slice(0, 200)));
-        }
+        if (event) yield event;
       }
 
       if (done) {
@@ -112,28 +99,7 @@ async function* parseSseStream(
         if (buffer.trim()) {
           const remaining = buffer.trim();
           const event = parseSseEventBlock(remaining);
-          if (event) {
-            yield event;
-          } else {
-            // Fallback: try parsing entire buffer as JSON (non-SSE response)
-            try {
-              const json = JSON.parse(remaining) as Record<string, unknown>;
-              console.log("[SSE] Fallback JSON response detected:", Object.keys(json));
-              if (json.content && typeof json.content === "string") {
-                yield { type: "text_delta", delta: json.content as string };
-                yield { type: "message_complete", message: { id: (json.id as string) ?? `json_${Date.now()}`, role: "ASSISTANT", content: json.content as string, toolCalls: null, createdAt: new Date().toISOString(), conversationId: (json.conversationId as string) ?? "" } } as unknown as ChatStreamEvent;
-              } else if (json.message && typeof json.message === "string") {
-                yield { type: "text_delta", delta: json.message as string };
-              } else if (json.data && typeof json.data === "object") {
-                const data = json.data as Record<string, unknown>;
-                if (data.content && typeof data.content === "string") {
-                  yield { type: "text_delta", delta: data.content as string };
-                }
-              }
-            } catch {
-              console.log("[SSE] Final buffer not JSON:", remaining.slice(0, 200));
-            }
-          }
+          if (event) yield event;
         }
         break;
       }
@@ -223,8 +189,8 @@ export function useChat(clientId?: string) {
       let finalConversationId: string | null = activeConversationId;
 
       try {
-        // 3. Start SSE stream
-        const stream = await apiSendMessage(
+        // 3. Fetch chat response (may be SSE stream or JSON)
+        const response = await apiSendMessage(
           {
             content,
             conversationId: activeConversationId ?? undefined,
@@ -233,13 +199,45 @@ export function useChat(clientId?: string) {
           abortController.signal,
         );
 
-        // Clear timeout once stream is connected
+        // Clear timeout once response is received
         clearTimeout(timeoutId);
 
-        // 4-6. Parse events
-        for await (const event of parseSseStream(stream)) {
-          // Check if aborted between events
-          if (abortController.signal.aborted) break;
+        const contentType = response.headers.get("content-type") ?? "";
+        const isSSE = contentType.includes("text/event-stream");
+
+        if (!isSSE) {
+          // --- JSON response: extract message directly ---
+          const json = await response.json() as Record<string, unknown>;
+          const data = (json.data && typeof json.data === "object" ? json.data : json) as Record<string, unknown>;
+          const msgContent = (data.content as string) ?? (data.message as string) ?? "";
+          const convId = (data.conversationId as string) ?? (json.conversationId as string) ?? finalConversationId;
+          const msgId = (data.id as string) ?? (data.messageId as string) ?? `json_${Date.now()}`;
+
+          accumulatedContent = msgContent;
+          finalConversationId = convId;
+          finalMessageId = msgId;
+
+          const assistantMessage: Message = {
+            id: msgId,
+            role: "ASSISTANT",
+            content: msgContent,
+            toolCalls: null,
+            createdAt: new Date().toISOString(),
+            conversationId: convId ?? "",
+          };
+          addMessage(assistantMessage);
+          setStreamingContent("");
+          setIsStreaming(false);
+
+          if (convId && convId !== activeConversationId) {
+            setActiveConversation(convId);
+          }
+        } else {
+          // --- SSE stream: parse events ---
+          if (!response.body) throw new Error("Response body is null");
+
+          for await (const event of parseSseStream(response.body)) {
+            if (abortController.signal.aborted) break;
 
           switch (event.type) {
             case "text_delta": {
@@ -330,6 +328,7 @@ export function useChat(clientId?: string) {
             }
           }
         }
+        } // end SSE else block
       } catch (err: unknown) {
         clearTimeout(timeoutId);
         // Don't treat abort as an error
