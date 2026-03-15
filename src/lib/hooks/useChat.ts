@@ -6,6 +6,7 @@ import { sendMessage as apiSendMessage, getConversation } from "../api/chat";
 import { useChatStore } from "../stores/chat-store";
 import { useDashboardStore } from "../stores/dashboard-store";
 import { useAppStore } from "../stores/app-store";
+import { generateDashboardBlocks } from "../utils/dashboard-blocks";
 
 // ---------------------------------------------------------------------------
 // SSE parser — async generator that yields typed ChatStreamEvents
@@ -231,9 +232,23 @@ export function useChat(clientId?: string) {
           addMessage(assistantMessage);
           setStreamingContent("");
           setIsStreaming(false);
+          clearToolCalls();
 
           if (convId && convId !== activeConversationId) {
             setActiveConversation(convId);
+          }
+
+          // Auto-generate dashboard blocks from tool call results
+          const rawToolCalls = (am?.toolCalls as Array<{ name: string; input?: Record<string, unknown>; result?: unknown; output?: unknown }>) ?? [];
+          if (rawToolCalls.length > 0) {
+            const isFirstBlock = blocksRef.current.length === 0;
+            const dashBlocks = generateDashboardBlocks(rawToolCalls);
+            for (const block of dashBlocks) {
+              addBlock(block);
+            }
+            if (dashBlocks.length > 0 && isFirstBlock) {
+              setActivePanelMode("split");
+            }
           }
         } else {
           // --- SSE stream: parse events ---
