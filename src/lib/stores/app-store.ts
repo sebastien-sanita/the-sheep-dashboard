@@ -55,6 +55,16 @@ export const useAppStore = create<AppState>()(
         datePreset: state.datePreset,
         activeWorkspaceId: state.activeWorkspaceId,
       }),
+      onRehydrateStorage: () => (state) => {
+        // Recalculate dateRange from persisted datePreset after hydration
+        if (state?.datePreset) {
+          try {
+            state.dateRange = getDateRange(state.datePreset as Parameters<typeof getDateRange>[0]);
+          } catch {
+            state.dateRange = getDateRange("last30d");
+          }
+        }
+      },
     },
   ),
 );
