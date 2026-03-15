@@ -303,7 +303,13 @@ export function ClientDashboard({
 
       {/* ── Section 4 — Campaigns by objective ── */}
       <motion.div {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.15 }}>
-        <CampaignsByObjective campaigns={campaigns} loading={campaignsLoading} />
+        <CampaignsByObjective
+          campaigns={campaigns}
+          loading={campaignsLoading}
+          workspaceId={client.id}
+          startDate={metrics?.dateRange?.from}
+          endDate={metrics?.dateRange?.to}
+        />
       </motion.div>
 
       {/* ── Section 5 — Connected accounts (compact, collapsible) ── */}

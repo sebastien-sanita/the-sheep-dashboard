@@ -10,11 +10,12 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
-  ArrowRight,
+  ChevronRight,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Campaign } from "@/lib/types";
-import { formatCurrency, formatCompact, formatPercent } from "@/lib/utils/format";
+import { formatCurrency } from "@/lib/utils/format";
+import { CampaignDrilldown } from "./CampaignDrilldown";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
 
@@ -108,88 +109,39 @@ const NAME_PATTERNS: { pattern: RegExp; key: CategoryKey }[] = [
 
 function getCategoryByName(name: string): CategoryDef | null {
   for (const { pattern, key } of NAME_PATTERNS) {
-    if (pattern.test(name)) {
-      return CATEGORIES.find((c) => c.key === key) ?? null;
-    }
+    if (pattern.test(name)) return CATEGORIES.find((c) => c.key === key) ?? null;
   }
   return null;
 }
 
 function getCategory(objective: string | null, name?: string): CategoryDef {
   const other = CATEGORIES[CATEGORIES.length - 1];
-
-  // 1. Try official objective field
   if (objective) {
-    const upper = objective.toUpperCase();
-    const match = CATEGORIES.find((c) => c.objectives.includes(upper));
+    const match = CATEGORIES.find((c) => c.objectives.includes(objective.toUpperCase()));
     if (match) return match;
   }
-
-  // 2. Fallback: infer from campaign name
   if (name) {
     const fromName = getCategoryByName(name);
     if (fromName) return fromName;
   }
-
   return other;
 }
 
 // ---------------------------------------------------------------------------
-// KPI definitions per category
+// Mini KPIs per category
 // ---------------------------------------------------------------------------
 
-interface MiniKPI {
-  label: string;
-  value: string;
-}
+interface MiniKPI { label: string; value: string }
 
 function getCategoryKPIs(cat: CategoryKey, campaigns: Campaign[]): MiniKPI[] {
   const totalSpend = campaigns.reduce((s, c) => s + (c.budget ?? 0), 0);
-  const count = campaigns.length;
-
-  switch (cat) {
-    case "leads":
-      return [
-        { label: "Campagnes", value: String(count) },
-        { label: "Budget total", value: formatCurrency(totalSpend) },
-        { label: "Objectif", value: "Leads" },
-        { label: "Actives", value: String(campaigns.filter((c) => c.status === "ACTIVE").length) },
-      ];
-    case "traffic":
-      return [
-        { label: "Campagnes", value: String(count) },
-        { label: "Budget total", value: formatCurrency(totalSpend) },
-        { label: "Objectif", value: "Clics lien" },
-        { label: "Actives", value: String(campaigns.filter((c) => c.status === "ACTIVE").length) },
-      ];
-    case "awareness":
-      return [
-        { label: "Campagnes", value: String(count) },
-        { label: "Budget total", value: formatCurrency(totalSpend) },
-        { label: "Objectif", value: "Impressions" },
-        { label: "Actives", value: String(campaigns.filter((c) => c.status === "ACTIVE").length) },
-      ];
-    case "engagement":
-      return [
-        { label: "Campagnes", value: String(count) },
-        { label: "Budget total", value: formatCurrency(totalSpend) },
-        { label: "Objectif", value: "Engagement" },
-        { label: "Actives", value: String(campaigns.filter((c) => c.status === "ACTIVE").length) },
-      ];
-    case "sales":
-      return [
-        { label: "Campagnes", value: String(count) },
-        { label: "Budget total", value: formatCurrency(totalSpend) },
-        { label: "Objectif", value: "Achats" },
-        { label: "Actives", value: String(campaigns.filter((c) => c.status === "ACTIVE").length) },
-      ];
-    default:
-      return [
-        { label: "Campagnes", value: String(count) },
-        { label: "Budget total", value: formatCurrency(totalSpend) },
-        { label: "Actives", value: String(campaigns.filter((c) => c.status === "ACTIVE").length) },
-      ];
-  }
+  const active = campaigns.filter((c) => c.status === "ACTIVE").length;
+  return [
+    { label: "Campagnes", value: String(campaigns.length) },
+    { label: "Budget total", value: formatCurrency(totalSpend) },
+    { label: "Actives", value: String(active) },
+    { label: "Objectif", value: { leads: "Leads", traffic: "Clics lien", awareness: "Impressions", engagement: "Engagement", sales: "Achats", other: "—" }[cat] },
+  ];
 }
 
 // ---------------------------------------------------------------------------
@@ -212,6 +164,9 @@ type CampaignFilter = "all" | "ACTIVE" | "PAUSED";
 interface CampaignsByObjectiveProps {
   campaigns: Campaign[] | undefined;
   loading: boolean;
+  workspaceId: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -223,11 +178,21 @@ function ObjectiveBlock({
   campaigns,
   index,
   showArchived,
+  workspaceId,
+  startDate,
+  endDate,
+  openDrilldownId,
+  onToggleDrilldown,
 }: {
   category: CategoryDef;
   campaigns: Campaign[];
   index: number;
   showArchived: boolean;
+  workspaceId: string;
+  startDate?: string;
+  endDate?: string;
+  openDrilldownId: string | null;
+  onToggleDrilldown: (id: string) => void;
 }) {
   const hasActive = campaigns.some((c) => c.status === "ACTIVE");
   const [expanded, setExpanded] = useState(hasActive);
@@ -243,17 +208,13 @@ function ObjectiveBlock({
   }, [campaigns, showArchived]);
 
   const kpis = getCategoryKPIs(category.key, campaigns);
-  const Icon = category.icon;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.06 }}
-      className={cn(
-        "overflow-hidden rounded-xl border-l-[3px] bg-slate-800/50",
-        category.border,
-      )}
+      className={cn("overflow-hidden rounded-xl border-l-[3px] bg-slate-800/50", category.border)}
     >
       {/* Header */}
       <button
@@ -273,11 +234,7 @@ function ObjectiveBlock({
             </div>
           </div>
         </div>
-        {expanded ? (
-          <ChevronUp size={16} className="text-slate-400" />
-        ) : (
-          <ChevronDown size={16} className="text-slate-400" />
-        )}
+        {expanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
       </button>
 
       {expanded && (
@@ -286,12 +243,8 @@ function ObjectiveBlock({
           <div className="grid grid-cols-2 gap-3 px-6 py-4 md:grid-cols-4">
             {kpis.map((kpi) => (
               <div key={kpi.label} className={cn("rounded-lg p-3", category.bg)}>
-                <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
-                  {kpi.label}
-                </div>
-                <div className={cn("mt-1 text-[16px] font-semibold", category.text)}>
-                  {kpi.value}
-                </div>
+                <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">{kpi.label}</div>
+                <div className={cn("mt-1 text-[16px] font-semibold", category.text)}>{kpi.value}</div>
               </div>
             ))}
           </div>
@@ -302,52 +255,64 @@ function ObjectiveBlock({
               <p className="py-4 text-center text-[12px] text-slate-500">Aucune campagne visible</p>
             ) : (
               <div className="overflow-hidden rounded-lg border border-slate-700/30">
-                {visibleCampaigns.map((c, i) => (
-                  <div
-                    key={c.id}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-2.5 text-[13px] transition-colors hover:bg-slate-700/20",
-                      i > 0 && "border-t border-slate-700/20",
-                      c.status === "PAUSED" && "opacity-60",
-                      (c.status === "DELETED" || c.status === "ARCHIVED") && "opacity-40",
-                    )}
-                  >
-                    <span className="min-w-0 flex-1 truncate text-slate-200">{c.name}</span>
-                    <span
-                      className={cn(
-                        "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
-                        STATUS_BADGES[c.status] ?? "bg-slate-500/10 text-slate-400",
-                      )}
-                    >
-                      {c.status}
-                    </span>
-                    {c.budget != null && isFinite(c.budget) && (
-                      <span className="shrink-0 text-[12px] text-slate-400">
-                        {formatCurrency(c.budget)}
-                        {c.budgetType && (
-                          <span className="ml-0.5 text-[10px] text-slate-600">
-                            {c.budgetType === "DAILY" ? "/j" : ""}
+                {visibleCampaigns.map((c, i) => {
+                  const isOpen = openDrilldownId === c.id;
+                  return (
+                    <div key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => onToggleDrilldown(c.id)}
+                        className={cn(
+                          "flex w-full items-center gap-3 px-4 py-2.5 text-left text-[13px] transition-colors hover:bg-slate-700/20",
+                          i > 0 && !isOpen && "border-t border-slate-700/20",
+                          i > 0 && isOpen && "border-t border-slate-700/20",
+                          c.status === "PAUSED" && "opacity-60",
+                          (c.status === "DELETED" || c.status === "ARCHIVED") && "opacity-40",
+                          isOpen && "bg-slate-700/20",
+                        )}
+                      >
+                        <ChevronRight
+                          size={14}
+                          className={cn(
+                            "shrink-0 text-slate-500 transition-transform duration-200",
+                            isOpen && "rotate-90",
+                          )}
+                        />
+                        <span className="min-w-0 flex-1 truncate text-slate-200">{c.name}</span>
+                        <span
+                          className={cn(
+                            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
+                            STATUS_BADGES[c.status] ?? "bg-slate-500/10 text-slate-400",
+                          )}
+                        >
+                          {c.status}
+                        </span>
+                        {c.budget != null && isFinite(c.budget) && (
+                          <span className="shrink-0 text-[12px] text-slate-400">
+                            {formatCurrency(c.budget)}
+                            {c.budgetType === "DAILY" && <span className="ml-0.5 text-[10px] text-slate-600">/j</span>}
                           </span>
                         )}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                      </button>
+
+                      {/* Inline drilldown */}
+                      <AnimatePresence>
+                        {isOpen && (
+                          <CampaignDrilldown
+                            workspaceId={workspaceId}
+                            campaignId={c.id}
+                            categoryBorder={category.border}
+                            startDate={startDate}
+                            endDate={endDate}
+                            onClose={() => onToggleDrilldown(c.id)}
+                          />
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
               </div>
             )}
-          </div>
-
-          {/* Future: audiences & creatives button */}
-          <div className="border-t border-slate-700/30 px-6 py-3">
-            <button
-              type="button"
-              disabled
-              className="inline-flex items-center gap-1.5 text-[12px] text-slate-600 cursor-not-allowed"
-              title="Bientôt disponible"
-            >
-              Audiences et créatifs
-              <ArrowRight size={12} />
-            </button>
           </div>
         </div>
       )}
@@ -359,21 +324,18 @@ function ObjectiveBlock({
 // Main component
 // ---------------------------------------------------------------------------
 
-export function CampaignsByObjective({ campaigns, loading }: CampaignsByObjectiveProps) {
+export function CampaignsByObjective({ campaigns, loading, workspaceId, startDate, endDate }: CampaignsByObjectiveProps) {
   const [filter, setFilter] = useState<CampaignFilter>("all");
   const [showArchived, setShowArchived] = useState(false);
+  const [openDrilldownId, setOpenDrilldownId] = useState<string | null>(null);
 
-  // Debug: log campaign objectives to verify mapping
-  if (typeof window !== "undefined" && campaigns?.length) {
-    console.log("Campaign objectives:", campaigns.slice(0, 5).map((c) => ({ name: c.name, objective: c.objective })));
+  function handleToggleDrilldown(id: string) {
+    setOpenDrilldownId((prev) => (prev === id ? null : id));
   }
 
-  // Group campaigns by objective category
   const grouped = useMemo(() => {
     if (!campaigns) return [];
-
     const filtered = filter === "all" ? campaigns : campaigns.filter((c) => c.status === filter);
-
     const groups = new Map<CategoryKey, { category: CategoryDef; campaigns: Campaign[] }>();
 
     for (const c of filtered) {
@@ -386,7 +348,6 @@ export function CampaignsByObjective({ campaigns, loading }: CampaignsByObjectiv
       }
     }
 
-    // Sort: categories with active campaigns first, then by campaign count
     return Array.from(groups.values()).sort((a, b) => {
       const aActive = a.campaigns.some((c) => c.status === "ACTIVE") ? 1 : 0;
       const bActive = b.campaigns.some((c) => c.status === "ACTIVE") ? 1 : 0;
@@ -429,9 +390,7 @@ export function CampaignsByObjective({ campaigns, loading }: CampaignsByObjectiv
                 onClick={() => setFilter(key)}
                 className={cn(
                   "rounded-md px-3 py-1 text-[12px] font-medium transition-colors",
-                  filter === key
-                    ? "bg-primary-500/10 text-primary-400"
-                    : "text-slate-400 hover:bg-slate-700 hover:text-slate-200",
+                  filter === key ? "bg-primary-500/10 text-primary-400" : "text-slate-400 hover:bg-slate-700 hover:text-slate-200",
                 )}
               >
                 {label}
@@ -443,9 +402,7 @@ export function CampaignsByObjective({ campaigns, loading }: CampaignsByObjectiv
             onClick={() => setShowArchived((s) => !s)}
             className={cn(
               "rounded-md px-2 py-1 text-[11px] transition-colors",
-              showArchived
-                ? "bg-slate-700 text-slate-300"
-                : "text-slate-500 hover:text-slate-300",
+              showArchived ? "bg-slate-700 text-slate-300" : "text-slate-500 hover:text-slate-300",
             )}
           >
             {showArchived ? "Masquer archivées" : "Afficher archivées"}
@@ -469,6 +426,11 @@ export function CampaignsByObjective({ campaigns, loading }: CampaignsByObjectiv
               campaigns={cats}
               index={i}
               showArchived={showArchived}
+              workspaceId={workspaceId}
+              startDate={startDate}
+              endDate={endDate}
+              openDrilldownId={openDrilldownId}
+              onToggleDrilldown={handleToggleDrilldown}
             />
           ))}
         </div>

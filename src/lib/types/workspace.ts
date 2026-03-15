@@ -85,6 +85,47 @@ export interface ConnectedAccount {
   lastSyncAt: string | null;
 }
 
+export interface EntityMetrics {
+  impressions?: number;
+  clicks?: number;
+  spend?: number;
+  reach?: number;
+  ctr?: number;
+  cpc?: number;
+  cpm?: number;
+  conversions?: number;
+  frequency?: number;
+}
+
+export interface AdSetWithMetrics {
+  id: string;
+  name: string;
+  status: string;
+  targeting: Record<string, unknown> | null;
+  bidStrategy: string | null;
+  adsCount?: number;
+  metrics: EntityMetrics;
+}
+
+export interface CreativeData {
+  title?: string;
+  body?: string;
+  image_url?: string;
+  video_url?: string;
+  thumbnail_url?: string;
+  link_url?: string;
+  call_to_action?: string;
+}
+
+export interface AdWithMetrics {
+  id: string;
+  name: string;
+  status: string;
+  creativeData: CreativeData | null;
+  adSetName?: string;
+  metrics: EntityMetrics;
+}
+
 export interface Metrics30d {
   spend?: number;
   impressions?: number;
