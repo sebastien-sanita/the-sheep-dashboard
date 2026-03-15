@@ -2,11 +2,12 @@
 
 import { use } from "react";
 import { TopBar } from "@/components/layout/TopBar";
-import { ClientDetail } from "@/components/clients/ClientDetail";
+import { ClientDashboard } from "@/components/clients/ClientDashboard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useWorkspace, useWorkspaceCampaigns } from "@/lib/hooks/useWorkspace";
 import { useMetrics } from "@/lib/hooks/useMetrics";
 import { useAppStore } from "@/lib/stores/app-store";
+import { getPreviousPeriod } from "@/lib/utils/dates";
 
 export default function ClientDetailPage({
   params,
@@ -15,49 +16,47 @@ export default function ClientDetailPage({
 }) {
   const { id } = use(params);
   const dateRange = useAppStore((s) => s.dateRange);
-  const { data: client, isLoading, isError, refetch } = useWorkspace(id);
+  const previousRange = getPreviousPeriod(dateRange);
+
+  const workspace = useWorkspace(id);
   const campaigns = useWorkspaceCampaigns(id);
   const metrics = useMetrics(id, dateRange);
+  const prevMetrics = useMetrics(id, previousRange);
 
   return (
     <div className="flex h-full flex-col">
       <TopBar />
       <div className="flex-1 overflow-auto">
-        {isLoading && (
+        {workspace.isLoading && (
           <div className="space-y-6 p-5">
             <div className="flex items-start justify-between">
               <div>
-                <Skeleton className="h-7 w-48" />
-                <Skeleton className="mt-2 h-4 w-24" />
+                <Skeleton className="h-8 w-56" />
+                <Skeleton className="mt-2 h-4 w-32" />
               </div>
               <div className="flex gap-2">
-                <Skeleton className="h-8 w-32" />
-                <Skeleton className="h-8 w-28" />
+                <Skeleton className="h-9 w-36" />
+                <Skeleton className="h-9 w-32" />
               </div>
             </div>
-            <Skeleton className="h-5 w-36" />
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-2">
-              <Skeleton className="h-20" />
-              <Skeleton className="h-20" />
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-32" />
+              ))}
             </div>
-            <Skeleton className="h-5 w-28" />
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              <Skeleton className="h-28" />
-              <Skeleton className="h-28" />
-              <Skeleton className="h-28" />
-              <Skeleton className="h-28" />
-            </div>
+            <Skeleton className="h-80" />
+            <Skeleton className="h-64" />
           </div>
         )}
 
-        {isError && (
+        {workspace.isError && (
           <div className="flex flex-col items-center justify-center py-20">
             <p className="text-[13px] text-slate-400">
               Erreur lors du chargement du client
             </p>
             <button
               type="button"
-              onClick={() => refetch()}
+              onClick={() => workspace.refetch()}
               className="mt-3 rounded-lg bg-primary-600 px-4 py-1.5 text-[12px] font-medium text-white hover:bg-primary-500"
             >
               Réessayer
@@ -65,13 +64,14 @@ export default function ClientDetailPage({
           </div>
         )}
 
-        {client && (
-          <ClientDetail
-            client={client}
+        {workspace.data && (
+          <ClientDashboard
+            client={workspace.data}
             campaigns={campaigns.data}
             campaignsLoading={campaigns.isLoading}
             metrics={metrics.data}
             metricsLoading={metrics.isLoading}
+            prevMetrics={prevMetrics.data}
           />
         )}
       </div>
