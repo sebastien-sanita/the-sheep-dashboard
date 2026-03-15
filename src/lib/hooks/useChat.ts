@@ -208,20 +208,23 @@ export function useChat(clientId?: string) {
         if (!isSSE) {
           // --- JSON response: extract message directly ---
           const json = await response.json() as Record<string, unknown>;
+          const am = json.assistantMessage as Record<string, unknown> | undefined;
           const data = (json.data && typeof json.data === "object" ? json.data : json) as Record<string, unknown>;
-          const msgContent = (data.content as string) ?? (data.message as string) ?? "";
-          const convId = (data.conversationId as string) ?? (json.conversationId as string) ?? finalConversationId;
-          const msgId = (data.id as string) ?? (data.messageId as string) ?? `json_${Date.now()}`;
+          const msgContent = (am?.content as string) ?? (data.content as string) ?? (data.message as string) ?? "";
+          const convId = (json.conversationId as string) ?? (data.conversationId as string) ?? finalConversationId;
+          const msgId = (am?.id as string) ?? (data.id as string) ?? (data.messageId as string) ?? `json_${Date.now()}`;
 
           accumulatedContent = msgContent;
           finalConversationId = convId;
           finalMessageId = msgId;
 
+          const msgToolCalls = (am?.toolCalls as ToolCall[] | undefined) ?? null;
+
           const assistantMessage: Message = {
             id: msgId,
             role: "ASSISTANT",
             content: msgContent,
-            toolCalls: null,
+            toolCalls: msgToolCalls,
             createdAt: new Date().toISOString(),
             conversationId: convId ?? "",
           };
