@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { X, ChevronLeft, ChevronRight, ExternalLink, Play, Image as ImageIcon, Film, LayoutGrid } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ExternalLink, Play, ImageOff, Image as ImageIcon, Film, LayoutGrid } from "lucide-react";
 import { motion } from "framer-motion";
 import type { AdWithMetrics, CreativeData } from "@/lib/types";
 import { formatCurrency, formatCompact, formatPercent } from "@/lib/utils/format";
@@ -186,8 +186,8 @@ export function CreativePreviewModal({
               )}
             </>
           ) : (
-            <div className="flex flex-col items-center gap-2 text-slate-500">
-              <FormatIcon size={48} />
+            <div className="flex flex-col items-center gap-3 bg-gradient-to-b from-slate-800 to-slate-700 p-12 text-slate-500">
+              <ImageOff size={48} />
               <span className="text-[12px]">{format.label}</span>
             </div>
           )}
@@ -234,7 +234,7 @@ export function CreativePreviewModal({
 
           {/* Rank */}
           <div className="mt-3 text-[12px] text-slate-400">
-            #{rank} sur {ads.length} créatifs (Top {percentile}%)
+            #{rank} sur {ads.length} — {tier === "top" ? "🏆 Top performer" : tier === "mid" ? "⚡ Performer" : "⚠️ À optimiser"}
           </div>
 
           {/* KPIs — objective-adaptive */}
@@ -258,23 +258,34 @@ export function CreativePreviewModal({
             )}
           </div>
 
-          {/* Creative text */}
+          {/* Video link */}
+          {creative?.videoId && (
+            <div className="mt-3">
+              <a href={`https://www.facebook.com/watch/?v=${creative.videoId}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-blue-500/10 px-3 py-1.5 text-[11px] font-medium text-blue-400 transition-colors hover:bg-blue-500/20">
+                <Play size={12} />
+                Voir sur Facebook
+                <ExternalLink size={10} />
+              </a>
+            </div>
+          )}
+
+          {/* Creative text — social post style */}
           {creative && (creative.title || creative.body) && (
             <div className="mt-5 border-t border-slate-700/50 pt-4">
-              <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Contenu</div>
-              {creative.title && (
-                <p className="mt-2 text-[13px] font-medium text-slate-200">{creative.title}</p>
-              )}
-              {creative.body && (
-                <p className="mt-1 text-[12px] leading-relaxed text-slate-400">{creative.body}</p>
-              )}
-              {creative.ctaType && (
-                <div className="mt-2">
-                  <span className="rounded bg-primary-500/10 px-2 py-0.5 text-[11px] font-medium text-primary-400">
+              <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Contenu du créatif</div>
+              <div className="mt-3 rounded-xl bg-slate-800 p-4">
+                {creative.title && (
+                  <p className="text-[13px] font-semibold text-slate-100">{creative.title}</p>
+                )}
+                {creative.body && (
+                  <p className="mt-2 whitespace-pre-line text-[12px] leading-relaxed text-slate-300">{creative.body}</p>
+                )}
+                {creative.ctaType && (
+                  <div className="mt-3 inline-block rounded-md bg-primary-600 px-4 py-1.5 text-[11px] font-medium text-white">
                     {CTA_LABELS[creative.ctaType] ?? creative.ctaType}
-                  </span>
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

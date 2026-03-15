@@ -13,8 +13,12 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronRight,
+  BarChart3,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
+} from "recharts";
 import type { Campaign } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils/format";
 import { type CategoryKey, getObjectiveConfig, formatKpi, refineCategory } from "@/lib/utils/objective-metrics";
@@ -124,11 +128,30 @@ function ObjectiveBlock({
 }) {
   const hasActive = campaigns.some((c) => c.status === "ACTIVE");
   const [expanded, setExpanded] = useState(hasActive);
+  const [showComparison, setShowComparison] = useState(false);
   const config = getObjectiveConfig(category.key);
 
   const activeCount = campaigns.filter((c) => c.status === "ACTIVE").length;
   const pausedCount = campaigns.filter((c) => c.status === "PAUSED").length;
   const totalSpend = campaigns.reduce((s, c) => s + (c.budget ?? 0), 0);
+
+  // Spend distribution data for stacked bar
+  const spendBarData = useMemo(() => {
+    return campaigns
+      .filter((c) => (c.budget ?? 0) > 0)
+      .sort((a, b) => (b.budget ?? 0) - (a.budget ?? 0))
+      .slice(0, 12);
+  }, [campaigns]);
+
+  // Comparison chart data
+  const comparisonData = useMemo(() => {
+    const active = campaigns.filter((c) => c.status === "ACTIVE" && (c.budget ?? 0) > 0);
+    return active.sort((a, b) => (b.budget ?? 0) - (a.budget ?? 0)).slice(0, 8).map((c) => ({
+      name: c.name.length > 15 ? c.name.slice(0, 15) + "…" : c.name,
+      fullName: c.name,
+      budget: c.budget ?? 0,
+    }));
+  }, [campaigns]);
 
   const visibleCampaigns = useMemo(() => {
     const filtered = showArchived
@@ -183,6 +206,46 @@ function ObjectiveBlock({
               </div>
             ))}
           </div>
+
+          {/* Spend distribution bar */}
+          {spendBarData.length > 1 && totalSpend > 0 && (
+            <div className="px-6 pb-3">
+              <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1.5">
+                <span>Répartition budget</span>
+                {activeCount > 1 && (
+                  <button type="button" onClick={() => setShowComparison((s) => !s)} className={cn("inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors", showComparison ? "bg-slate-700 text-slate-300" : "text-slate-500 hover:text-slate-300")} disabled={comparisonData.length < 2}>
+                    <BarChart3 size={10} /> Comparer
+                  </button>
+                )}
+              </div>
+              <div className="flex h-5 overflow-hidden rounded-full" title={`Budget total : ${formatCurrency(totalSpend)}`}>
+                {spendBarData.map((c, i) => {
+                  const pct = ((c.budget ?? 0) / totalSpend) * 100;
+                  if (pct < 1) return null;
+                  return (
+                    <div key={c.id} className="relative transition-all hover:brightness-125" style={{ width: `${pct}%`, backgroundColor: `hsl(${category.key === "leads" ? 152 : category.key === "traffic" ? 217 : category.key === "awareness" ? 270 : category.key === "engagement" ? 43 : category.key === "sales" ? 350 : 215}, ${60 - i * 4}%, ${45 + i * 3}%)` }} title={`${c.name}: ${formatCurrency(c.budget ?? 0)}`} />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Comparison chart */}
+          {showComparison && comparisonData.length >= 2 && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} transition={{ duration: 0.2 }} className="overflow-hidden border-t border-slate-700/30 px-6 py-4">
+              <div className="h-48 overflow-x-auto">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={comparisonData} margin={{ top: 5, right: 5, bottom: 5, left: -10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${Math.round(v)}€`} />
+                    <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 shadow-xl text-[11px]"><p className="text-slate-200">{(payload[0].payload as { fullName: string }).fullName}</p><p className="font-semibold text-slate-50">{formatCurrency(payload[0].value as number)}</p></div> : null} />
+                    <Bar dataKey="budget" radius={[4, 4, 0, 0]} fill={category.key === "leads" ? "#34d399" : category.key === "traffic" ? "#60a5fa" : category.key === "awareness" ? "#a78bfa" : category.key === "engagement" ? "#fbbf24" : category.key === "sales" ? "#fb7185" : "#94a3b8"} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </motion.div>
+          )}
 
           <div className="px-6 pb-4">
             {visibleCampaigns.length === 0 ? (

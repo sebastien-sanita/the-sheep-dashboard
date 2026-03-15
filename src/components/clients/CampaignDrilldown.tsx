@@ -7,6 +7,7 @@ import type { AdSetWithMetrics, AdWithMetrics, CreativeData } from "@/lib/types"
 import { getCampaignAdsets, getCampaignAds } from "@/lib/api/campaigns";
 import { formatCurrency, formatCompact, formatPercent } from "@/lib/utils/format";
 import { type CategoryKey, getObjectiveConfig, formatKpi, type ObjectiveMetricsConfig, hasConversionData } from "@/lib/utils/objective-metrics";
+import { translateTargeting } from "@/lib/utils/targeting";
 import { CreativePreviewModal } from "./CreativePreviewModal";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
@@ -105,6 +106,7 @@ function getAdTier(ad: AdWithMetrics, tiers: Map<TierKey, AdWithMetrics[]>): Tie
 
 function AudiencesTab({ adsets, config }: { adsets: AdSetWithMetrics[]; config: ObjectiveMetricsConfig }) {
   const maxSpend = Math.max(...adsets.map((a) => a.metrics.spend ?? 0), 1);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   return (
     <div className="overflow-x-auto">
@@ -122,21 +124,60 @@ function AudiencesTab({ adsets, config }: { adsets: AdSetWithMetrics[]; config: 
         <tbody>
           {adsets.map((adset) => {
             const spendPct = ((adset.metrics.spend ?? 0) / maxSpend) * 100;
+            const isExpanded = expandedId === adset.id;
+            const targeting = adset.targeting ? translateTargeting(adset.targeting) : null;
+            const colSpan = 4 + config.kpis.slice(0, 3).length;
+
             return (
-              <tr key={adset.id} className="border-t border-slate-700/20 transition-colors hover:bg-slate-800/50">
+              <tr key={adset.id} className="group border-t border-slate-700/20">
                 <td className="px-4 py-2.5">
-                  <div className="text-slate-200">{adset.name}</div>
-                  {adset.bidStrategy && <div className="mt-0.5 text-[10px] text-slate-500">{adset.bidStrategy}</div>}
+                  <button type="button" onClick={() => setExpandedId(isExpanded ? null : adset.id)} className="text-left">
+                    <div className="text-slate-200 group-hover:text-primary-400 transition-colors">{adset.name}</div>
+                    {adset.bidStrategy && <div className="mt-0.5 text-[10px] text-slate-500">{adset.bidStrategy}</div>}
+                    {targeting && !isExpanded && (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {targeting.location !== "—" && <span className="rounded-full bg-slate-700/50 px-1.5 py-0.5 text-[9px] text-slate-400">📍 {targeting.location}</span>}
+                        {targeting.age !== "—" && <span className="rounded-full bg-slate-700/50 px-1.5 py-0.5 text-[9px] text-slate-400">👤 {targeting.age}</span>}
+                      </div>
+                    )}
+                  </button>
+                  {/* Expanded targeting */}
+                  {isExpanded && targeting && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} transition={{ duration: 0.2 }} className="mt-2 overflow-hidden rounded-lg bg-slate-800/50 p-3">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-[10px]">
+                        <span className="text-slate-400">📍 <span className="text-slate-300">{targeting.location}</span></span>
+                        <span className="text-slate-400">👤 <span className="text-slate-300">{targeting.age}, {targeting.gender}</span></span>
+                        <span className="text-slate-400">📱 <span className="text-slate-300">{targeting.devices}</span></span>
+                      </div>
+                      {targeting.interests.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          <span className="text-[10px] text-slate-500">🎯</span>
+                          {targeting.interests.slice(0, 6).map((i) => (
+                            <span key={i} className="rounded-full bg-slate-700 px-2 py-0.5 text-[10px] text-slate-300">{i}</span>
+                          ))}
+                          {targeting.interests.length > 6 && <span className="text-[10px] text-slate-500">+{targeting.interests.length - 6} autres</span>}
+                        </div>
+                      )}
+                      {targeting.placements.length > 0 && (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          <span className="text-[10px] text-slate-500">📍</span>
+                          {targeting.placements.map((p) => (
+                            <span key={p} className="rounded-full bg-slate-700 px-2 py-0.5 text-[10px] text-slate-300">{p}</span>
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
                 </td>
-                <td className="px-3 py-2.5">
+                <td className="px-3 py-2.5 align-top">
                   <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-medium", STATUS_BADGES[adset.status] ?? "bg-slate-500/10 text-slate-400")}>{adset.status}</span>
                 </td>
                 {config.kpis.slice(0, 3).map((kpi) => (
-                  <td key={kpi.key} className="px-3 py-2.5 text-right text-slate-300">
+                  <td key={kpi.key} className="px-3 py-2.5 text-right align-top text-slate-300">
                     {formatKpi(kpi.extract(adset.metrics), kpi.format)}
                   </td>
                 ))}
-                <td className="px-3 py-2.5">
+                <td className="px-3 py-2.5 align-top">
                   <div className="text-right text-slate-200">{formatCurrency(adset.metrics.spend ?? 0)}</div>
                   <div className="mt-1 h-1 w-full rounded-full bg-slate-700/50">
                     <div className="h-1 rounded-full bg-primary-500/60" style={{ width: `${spendPct}%` }} />
