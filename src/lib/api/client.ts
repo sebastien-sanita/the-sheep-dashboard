@@ -7,6 +7,9 @@ const BASE_URL =
     ? ""
     : process.env.NEXT_PUBLIC_API_URL ?? "https://api.the-sheep.fr";
 
+// Direct backend URL for SSE streaming (bypasses Next.js proxy which buffers/times out)
+const STREAM_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.the-sheep.fr";
+
 const AUTH_STORAGE_KEY = "the-sheep-auth";
 
 class ApiClientError extends Error {
@@ -120,10 +123,15 @@ export async function apiDelete<T = void>(endpoint: string): Promise<T> {
 }
 
 export async function apiStream(endpoint: string, body: unknown, signal?: AbortSignal): Promise<ReadableStream<Uint8Array>> {
-  const res = await fetch(buildUrl(endpoint), {
+  // Use direct backend URL for streaming — bypasses Next.js rewrite proxy
+  // which buffers SSE responses and causes timeouts
+  const streamUrl = `${STREAM_BASE_URL}${endpoint}`;
+
+  const res = await fetch(streamUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Accept": "text/event-stream",
       ...authHeaders(),
     },
     body: JSON.stringify(body),
@@ -131,6 +139,7 @@ export async function apiStream(endpoint: string, body: unknown, signal?: AbortS
   });
 
   if (!res.ok) {
+    console.error("[Chat] Stream error:", res.status, res.statusText);
     await handleError(res);
   }
 
