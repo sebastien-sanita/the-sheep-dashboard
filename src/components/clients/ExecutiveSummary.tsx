@@ -1,14 +1,18 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import {
   Wallet, Target, MousePointerClick, Eye, Heart, ShoppingCart, Play, MessageCircle,
   TrendingUp, TrendingDown,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { PieChart, Pie, Cell, AreaChart, Area } from "recharts";
-import type { Campaign, AggregatedMetrics, Metrics30d } from "@/lib/types";
+import {
+  AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip,
+} from "recharts";
+import type { Campaign, AggregatedMetrics, Metrics30d, InsightMetrics } from "@/lib/types";
 import { formatCurrency, formatCompact, formatPercent } from "@/lib/utils/format";
+import { formatDate } from "@/lib/utils/dates";
 import { type CategoryKey } from "@/lib/utils/objective-metrics";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
@@ -46,7 +50,7 @@ function detect(c: Campaign): CategoryKey {
 // ---------------------------------------------------------------------------
 
 const VIS: Record<CategoryKey, { icon: typeof Target; label: string; color: string; border: string; text: string; labelColor: string }> = {
-  leads: { icon: Target, label: "Leads", color: "#34d399", border: "border-l-emerald-500", text: "text-emerald-400", labelColor: "text-emerald-500/70" },
+  leads: { icon: Target, label: "Génération de leads", color: "#34d399", border: "border-l-emerald-500", text: "text-emerald-400", labelColor: "text-emerald-500/70" },
   traffic: { icon: MousePointerClick, label: "Trafic", color: "#60a5fa", border: "border-l-blue-500", text: "text-blue-400", labelColor: "text-blue-500/70" },
   awareness: { icon: Eye, label: "Notoriété", color: "#a78bfa", border: "border-l-purple-500", text: "text-purple-400", labelColor: "text-purple-500/70" },
   engagement: { icon: Heart, label: "Engagement", color: "#fbbf24", border: "border-l-amber-500", text: "text-amber-400", labelColor: "text-amber-500/70" },
@@ -56,21 +60,44 @@ const VIS: Record<CategoryKey, { icon: typeof Target; label: string; color: stri
   other: { icon: Wallet, label: "Autre", color: "#94a3b8", border: "border-l-slate-500", text: "text-slate-400", labelColor: "text-slate-500/70" },
 };
 
+const DONUT_COLORS = ["#818cf8", "#34d399", "#fbbf24", "#60a5fa", "#fb7185", "#a78bfa"];
+
 // ---------------------------------------------------------------------------
-// Objective data — pure budget-ratio approach (no daily filtering)
+// Recharts shared styles
+// ---------------------------------------------------------------------------
+
+const GRID_PROPS = { strokeDasharray: "3 3", stroke: "#334155", strokeOpacity: 0.5 };
+const XAXIS_TICK = { fontSize: 10, fill: "#94a3b8" };
+const YAXIS_TICK = { fontSize: 10, fill: "#64748b" };
+const TT_STYLE = { backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 8 };
+
+function MiniTooltip({ active, payload, label, fmt }: { active?: boolean; payload?: Array<{ value: number }>; label?: string; fmt: (v: number) => string }) {
+  if (!active || !payload?.length) return null;
+  return <div style={TT_STYLE} className="px-2 py-1 shadow-xl"><p className="text-[10px] text-slate-400">{label}</p><p className="text-[12px] font-semibold text-slate-50">{fmt(payload[0].value)}</p></div>;
+}
+
+// ---------------------------------------------------------------------------
+// Objective data
 // ---------------------------------------------------------------------------
 
 interface ObjData {
   key: CategoryKey;
   count: number;
-  budget: number;
   spend: number;
   pct: number;
-  kpis: { label: string; value: string; barPct: number }[];
-  sparkline: { v: number }[];
+  campaigns: Campaign[];
+  daily: { date: string; spend: number; impressions: number; clicks: number }[];
+  weekly: { week: string; spend: number; impressions: number; clicks: number }[];
+  topCampaigns: { name: string; spend: number }[];
 }
 
-function buildData(campaigns: Campaign[], totalSpend: number, daily: Array<{ date: string; spend: number }> | undefined): ObjData[] {
+interface DisplayKpi { label: string; value: string; trend?: number; invertTrend?: boolean }
+
+function buildData(
+  campaigns: Campaign[],
+  totalSpend: number,
+  daily: { date: string; spend: number; impressions: number; clicks: number }[],
+): ObjData[] {
   const active = campaigns.filter((c) => c.status === "ACTIVE");
   const groups = new Map<CategoryKey, Campaign[]>();
 
@@ -81,70 +108,98 @@ function buildData(campaigns: Campaign[], totalSpend: number, daily: Array<{ dat
     groups.get(cat)!.push(c);
   }
 
-  const totalBudget = active.filter((c) => detect(c) !== "other").reduce((s, c) => s + (c.budget ?? 0), 0);
+  // Budget ratio split
+  const totalBudget = Array.from(groups.values()).flat().reduce((s, c) => s + (c.budget ?? 0), 0);
   const results: ObjData[] = [];
 
   for (const [key, camps] of groups) {
     const groupBudget = camps.reduce((s, c) => s + (c.budget ?? 0), 0);
-
-    // Ratio-based spend: use budget proportion of total spend
     const ratio = totalBudget > 0 ? groupBudget / totalBudget : 1 / groups.size;
     const spend = totalSpend * ratio;
-
-    // Proportional impressions/clicks from global metrics (rough estimate)
     const pct = totalSpend > 0 ? (spend / totalSpend) * 100 : 0;
 
-    // Sparkline: proportional daily spend
-    const sparkline = daily ? daily.map((d) => ({ v: d.spend * ratio })) : [];
+    // Proportional daily
+    const objDaily = daily.map((d) => ({
+      date: formatDate(d.date, "short"),
+      spend: d.spend * ratio,
+      impressions: d.impressions * ratio,
+      clicks: d.clicks * ratio,
+    }));
 
-    // KPIs based on category
-    const kpis = getKpis(key, spend, camps, pct);
+    // Group by ISO week
+    const weekMap = new Map<string, { spend: number; impressions: number; clicks: number }>();
+    daily.forEach((d, i) => {
+      const weekNum = `S${Math.floor(i / 7) + 1}`;
+      const w = weekMap.get(weekNum) ?? { spend: 0, impressions: 0, clicks: 0 };
+      w.spend += d.spend * ratio;
+      w.impressions += d.impressions * ratio;
+      w.clicks += d.clicks * ratio;
+      weekMap.set(weekNum, w);
+    });
+    const weekly = Array.from(weekMap.entries()).map(([week, v]) => ({ week, ...v }));
 
-    results.push({ key, count: camps.length, budget: groupBudget, spend, pct, kpis, sparkline });
+    // Top 5 campaigns by budget
+    const topCampaigns = [...camps]
+      .sort((a, b) => (b.budget ?? 0) - (a.budget ?? 0))
+      .slice(0, 5)
+      .map((c) => ({ name: c.name.length > 20 ? c.name.slice(0, 20) + "…" : c.name, spend: (c.budget ?? 0) * (totalBudget > 0 ? totalSpend / totalBudget : 1) }));
+
+    results.push({ key, count: camps.length, spend, pct, campaigns: camps, daily: objDaily, weekly, topCampaigns });
   }
 
   return results.sort((a, b) => b.spend - a.spend);
 }
 
-function getKpis(key: CategoryKey, spend: number, camps: Campaign[], pct: number): ObjData["kpis"] {
-  const n = camps.length;
-  switch (key) {
-    case "leads":
-      return [
-        { label: "Dépense", value: formatCurrency(spend), barPct: 100 },
-        { label: "Campagnes", value: String(n), barPct: Math.min(n * 25, 100) },
-        { label: "Part budget", value: `${pct.toFixed(0)}%`, barPct: pct },
-      ];
-    case "traffic":
-      return [
-        { label: "Dépense", value: formatCurrency(spend), barPct: 100 },
-        { label: "Campagnes", value: String(n), barPct: Math.min(n * 25, 100) },
-        { label: "Part budget", value: `${pct.toFixed(0)}%`, barPct: pct },
-      ];
-    case "awareness":
-      return [
-        { label: "Dépense", value: formatCurrency(spend), barPct: 100 },
-        { label: "Campagnes", value: String(n), barPct: Math.min(n * 25, 100) },
-        { label: "Part budget", value: `${pct.toFixed(0)}%`, barPct: pct },
-      ];
-    default:
-      return [
-        { label: "Dépense", value: formatCurrency(spend), barPct: 100 },
-        { label: "Campagnes", value: String(n), barPct: Math.min(n * 25, 100) },
-        { label: "Part budget", value: `${pct.toFixed(0)}%`, barPct: pct },
-      ];
+function getKpis(obj: ObjData): DisplayKpi[] {
+  switch (obj.key) {
+    case "leads": return [
+      { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      { label: "Campagnes", value: String(obj.count) },
+      { label: "Part budget", value: `${obj.pct.toFixed(0)}%` },
+    ];
+    case "traffic": return [
+      { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      { label: "Campagnes", value: String(obj.count) },
+      { label: "Part budget", value: `${obj.pct.toFixed(0)}%` },
+    ];
+    default: return [
+      { label: "Dépense", value: formatCurrency(obj.spend), invertTrend: true },
+      { label: "Campagnes", value: String(obj.count) },
+      { label: "Part budget", value: `${obj.pct.toFixed(0)}%` },
+    ];
   }
 }
 
 // ---------------------------------------------------------------------------
-// Objective block
+// useContainerWidth hook
+// ---------------------------------------------------------------------------
+
+function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
+  const [w, setW] = useState(400);
+  useEffect(() => {
+    function measure() { if (ref.current) setW(ref.current.offsetWidth); }
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [ref]);
+  return w;
+}
+
+// ---------------------------------------------------------------------------
+// Objective block with rich charts
 // ---------------------------------------------------------------------------
 
 function ObjectiveBlock({ obj, totalSpend, index }: { obj: ObjData; totalSpend: number; index: number }) {
   const v = VIS[obj.key];
   const Icon = v.icon;
+  const kpis = getKpis(obj);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const chartW = useContainerWidth(containerRef);
+  const leftW = Math.floor(chartW * 0.6) - 8;
+  const rightW = Math.floor(chartW * 0.4) - 8;
+  const chartH = 150;
+  const hasDaily = obj.daily.length > 3;
   const donutPct = Math.round(obj.pct);
-  const rest = Math.max(0, totalSpend - obj.spend);
 
   return (
     <motion.div
@@ -153,63 +208,110 @@ function ObjectiveBlock({ obj, totalSpend, index }: { obj: ObjData; totalSpend: 
       transition={{ duration: 0.3, delay: index * 0.06 }}
       className={cn("rounded-xl border-l-4 bg-gradient-to-br from-slate-800/60 to-slate-800/30 p-5", v.border)}
     >
-      {/* Header row */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <Icon size={16} className={v.text} />
-            <span className={cn("text-[13px] font-semibold", v.text)}>{v.label}</span>
-            <span className="text-[11px] text-slate-500">{obj.count} campagne{obj.count > 1 ? "s" : ""}</span>
-          </div>
-
-          {/* KPIs */}
-          <div className="mt-4 grid grid-cols-3 gap-4">
-            {obj.kpis.map((kpi) => (
-              <div key={kpi.label}>
-                <div className={cn("text-[10px] font-medium uppercase tracking-wider", v.labelColor)}>{kpi.label}</div>
-                <div className="mt-1 text-xl font-semibold text-slate-50">{kpi.value}</div>
-                <div className="mt-1.5 h-1 w-full rounded-full bg-slate-700/50">
-                  <div className="h-1 rounded-full transition-all duration-500" style={{ width: `${kpi.barPct}%`, backgroundColor: v.color, opacity: 0.7 }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Mini donut — fixed dimensions, no ResponsiveContainer */}
-        <div className="relative w-16 h-16 shrink-0">
-          <PieChart width={64} height={64}>
-            <Pie
-              data={[{ value: obj.spend }, { value: rest }]}
-              cx={32} cy={32}
-              innerRadius={20} outerRadius={30}
-              dataKey="value" stroke="none"
-              startAngle={90} endAngle={-270}
-            >
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <Icon size={16} className={v.text} />
+        <span className={cn("text-[13px] font-semibold", v.text)}>{v.label}</span>
+        <span className="text-[11px] text-slate-500">{obj.count} campagne{obj.count > 1 ? "s" : ""}</span>
+        <div className="ml-auto relative w-12 h-12 shrink-0">
+          <PieChart width={48} height={48}>
+            <Pie data={[{ value: obj.spend }, { value: Math.max(0, totalSpend - obj.spend) }]} cx={24} cy={24} innerRadius={15} outerRadius={22} dataKey="value" stroke="none" startAngle={90} endAngle={-270}>
               <Cell fill={v.color} />
               <Cell fill="#1e293b" />
             </Pie>
-            <text x={32} y={32} textAnchor="middle" dominantBaseline="central" fill="white" fontSize={11} fontWeight={600}>
-              {donutPct}%
-            </text>
+            <text x={24} y={24} textAnchor="middle" dominantBaseline="central" fill="white" fontSize={10} fontWeight={600}>{donutPct}%</text>
           </PieChart>
         </div>
       </div>
 
-      {/* Mini area chart — fixed dimensions */}
-      {obj.sparkline.length > 3 && (
-        <div className="mt-3 w-full overflow-hidden" style={{ height: 40 }}>
-          <AreaChart width={320} height={40} data={obj.sparkline} margin={{ top: 2, right: 0, bottom: 0, left: 0 }}>
-            <defs>
-              <linearGradient id={`exec_${obj.key}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={v.color} stopOpacity={0.15} />
-                <stop offset="95%" stopColor={v.color} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <Area type="monotone" dataKey="v" stroke={v.color} strokeWidth={1.5} fill={`url(#exec_${obj.key})`} dot={false} isAnimationActive={false} />
-          </AreaChart>
+      {/* KPIs row */}
+      <div className="mt-3 grid grid-cols-3 gap-3">
+        {kpis.map((kpi) => (
+          <div key={kpi.label} className="rounded-lg bg-slate-900/30 p-2.5">
+            <div className={cn("text-[9px] font-medium uppercase tracking-wider", v.labelColor)}>{kpi.label}</div>
+            <div className="mt-0.5 text-lg font-semibold text-slate-50">{kpi.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts area */}
+      <div ref={containerRef} className="mt-4 flex gap-4">
+        {/* Left chart — varies by objective */}
+        <div className="flex-[3] min-w-0">
+          {hasDaily ? (
+            <div>
+              <div className="text-[10px] font-medium text-slate-500 mb-1">
+                {obj.key === "awareness" ? "Impressions par semaine" : obj.key === "leads" ? "Évolution dépense" : "Évolution par jour"}
+              </div>
+              {obj.key === "awareness" && obj.weekly.length > 1 ? (
+                // Awareness: grouped bar chart by week
+                <BarChart width={leftW} height={chartH} data={obj.weekly} margin={{ top: 5, right: 5, bottom: 0, left: -15 }}>
+                  <CartesianGrid {...GRID_PROPS} />
+                  <XAxis dataKey="week" tick={XAXIS_TICK} axisLine={false} tickLine={false} />
+                  <YAxis tick={YAXIS_TICK} axisLine={false} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(Math.round(v))} />
+                  <Tooltip content={<MiniTooltip fmt={formatCompact} />} />
+                  <Bar dataKey="impressions" fill={v.color} radius={[3, 3, 0, 0]} opacity={0.8} />
+                </BarChart>
+              ) : (
+                // Default: area chart
+                <AreaChart width={leftW} height={chartH} data={obj.daily} margin={{ top: 5, right: 5, bottom: 0, left: -15 }}>
+                  <defs>
+                    <linearGradient id={`eg_${obj.key}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={v.color} stopOpacity={0.2} />
+                      <stop offset="95%" stopColor={v.color} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid {...GRID_PROPS} />
+                  <XAxis dataKey="date" tick={XAXIS_TICK} axisLine={false} tickLine={false} interval={Math.floor(obj.daily.length / 5)} />
+                  <YAxis tick={YAXIS_TICK} axisLine={false} tickLine={false} tickFormatter={(val: number) => val >= 1000 ? `${(val / 1000).toFixed(0)}k€` : `${Math.round(val)}€`} />
+                  <Tooltip content={<MiniTooltip fmt={formatCurrency} />} />
+                  <Area type="monotone" dataKey="spend" stroke={v.color} strokeWidth={2} fill={`url(#eg_${obj.key})`} isAnimationActive={false} />
+                </AreaChart>
+              )}
+            </div>
+          ) : (
+            <div className="flex h-[150px] items-center justify-center rounded-lg bg-slate-900/20">
+              <span className="text-[11px] text-slate-600">Données insuffisantes</span>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Right chart — donut or secondary metric */}
+        <div className="flex-[2] min-w-0">
+          {obj.topCampaigns.length > 1 ? (
+            <div>
+              <div className="text-[10px] font-medium text-slate-500 mb-1">Top campagnes</div>
+              <div className="flex items-center gap-2">
+                <PieChart width={Math.min(rightW, 120)} height={chartH - 20}>
+                  <Pie data={obj.topCampaigns} dataKey="spend" cx="50%" cy="50%" innerRadius="50%" outerRadius="85%" paddingAngle={2} stroke="none">
+                    {obj.topCampaigns.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
+                  </Pie>
+                </PieChart>
+                <div className="flex flex-col gap-1 min-w-0">
+                  {obj.topCampaigns.slice(0, 4).map((c, i) => (
+                    <div key={c.name} className="flex items-center gap-1.5 text-[9px]">
+                      <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }} />
+                      <span className="truncate text-slate-400">{c.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : hasDaily ? (
+            <div>
+              <div className="text-[10px] font-medium text-slate-500 mb-1">Clics</div>
+              <BarChart width={rightW} height={chartH - 20} data={obj.weekly} margin={{ top: 5, right: 0, bottom: 0, left: -10 }}>
+                <XAxis dataKey="week" tick={XAXIS_TICK} axisLine={false} tickLine={false} />
+                <Bar dataKey="clicks" fill={v.color} radius={[3, 3, 0, 0]} opacity={0.6} />
+              </BarChart>
+            </div>
+          ) : (
+            <div className="flex h-[150px] items-center justify-center rounded-lg bg-slate-900/20">
+              <span className="text-[11px] text-slate-600">—</span>
+            </div>
+          )}
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -238,29 +340,27 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
   const prevSpend = prevM?.spend;
   const globalTrend = prevSpend && prevSpend > 0 ? ((totalSpend - prevSpend) / prevSpend) * 100 : undefined;
 
-  // Build daily spend array for sparklines
-  const dailySpend = useMemo(() => {
-    if (!metrics?.daily?.length) return undefined;
-    return metrics.daily
-      .filter((d) => d.date)
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .map((d) => ({ date: d.date, spend: Number(d.metrics?.spend) || 0 }));
+  const dailyRaw = useMemo(() => {
+    if (!metrics?.daily?.length) return [];
+    return metrics.daily.filter((d) => d.date).sort((a, b) => a.date.localeCompare(b.date)).map((d) => {
+      const m = d.metrics ?? {};
+      return { date: d.date, spend: Number(m.spend) || 0, impressions: Number(m.impressions) || 0, clicks: Number(m.clicks) || 0 };
+    });
   }, [metrics]);
 
   const objectiveData = useMemo(() => {
     if (!campaigns) return [];
-    return buildData(campaigns, totalSpend, dailySpend);
-  }, [campaigns, totalSpend, dailySpend]);
+    return buildData(campaigns, totalSpend, dailyRaw);
+  }, [campaigns, totalSpend, dailyRaw]);
 
   const totalObjSpend = objectiveData.reduce((s, o) => s + o.spend, 0);
   const displayTotal = totalSpend > 0 ? totalSpend : totalObjSpend;
-  const gridCols = objectiveData.length === 1 ? "grid-cols-1" : objectiveData.length === 2 ? "grid-cols-1 md:grid-cols-2" : objectiveData.length === 3 ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 md:grid-cols-2";
 
   if (metricsLoading || !campaigns) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-16" />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-48" />)}</div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-72" />)}</div>
       </div>
     );
   }
@@ -286,7 +386,7 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
         {objectiveData.length > 1 && (
           <div className="flex-1 max-w-md">
             <div className="flex h-3 overflow-hidden rounded-full">
-              {objectiveData.map(({ key, pct }) => pct >= 1 ? <div key={key} className="transition-all" style={{ width: `${pct}%`, backgroundColor: VIS[key].color }} title={`${VIS[key].label} : ${pct.toFixed(0)}%`} /> : null)}
+              {objectiveData.map(({ key, pct }) => pct >= 1 ? <div key={key} style={{ width: `${pct}%`, backgroundColor: VIS[key].color }} title={`${VIS[key].label} : ${pct.toFixed(0)}%`} /> : null)}
             </div>
             <div className="mt-1 flex flex-wrap gap-3 text-[10px] text-slate-500">
               {objectiveData.map(({ key, spend }) => (
@@ -306,8 +406,8 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
         {prevMetricsLoading && <Skeleton className="h-5 w-24" />}
       </div>
 
-      {/* Objective blocks */}
-      <div className={cn("grid gap-4", gridCols)}>
+      {/* Objective blocks — full width, stacked */}
+      <div className="space-y-4">
         {objectiveData.map((obj, i) => (
           <ObjectiveBlock key={obj.key} obj={obj} totalSpend={displayTotal} index={i} />
         ))}
