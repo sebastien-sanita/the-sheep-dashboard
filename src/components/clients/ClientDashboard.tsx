@@ -110,6 +110,79 @@ function aggregateFromResponse(data: AggregatedMetrics | undefined): Partial<Met
   };
 }
 
+// ---------------------------------------------------------------------------
+// Chart metric selector
+// ---------------------------------------------------------------------------
+
+type ChartMetricKey = "spend" | "impressions" | "clicks" | "ctr" | "cpc" | "cpm";
+
+interface ChartMetricDef {
+  key: ChartMetricKey;
+  label: string;
+  title: string;
+  color: string;
+  gradientId: string;
+  format: (v: number) => string;
+  yFormat: (v: number) => string;
+  aggregate: "sum" | "ratio";
+  totalLabel: string;
+}
+
+const CHART_METRICS: ChartMetricDef[] = [
+  {
+    key: "spend", label: "Dépenses", title: "Évolution des dépenses",
+    color: "#818cf8", gradientId: "grad_spend",
+    format: formatCurrency,
+    yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k€` : `${Math.round(v)}€`,
+    aggregate: "sum", totalLabel: "Total",
+  },
+  {
+    key: "impressions", label: "Impressions", title: "Évolution des impressions",
+    color: "#60a5fa", gradientId: "grad_imp",
+    format: formatCompact,
+    yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k` : String(Math.round(v)),
+    aggregate: "sum", totalLabel: "Total",
+  },
+  {
+    key: "clicks", label: "Clics", title: "Évolution des clics",
+    color: "#34d399", gradientId: "grad_clicks",
+    format: formatCompact,
+    yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(Math.round(v)),
+    aggregate: "sum", totalLabel: "Total",
+  },
+  {
+    key: "ctr", label: "CTR", title: "Évolution du CTR",
+    color: "#fbbf24", gradientId: "grad_ctr",
+    format: (v) => formatPercent(v, 2),
+    yFormat: (v) => `${v.toFixed(1)}%`,
+    aggregate: "ratio", totalLabel: "Moyenne",
+  },
+  {
+    key: "cpc", label: "CPC", title: "Évolution du CPC",
+    color: "#fb7185", gradientId: "grad_cpc",
+    format: formatCurrency,
+    yFormat: (v) => `${v.toFixed(2)}€`,
+    aggregate: "ratio", totalLabel: "Moyenne",
+  },
+  {
+    key: "cpm", label: "CPM", title: "Évolution du CPM",
+    color: "#a78bfa", gradientId: "grad_cpm",
+    format: formatCurrency,
+    yFormat: (v) => `${v.toFixed(1)}€`,
+    aggregate: "ratio", totalLabel: "Moyenne",
+  },
+];
+
+// Active pill colors for each metric
+const PILL_ACTIVE: Record<ChartMetricKey, string> = {
+  spend: "bg-indigo-500 text-white",
+  impressions: "bg-blue-500 text-white",
+  clicks: "bg-emerald-500 text-white",
+  ctr: "bg-amber-500 text-white",
+  cpc: "bg-rose-500 text-white",
+  cpm: "bg-purple-500 text-white",
+};
+
 function computeTrend(current: number | undefined, previous: number | undefined): number | undefined {
   if (current == null || previous == null) return undefined;
   if (previous === 0 && current === 0) return undefined;
@@ -139,20 +212,6 @@ const fadeIn = {
 };
 
 // ---------------------------------------------------------------------------
-// Custom Recharts tooltip
-// ---------------------------------------------------------------------------
-
-function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 shadow-xl">
-      <p className="text-[11px] text-slate-400">{label}</p>
-      <p className="text-[14px] font-semibold text-slate-50">{formatCurrency(payload[0].value)}</p>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -170,6 +229,7 @@ export function ClientDashboard({
   const platforms = client.platforms ?? accounts.map((a) => a.platform).filter(Boolean);
 
   const [accountsExpanded, setAccountsExpanded] = useState(accounts.length <= 3);
+  const [chartMetric, setChartMetric] = useState<ChartMetricKey>("spend");
 
   // Aggregate current + previous period metrics
   const currentMetrics = useMemo((): Partial<Metrics30d> | undefined => {
@@ -179,18 +239,48 @@ export function ClientDashboard({
 
   const prevM = useMemo(() => aggregateFromResponse(prevMetrics), [prevMetrics]);
 
-  // Chart data — handle multiple response shapes
+  // Chart data — aggregate all metrics per day
   const chartData = useMemo(() => {
     if (!metrics?.daily?.length) return [];
     return metrics.daily
       .filter((d) => d.date)
       .sort((a, b) => a.date.localeCompare(b.date))
-      .map((d) => ({
-        date: formatDate(d.date, "short"),
-        spend: d.metrics?.spend ?? (d as unknown as Record<string, unknown>).spend ?? 0,
-      }))
-      .filter((d) => typeof d.spend === "number");
+      .map((d) => {
+        const m = d.metrics ?? (d as unknown as Record<string, unknown>);
+        const spend = Number(m.spend) || 0;
+        const impressions = Number(m.impressions) || 0;
+        const clicks = Number(m.clicks) || 0;
+        return {
+          date: formatDate(d.date, "short"),
+          rawDate: d.date,
+          spend,
+          impressions,
+          clicks,
+          ctr: impressions > 0 ? (clicks / impressions) * 100 : 0,
+          cpc: clicks > 0 ? spend / clicks : 0,
+          cpm: impressions > 0 ? (spend / impressions) * 1000 : 0,
+        };
+      });
   }, [metrics]);
+
+  // Active chart metric config
+  const activeChart = CHART_METRICS.find((m) => m.key === chartMetric) ?? CHART_METRICS[0];
+
+  // Chart summary stats
+  const chartStats = useMemo(() => {
+    if (!chartData.length) return null;
+    const days = chartData.length;
+    const values = chartData.map((d) => d[chartMetric] as number);
+    const sum = values.reduce((s, v) => s + v, 0);
+    const avg = sum / days;
+    const isRatio = activeChart.aggregate === "ratio";
+    return {
+      days,
+      total: isRatio ? avg : sum,
+      dailyAvg: isRatio ? avg : sum / days,
+      totalLabel: activeChart.totalLabel,
+    };
+  }, [chartData, chartMetric, activeChart]);
 
   return (
     <div className="space-y-6 p-5">
@@ -288,47 +378,90 @@ export function ClientDashboard({
         </div>
       </motion.div>
 
-      {/* ── Section 3 — Spend chart ── */}
+      {/* ── Section 3 — Chart with metric selector ── */}
       <motion.div {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.1 }}>
         <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
-          <h2 className="text-[14px] font-medium text-slate-300">Évolution des dépenses</h2>
+          {/* Header: title + metric pills */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-[14px] font-medium text-slate-300">{activeChart.title}</h2>
+            <div className="flex gap-1.5">
+              {CHART_METRICS.map((m) => (
+                <button
+                  key={m.key}
+                  type="button"
+                  onClick={() => setChartMetric(m.key)}
+                  className={cn(
+                    "rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors",
+                    chartMetric === m.key
+                      ? PILL_ACTIVE[m.key]
+                      : "bg-slate-800 text-slate-400 hover:bg-slate-700",
+                  )}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {metricsLoading ? (
             <Skeleton className="mt-4 h-72" />
           ) : chartData.length > 0 ? (
-            <div className="mt-4 h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: -10 }}>
-                  <defs>
-                    <linearGradient id="spendGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#818cf8" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 11, fill: "#64748b" }}
-                    axisLine={{ stroke: "#334155" }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    domain={[0, "auto"]}
-                    tick={{ fontSize: 11, fill: "#64748b" }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k€` : `${Math.round(v)}€`}
-                  />
-                  <Tooltip content={<ChartTooltip />} />
-                  <Area
-                    type="monotone"
-                    dataKey="spend"
-                    stroke="#818cf8"
-                    strokeWidth={2}
-                    fill="url(#spendGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            <>
+              <div className="mt-4 h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: -10 }}>
+                    <defs>
+                      <linearGradient id={activeChart.gradientId} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={activeChart.color} stopOpacity={0.2} />
+                        <stop offset="95%" stopColor={activeChart.color} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      axisLine={{ stroke: "#334155" }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      domain={[0, "auto"]}
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={activeChart.yFormat}
+                    />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (!active || !payload?.length) return null;
+                        return (
+                          <div className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 shadow-xl">
+                            <p className="text-[11px] text-slate-400">{label}</p>
+                            <p className="text-[14px] font-semibold text-slate-50">{activeChart.format(payload[0].value as number)}</p>
+                          </div>
+                        );
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey={chartMetric}
+                      stroke={activeChart.color}
+                      strokeWidth={2}
+                      fill={`url(#${activeChart.gradientId})`}
+                      animationDuration={500}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Summary stats */}
+              {chartStats && (
+                <div className="mt-3 flex flex-wrap gap-4 text-[11px] text-slate-500">
+                  <span>{chartStats.days} jours</span>
+                  <span>{chartStats.totalLabel} : <span className="font-medium text-slate-300">{activeChart.format(chartStats.total)}</span></span>
+                  <span>Moy. quotidienne : <span className="font-medium text-slate-300">{activeChart.format(chartStats.dailyAvg)}</span></span>
+                </div>
+              )}
+            </>
           ) : (
             <p className="mt-8 text-center text-[12px] text-slate-500">
               Données détaillées non disponibles
