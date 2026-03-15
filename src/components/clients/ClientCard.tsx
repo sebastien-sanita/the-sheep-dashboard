@@ -7,103 +7,67 @@ import type { ClientSummary } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils/format";
 import { AccountBadge } from "./AccountBadge";
 
-interface ClientCardProps {
-  client: ClientSummary;
-}
-
 function timeAgo(dateStr: string): { label: string; freshness: "fresh" | "stale" | "old" } {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diffMs = now - then;
-  const hours = diffMs / (1000 * 60 * 60);
-
-  let label: string;
-  if (hours < 1) {
-    const mins = Math.floor(diffMs / (1000 * 60));
-    label = `il y a ${mins < 1 ? "1" : mins} min`;
-  } else if (hours < 24) {
-    label = `il y a ${Math.floor(hours)}h`;
-  } else {
-    const days = Math.floor(hours / 24);
-    label = `il y a ${days}j`;
-  }
-
-  const freshness = hours < 6 ? "fresh" : hours < 24 ? "stale" : "old";
-  return { label, freshness };
+  const hours = (Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60);
+  const label = hours < 1 ? `il y a ${Math.max(1, Math.floor(hours * 60))} min` : hours < 24 ? `il y a ${Math.floor(hours)}h` : `il y a ${Math.floor(hours / 24)}j`;
+  return { label, freshness: hours < 6 ? "fresh" : hours < 24 ? "stale" : "old" };
 }
 
-const DOT_COLORS = {
-  fresh: "bg-emerald-400",
-  stale: "bg-amber-400",
-  old: "bg-rose-400",
-};
+const DOT_STYLE: Record<string, string> = { fresh: "var(--color-success)", stale: "var(--color-warning)", old: "var(--color-danger)" };
 
-export function ClientCard({ client }: ClientCardProps) {
+export function ClientCard({ client }: { client: ClientSummary }) {
   const router = useRouter();
   const sync = timeAgo(client.updatedAt);
 
   return (
-    <Link
-      href={`/clients/${client.id}`}
-      className="block rounded-xl border border-slate-700/50 bg-slate-800 p-5 transition-colors hover:border-primary-500/50"
+    <Link href={`/clients/${client.id}`}
+      className="group block overflow-hidden"
+      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", borderRadius: "var(--radius-lg)", padding: "16px 18px", transition: "transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base)" }}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "var(--shadow-md)"; e.currentTarget.style.borderColor = "var(--color-border-emphasis)"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = "var(--color-border-default)"; }}
     >
-      {/* Name */}
-      <div className="text-[15px] font-semibold text-slate-100">
-        {client.name}
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>{client.name}</span>
+        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/clients/${client.id}/chat`); }}
+          className="opacity-0 transition-opacity group-hover:opacity-100" style={{ color: "var(--color-text-tertiary)", transition: "color var(--transition-fast)" }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-accent)"; }} onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-tertiary)"; }}>
+          <MessageSquare size={14} />
+        </button>
       </div>
 
-      {/* Platform badges */}
+      {/* Badges */}
       <div className="mt-2 flex flex-wrap gap-1.5">
-        {(client.platforms ?? []).map((p) => (
-          <AccountBadge key={p} platform={p} />
-        ))}
+        {(client.platforms ?? []).map((p) => <AccountBadge key={p} platform={p} />)}
       </div>
+
+      {/* Separator */}
+      <div className="my-3" style={{ borderTop: "1px solid var(--color-border-subtle)" }} />
 
       {/* Mini KPIs */}
-      <div className="mt-3 flex gap-4">
+      <div className="flex gap-4">
         <div>
-          <div className="text-[13px] text-slate-300">
-            {(client.totalSpend30d ?? client.totalSpend) != null
-              ? formatCurrency(client.totalSpend30d ?? client.totalSpend ?? 0)
-              : "—"}
+          <div className="text-caption" style={{ fontSize: 10, color: "var(--color-text-muted)", letterSpacing: "0.04em" }}>Dépense</div>
+          <div className="text-metric" style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>
+            {(client.totalSpend30d ?? client.totalSpend) != null ? formatCurrency(client.totalSpend30d ?? client.totalSpend ?? 0) : "—"}
           </div>
-          <div className="text-[11px] text-slate-500">Dépense</div>
         </div>
         <div>
-          <div className="text-[13px] text-slate-300">
-            {client.activeCampaignsCount ?? 0}
-          </div>
-          <div className="text-[11px] text-slate-500">Actives</div>
+          <div className="text-caption" style={{ fontSize: 10, color: "var(--color-text-muted)", letterSpacing: "0.04em" }}>Actives</div>
+          <div className="text-metric" style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>{client.activeCampaignsCount ?? 0}</div>
         </div>
         {(client.connectedAccountCount ?? client.adAccountsCount) != null && (
           <div>
-            <div className="text-[13px] text-slate-300">
-              {client.connectedAccountCount ?? client.adAccountsCount}
-            </div>
-            <div className="text-[11px] text-slate-500">Comptes</div>
+            <div className="text-caption" style={{ fontSize: 10, color: "var(--color-text-muted)", letterSpacing: "0.04em" }}>Comptes</div>
+            <div className="text-metric" style={{ fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)" }}>{client.connectedAccountCount ?? client.adAccountsCount}</div>
           </div>
         )}
       </div>
 
-      {/* Footer */}
-      <div className="mt-3 flex items-center justify-between border-t border-slate-700/30 pt-3">
-        <div className="flex items-center gap-1.5">
-          <span
-            className={`h-1.5 w-1.5 rounded-full ${DOT_COLORS[sync.freshness]}`}
-          />
-          <span className="text-[11px] text-slate-500">{sync.label}</span>
-        </div>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            router.push(`/clients/${client.id}/chat`);
-          }}
-          className="rounded p-1 text-slate-400 transition-colors hover:text-primary-400"
-        >
-          <MessageSquare size={16} />
-        </button>
+      {/* Sync */}
+      <div className="mt-3 flex items-center gap-1.5">
+        <span className="rounded-full" style={{ width: 5, height: 5, background: DOT_STYLE[sync.freshness] }} />
+        <span style={{ fontSize: 11, color: "var(--color-text-muted)" }}>{sync.label}</span>
       </div>
     </Link>
   );

@@ -1,44 +1,38 @@
 "use client";
 
 const PLATFORM_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
-  // Meta / Facebook
-  META: { bg: "bg-blue-500/10", text: "text-blue-400", label: "Meta Ads" },
-  META_ADS: { bg: "bg-blue-500/10", text: "text-blue-400", label: "Meta Ads" },
-  FACEBOOK: { bg: "bg-blue-500/10", text: "text-blue-400", label: "Facebook" },
-  FACEBOOK_PAGE: { bg: "bg-blue-500/10", text: "text-blue-400", label: "Facebook" },
-  FACEBOOK_ADS: { bg: "bg-blue-500/10", text: "text-blue-400", label: "Facebook Ads" },
-  // Instagram
-  INSTAGRAM: { bg: "bg-fuchsia-500/10", text: "text-fuchsia-400", label: "Instagram" },
-  INSTAGRAM_ADS: { bg: "bg-fuchsia-500/10", text: "text-fuchsia-400", label: "Instagram Ads" },
-  // Google
-  GOOGLE: { bg: "bg-red-500/10", text: "text-red-400", label: "Google Ads" },
-  GOOGLE_ADS: { bg: "bg-red-500/10", text: "text-red-400", label: "Google Ads" },
-  GOOGLE_ANALYTICS: { bg: "bg-amber-500/10", text: "text-amber-400", label: "Analytics" },
-  // LinkedIn
-  LINKEDIN: { bg: "bg-sky-500/10", text: "text-sky-400", label: "LinkedIn" },
-  LINKEDIN_ADS: { bg: "bg-sky-500/10", text: "text-sky-400", label: "LinkedIn Ads" },
-  // TikTok
-  TIKTOK: { bg: "bg-pink-500/10", text: "text-pink-400", label: "TikTok" },
-  TIKTOK_ADS: { bg: "bg-pink-500/10", text: "text-pink-400", label: "TikTok Ads" },
-  // Snapchat
-  SNAPCHAT: { bg: "bg-yellow-500/10", text: "text-yellow-400", label: "Snapchat" },
-  SNAPCHAT_ADS: { bg: "bg-yellow-500/10", text: "text-yellow-400", label: "Snapchat Ads" },
+  META: { bg: "var(--color-meta-muted)", text: "var(--color-meta)", label: "Meta Ads" },
+  META_ADS: { bg: "var(--color-meta-muted)", text: "var(--color-meta)", label: "Meta Ads" },
+  FACEBOOK: { bg: "var(--color-facebook-muted)", text: "var(--color-facebook)", label: "Facebook" },
+  FACEBOOK_PAGE: { bg: "var(--color-facebook-muted)", text: "var(--color-facebook)", label: "Facebook" },
+  FACEBOOK_ADS: { bg: "var(--color-facebook-muted)", text: "var(--color-facebook)", label: "Facebook Ads" },
+  INSTAGRAM: { bg: "var(--color-instagram-muted)", text: "var(--color-instagram)", label: "Instagram" },
+  INSTAGRAM_ADS: { bg: "var(--color-instagram-muted)", text: "var(--color-instagram)", label: "Instagram Ads" },
+  GOOGLE: { bg: "var(--color-google-muted)", text: "var(--color-google)", label: "Google Ads" },
+  GOOGLE_ADS: { bg: "var(--color-google-muted)", text: "var(--color-google)", label: "Google Ads" },
+  GOOGLE_ANALYTICS: { bg: "rgba(251,191,36,0.12)", text: "#fbbf24", label: "Analytics" },
+  LINKEDIN: { bg: "var(--color-linkedin-muted)", text: "var(--color-linkedin)", label: "LinkedIn" },
+  LINKEDIN_ADS: { bg: "var(--color-linkedin-muted)", text: "var(--color-linkedin)", label: "LinkedIn Ads" },
+  TIKTOK: { bg: "var(--color-tiktok-muted)", text: "var(--color-tiktok)", label: "TikTok" },
+  TIKTOK_ADS: { bg: "var(--color-tiktok-muted)", text: "var(--color-tiktok)", label: "TikTok Ads" },
+  SNAPCHAT: { bg: "rgba(255,252,0,0.1)", text: "#FFFC00", label: "Snapchat" },
+  SNAPCHAT_ADS: { bg: "rgba(255,252,0,0.1)", text: "#FFFC00", label: "Snapchat Ads" },
 };
 
-const FALLBACK_CONFIG = { bg: "bg-slate-500/10", text: "text-slate-400" };
+const FALLBACK = { bg: "var(--color-bg-elevated)", text: "var(--color-text-tertiary)" };
 
-interface AccountBadgeProps {
-  platform: string;
-}
-
-export function AccountBadge({ platform }: AccountBadgeProps) {
-  const config = PLATFORM_CONFIG[platform] ?? FALLBACK_CONFIG;
+export function AccountBadge({ platform }: { platform: string }) {
+  const config = PLATFORM_CONFIG[platform] ?? FALLBACK;
   const label = "label" in config ? config.label : platform;
 
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-md px-2 py-[2px] text-[10px] font-medium tracking-wide ${config.bg} ${config.text}`}
-    >
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 4,
+      height: 20, padding: "0 7px",
+      borderRadius: "var(--radius-xs)",
+      fontSize: 10, fontWeight: 600, letterSpacing: "0.02em", textTransform: "uppercase" as const,
+      background: config.bg, color: config.text,
+    }}>
       {label}
     </span>
   );

@@ -2,37 +2,26 @@
 
 import { AlertTriangle, Info } from "lucide-react";
 import type { AlertBlock } from "@/lib/types";
-import { cn } from "@/lib/utils/cn";
 
-interface FrequencyAlertProps {
-  block: AlertBlock;
-}
-
-const SEVERITY_STYLES: Record<string, { border: string; bg: string; iconColor: string }> = {
-  info: { border: "border-primary-500", bg: "bg-slate-800", iconColor: "text-primary-400" },
-  warning: { border: "border-amber-500", bg: "bg-amber-950/30", iconColor: "text-amber-400" },
-  danger: { border: "border-rose-500", bg: "bg-rose-950/30", iconColor: "text-rose-400" },
+const SEV: Record<string, { border: string; icon: string }> = {
+  info: { border: "var(--color-info)", icon: "var(--color-info)" },
+  warning: { border: "var(--color-warning)", icon: "var(--color-warning)" },
+  danger: { border: "var(--color-danger)", icon: "var(--color-danger)" },
 };
 
-export function FrequencyAlert({ block }: FrequencyAlertProps) {
-  const styles = SEVERITY_STYLES[block.severity] ?? SEVERITY_STYLES.info;
-  const IconComponent = block.severity === "info" ? Info : AlertTriangle;
+export function FrequencyAlert({ block }: { block: AlertBlock }) {
+  const s = SEV[block.severity] ?? SEV.info;
+  const Icon = block.severity === "info" ? Info : AlertTriangle;
 
   return (
-    <div
-      role="alert"
-      className={cn(
-        "flex items-start gap-3 rounded-r-xl border-l-4 p-4",
-        styles.border,
-        styles.bg,
-      )}
-    >
-      <IconComponent size={18} className={cn("mt-0.5 shrink-0", styles.iconColor)} />
+    <div role="alert" className="flex items-start gap-3"
+      style={{ background: "var(--color-bg-surface)", border: "1px solid var(--color-border-default)", borderLeft: `2px solid ${s.border}`, borderRadius: "var(--radius-md)", padding: "10px 16px" }}>
+      <Icon size={16} className="mt-0.5 shrink-0" style={{ color: s.icon }} />
       <div>
-        <p className="text-[13px] font-medium text-slate-200">{block.title}</p>
-        <p className="mt-1 text-[12px] text-slate-400">{block.message}</p>
+        <p style={{ fontSize: 13, fontWeight: 500, color: "var(--color-text-primary)" }}>{block.title}</p>
+        <p style={{ fontSize: 12, color: "var(--color-text-secondary)", marginTop: 2 }}>{block.message}</p>
         {block.relatedEntity && (
-          <p className="mt-1 text-[12px] text-primary-400 hover:underline">
+          <p style={{ fontSize: 12, color: "var(--color-accent)", marginTop: 2, cursor: "pointer" }} className="hover:underline">
             Voir {block.relatedEntity.name}
           </p>
         )}

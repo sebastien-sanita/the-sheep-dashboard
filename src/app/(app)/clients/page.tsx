@@ -40,18 +40,15 @@ export default function ClientsPage() {
           {/* Search */}
           <div className="relative w-64">
             <label htmlFor="client-search" className="sr-only">Rechercher un client</label>
-            <Search
-              size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-              aria-hidden="true"
-            />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--color-text-muted)" }} aria-hidden="true" />
             <input
               id="client-search"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Rechercher un client..."
-              className="w-full rounded-lg border border-slate-700 bg-slate-800 py-1.5 pl-9 pr-3 text-[13px] text-slate-50 outline-none placeholder:text-slate-500 focus:border-primary-500"
+              placeholder="Rechercher..."
+              className="w-full outline-none"
+              style={{ height: 30, borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border-default)", background: "var(--color-bg-elevated)", paddingLeft: 32, paddingRight: 12, fontSize: 12, color: "var(--color-text-primary)" }}
             />
           </div>
         </div>
