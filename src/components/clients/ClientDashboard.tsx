@@ -14,7 +14,6 @@ import {
   TrendingDown,
   ChevronDown,
   ChevronUp,
-  ArrowUpDown,
   type LucideIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -32,6 +31,7 @@ import { formatCurrency, formatCompact, formatPercent } from "@/lib/utils/format
 import { formatDate } from "@/lib/utils/dates";
 import { AccountBadge } from "./AccountBadge";
 import { SyncButton } from "./SyncButton";
+import { CampaignsByObjective } from "./CampaignsByObjective";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
 
@@ -47,10 +47,6 @@ interface ClientDashboardProps {
   metricsLoading: boolean;
   prevMetrics: AggregatedMetrics | undefined;
 }
-
-type CampaignFilter = "all" | "ACTIVE" | "PAUSED";
-type SortKey = "name" | "status" | "budget" | "objective" | "startDate";
-type SortDir = "asc" | "desc";
 
 // ---------------------------------------------------------------------------
 // KPI helpers
@@ -129,10 +125,6 @@ export function ClientDashboard({
   const accounts = client.connectedAccounts ?? client.adAccounts ?? [];
   const platforms = client.platforms ?? accounts.map((a) => a.platform).filter(Boolean);
 
-  // Campaign state
-  const [filter, setFilter] = useState<CampaignFilter>("all");
-  const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [accountsExpanded, setAccountsExpanded] = useState(accounts.length <= 3);
 
   // Build previous period metrics lookup
@@ -176,52 +168,6 @@ export function ClientDashboard({
       }))
       .filter((d) => typeof d.spend === "number");
   }, [metrics]);
-
-  // Filtered + sorted campaigns
-  const filteredCampaigns = useMemo(() => {
-    if (!campaigns) return [];
-    let list = filter === "all" ? campaigns : campaigns.filter((c) => c.status === filter);
-    list = [...list].sort((a, b) => {
-      let cmp = 0;
-      switch (sortKey) {
-        case "name":
-          cmp = a.name.localeCompare(b.name);
-          break;
-        case "status":
-          cmp = a.status.localeCompare(b.status);
-          break;
-        case "budget":
-          cmp = (a.budget ?? 0) - (b.budget ?? 0);
-          break;
-        case "objective":
-          cmp = (a.objective ?? "").localeCompare(b.objective ?? "");
-          break;
-        case "startDate":
-          cmp = (a.startDate ?? "").localeCompare(b.startDate ?? "");
-          break;
-      }
-      return sortDir === "asc" ? cmp : -cmp;
-    });
-    return list;
-  }, [campaigns, filter, sortKey, sortDir]);
-
-  function toggleSort(key: SortKey) {
-    if (sortKey === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir("asc");
-    }
-  }
-
-  const campaignCounts = useMemo(() => {
-    if (!campaigns) return { total: 0, active: 0, paused: 0 };
-    return {
-      total: campaigns.length,
-      active: campaigns.filter((c) => c.status === "ACTIVE").length,
-      paused: campaigns.filter((c) => c.status === "PAUSED").length,
-    };
-  }, [campaigns]);
 
   return (
     <div className="space-y-6 p-5">
@@ -354,131 +300,9 @@ export function ClientDashboard({
         </div>
       </motion.div>
 
-      {/* ── Section 4 — Campaigns table ── */}
+      {/* ── Section 4 — Campaigns by objective ── */}
       <motion.div {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.15 }}>
-        <div className="rounded-xl border border-slate-700/50 bg-slate-800">
-          {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/50 px-5 py-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-[14px] font-medium text-slate-300">Campagnes</h2>
-              {campaigns && (
-                <span className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[11px] text-slate-400">
-                  {campaignCounts.total}
-                </span>
-              )}
-            </div>
-            <div className="flex gap-1">
-              {([
-                { key: "all", label: "Toutes" },
-                { key: "ACTIVE", label: `Actives (${campaignCounts.active})` },
-                { key: "PAUSED", label: `En pause (${campaignCounts.paused})` },
-              ] as const).map(({ key, label }) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setFilter(key)}
-                  className={cn(
-                    "rounded-md px-3 py-1 text-[12px] font-medium transition-colors",
-                    filter === key
-                      ? "bg-primary-500/10 text-primary-400"
-                      : "text-slate-400 hover:bg-slate-700 hover:text-slate-200",
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Table */}
-          {campaignsLoading ? (
-            <div className="space-y-0">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex gap-4 border-t border-slate-700/30 px-5 py-3 first:border-t-0">
-                  <Skeleton className="h-4 w-48" />
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-4 w-20" />
-                </div>
-              ))}
-            </div>
-          ) : filteredCampaigns.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-[13px]">
-                <thead className="bg-slate-900/50">
-                  <tr>
-                    {([
-                      { key: "name", label: "Nom" },
-                      { key: "status", label: "Statut" },
-                      { key: "budget", label: "Budget" },
-                      { key: "objective", label: "Objectif" },
-                      { key: "startDate", label: "Début" },
-                    ] as const).map(({ key, label }) => (
-                      <th
-                        key={key}
-                        scope="col"
-                        onClick={() => toggleSort(key)}
-                        className="cursor-pointer select-none px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400 hover:text-slate-200"
-                      >
-                        <span className="inline-flex items-center gap-1">
-                          {label}
-                          {sortKey === key ? (
-                            sortDir === "asc" ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-                          ) : (
-                            <ArrowUpDown size={12} className="opacity-30" />
-                          )}
-                        </span>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCampaigns.map((c) => (
-                    <tr
-                      key={c.id}
-                      className="border-t border-slate-700/30 transition-colors hover:bg-slate-700/20"
-                    >
-                      <td className="px-5 py-3 text-slate-200">{c.name}</td>
-                      <td className="px-5 py-3">
-                        <span
-                          className={cn(
-                            "inline-block rounded-full px-2 py-0.5 text-[11px] font-medium",
-                            STATUS_BADGES[c.status] ?? "bg-slate-500/10 text-slate-400",
-                          )}
-                        >
-                          {c.status}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3 text-slate-200">
-                        {c.budget != null && isFinite(c.budget) ? (
-                          <div>
-                            <span>{formatCurrency(c.budget)}</span>
-                            {c.budgetType && (
-                              <span className="ml-1 text-[10px] text-slate-500">
-                                {c.budgetType === "DAILY" ? "/jour" : "total"}
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          "—"
-                        )}
-                      </td>
-                      <td className="px-5 py-3 text-slate-400">{c.objective ?? "—"}</td>
-                      <td className="px-5 py-3 text-slate-400">
-                        {c.startDate ? formatDate(c.startDate, "short") : "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="px-5 py-8 text-center text-[12px] text-slate-500">
-              {filter === "all" ? "Aucune campagne synchronisée" : "Aucune campagne pour ce filtre"}
-            </p>
-          )}
-        </div>
+        <CampaignsByObjective campaigns={campaigns} loading={campaignsLoading} />
       </motion.div>
 
       {/* ── Section 5 — Connected accounts (compact, collapsible) ── */}
