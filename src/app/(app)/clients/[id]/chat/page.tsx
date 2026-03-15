@@ -2,9 +2,7 @@
 
 import { use } from "react";
 import { TopBar } from "@/components/layout/TopBar";
-import { SplitPanel } from "@/components/layout/SplitPanel";
 import { ChatPanel } from "@/components/chat/ChatPanel";
-import { DashboardRenderer } from "@/components/dashboard/DashboardRenderer";
 
 export default function ClientChatPage({
   params,
@@ -17,10 +15,7 @@ export default function ClientChatPage({
     <div className="flex h-full flex-col">
       <TopBar />
       <div className="flex-1 overflow-hidden">
-        <SplitPanel
-          renderChat={() => <ChatPanel clientId={id} />}
-          renderDashboard={() => <DashboardRenderer />}
-        />
+        <ChatPanel clientId={id} />
       </div>
     </div>
   );
