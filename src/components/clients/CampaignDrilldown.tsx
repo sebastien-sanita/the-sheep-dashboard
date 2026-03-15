@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Image from "next/image";
 import { Image as ImageIcon, Film, LayoutGrid, X } from "lucide-react";
 import { motion } from "framer-motion";
 import type { AdSetWithMetrics, AdWithMetrics, CreativeData } from "@/lib/types";
@@ -149,22 +148,18 @@ function CreativesTab({ ads }: { ads: AdWithMetrics[] }) {
           >
             <div className="flex gap-3 p-3">
               {/* Thumbnail */}
-              <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-slate-700/50">
-                {imgUrl ? (
-                  <Image
-                    src={imgUrl}
-                    alt={ad.name}
-                    width={64}
-                    height={64}
-                    className="h-full w-full object-cover"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <FormatIcon size={20} className="text-slate-500" />
-                  </div>
-                )}
-              </div>
+              {imgUrl ? (
+                <img
+                  src={imgUrl}
+                  alt={ad.name}
+                  className="h-16 w-16 shrink-0 rounded-md object-cover"
+                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                />
+              ) : (
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-slate-700/50">
+                  <FormatIcon size={20} className="text-slate-500" />
+                </div>
+              )}
 
               {/* Info */}
               <div className="min-w-0 flex-1">
@@ -242,7 +237,9 @@ export function CampaignDrilldown({
         ]);
         if (!cancelled) {
           setAdsets(adsetsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0)));
-          setAds(adsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0)));
+          const sortedAds = adsData.sort((a, b) => (b.metrics.spend ?? 0) - (a.metrics.spend ?? 0));
+          console.log("[DEBUG] AD CREATIVE:", sortedAds.slice(0, 3).map((ad) => ({ name: ad.name, creative: ad.creative, creativeData: ad.creativeData, normalized: getCreative(ad) })));
+          setAds(sortedAds);
         }
       } catch {
         if (!cancelled) {
