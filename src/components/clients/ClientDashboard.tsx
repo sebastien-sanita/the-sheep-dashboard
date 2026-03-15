@@ -46,6 +46,7 @@ interface ClientDashboardProps {
   metrics: AggregatedMetrics | undefined;
   metricsLoading: boolean;
   prevMetrics: AggregatedMetrics | undefined;
+  prevMetricsLoading: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -57,11 +58,11 @@ interface KPIDef {
   label: string;
   icon: LucideIcon;
   format: (v: number) => string;
-  invertTrend: boolean; // true = lower is better (CPC, CPM)
+  invertTrend: boolean; // true = lower is better (spend, CPC, CPM)
 }
 
 const KPI_DEFS: KPIDef[] = [
-  { key: "spend", label: "Dépense", icon: Wallet, format: formatCurrency, invertTrend: false },
+  { key: "spend", label: "Dépense", icon: Wallet, format: formatCurrency, invertTrend: true },
   { key: "impressions", label: "Impressions", icon: Eye, format: formatCompact, invertTrend: false },
   { key: "clicks", label: "Clics", icon: MousePointerClick, format: formatCompact, invertTrend: false },
   { key: "ctr", label: "CTR", icon: Target, format: (v) => formatPercent(v, 2), invertTrend: false },
@@ -69,8 +70,50 @@ const KPI_DEFS: KPIDef[] = [
   { key: "cpm", label: "CPM", icon: BarChart3, format: formatCurrency, invertTrend: true },
 ];
 
-function computeTrend(current: number | undefined, previous: number | undefined) {
-  if (current == null || previous == null || previous === 0) return undefined;
+/** Aggregate metrics from an AggregatedMetrics object — handles both
+ *  pre-aggregated .metrics fields and raw .daily[] insights arrays. */
+function aggregateFromResponse(data: AggregatedMetrics | undefined): Partial<Metrics30d> | undefined {
+  if (!data) return undefined;
+
+  // 1. Try pre-aggregated .metrics object
+  const mm = data.metrics;
+  if (mm && (mm.spend?.value != null || mm.impressions?.value != null)) {
+    return {
+      spend: mm.spend?.value,
+      impressions: mm.impressions?.value,
+      clicks: mm.clicks?.value,
+      ctr: mm.ctr?.value,
+      cpc: mm.cpc?.value,
+      cpm: mm.cpm?.value,
+    };
+  }
+
+  // 2. Fallback: sum from daily[] insights
+  const daily = data.daily;
+  if (!daily?.length) return undefined;
+
+  let spend = 0, impressions = 0, clicks = 0;
+  for (const d of daily) {
+    const m = d.metrics ?? (d as unknown as Record<string, unknown>);
+    spend += Number(m.spend) || 0;
+    impressions += Number(m.impressions) || 0;
+    clicks += Number(m.clicks) || 0;
+  }
+
+  return {
+    spend,
+    impressions,
+    clicks,
+    ctr: impressions > 0 ? (clicks / impressions) * 100 : 0,
+    cpc: clicks > 0 ? spend / clicks : 0,
+    cpm: impressions > 0 ? (spend / impressions) * 1000 : 0,
+  };
+}
+
+function computeTrend(current: number | undefined, previous: number | undefined): number | undefined {
+  if (current == null || previous == null) return undefined;
+  if (previous === 0 && current === 0) return undefined;
+  if (previous === 0) return undefined; // "new" — handled in render
   return ((current - previous) / previous) * 100;
 }
 
@@ -120,6 +163,7 @@ export function ClientDashboard({
   metrics,
   metricsLoading,
   prevMetrics,
+  prevMetricsLoading,
 }: ClientDashboardProps) {
   const m30d = client.metrics30d;
   const accounts = client.connectedAccounts ?? client.adAccounts ?? [];
@@ -127,34 +171,13 @@ export function ClientDashboard({
 
   const [accountsExpanded, setAccountsExpanded] = useState(accounts.length <= 3);
 
-  // Build previous period metrics lookup
-  const prevM = useMemo(() => {
-    if (!prevMetrics?.metrics) return undefined;
-    const pm = prevMetrics.metrics;
-    return {
-      spend: pm.spend?.value,
-      impressions: pm.impressions?.value,
-      clicks: pm.clicks?.value,
-      ctr: pm.ctr?.value,
-      cpc: pm.cpc?.value,
-      cpm: pm.cpm?.value,
-    } as Partial<Metrics30d>;
-  }, [prevMetrics]);
-
-  // Current metrics (prefer m30d from workspace, fallback to metrics query)
+  // Aggregate current + previous period metrics
   const currentMetrics = useMemo((): Partial<Metrics30d> | undefined => {
     if (m30d) return m30d;
-    if (!metrics?.metrics) return undefined;
-    const mm = metrics.metrics;
-    return {
-      spend: mm.spend?.value,
-      impressions: mm.impressions?.value,
-      clicks: mm.clicks?.value,
-      ctr: mm.ctr?.value,
-      cpc: mm.cpc?.value,
-      cpm: mm.cpm?.value,
-    };
+    return aggregateFromResponse(metrics);
   }, [m30d, metrics]);
+
+  const prevM = useMemo(() => aggregateFromResponse(prevMetrics), [prevMetrics]);
 
   // Chart data — handle multiple response shapes
   const chartData = useMemo(() => {
@@ -206,11 +229,13 @@ export function ClientDashboard({
               const value = currentMetrics[key];
               const prev = prevM?.[key];
               const trend = computeTrend(value, prev);
-              const isPositive = trend != null && (invertTrend ? trend < 0 : trend > 0);
-              const isNegative = trend != null && (invertTrend ? trend > 0 : trend < 0);
+              const isNeutral = trend != null && Math.abs(trend) < 1;
+              const isPositive = trend != null && !isNeutral && (invertTrend ? trend < 0 : trend > 0);
+              const isNegative = trend != null && !isNeutral && (invertTrend ? trend > 0 : trend < 0);
+              const isNew = prev != null && prev === 0 && value != null && value > 0;
 
               return (
-                <div key={key} className="flex min-h-[120px] flex-col rounded-xl border border-slate-700/50 bg-slate-800 p-4">
+                <div key={key} className="flex min-h-[130px] flex-col rounded-xl border border-slate-700/50 bg-slate-800 p-4">
                   <div className="flex items-center gap-2">
                     <Icon size={14} className="text-slate-400" />
                     <span className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
@@ -221,18 +246,29 @@ export function ClientDashboard({
                     {value != null && isFinite(value) ? format(value) : "—"}
                   </div>
                   <div className="mt-auto pt-1.5">
-                    {trend != null && isFinite(trend) ? (
-                      <div
-                        className={cn(
-                          "flex items-center gap-1 text-[12px] font-medium",
-                          isPositive && "text-emerald-400",
-                          isNegative && "text-rose-400",
-                          !isPositive && !isNegative && "text-slate-400",
+                    {isNew ? (
+                      <span className="text-[12px] font-medium text-blue-400">Nouveau</span>
+                    ) : trend != null && isFinite(trend) ? (
+                      <>
+                        <div
+                          className={cn(
+                            "flex items-center gap-1 text-[12px] font-medium",
+                            isPositive && "text-emerald-400",
+                            isNegative && "text-rose-400",
+                            isNeutral && "text-slate-400",
+                          )}
+                        >
+                          {trend > 1 ? <TrendingUp size={13} /> : trend < -1 ? <TrendingDown size={13} /> : null}
+                          <span>{trend >= 0 ? "+" : ""}{trend.toFixed(1)}%</span>
+                        </div>
+                        {prev != null && isFinite(prev) && (
+                          <div className="mt-0.5 text-[10px] text-slate-500">
+                            vs {format(prev)}
+                          </div>
                         )}
-                      >
-                        {trend > 0 ? <TrendingUp size={13} /> : trend < 0 ? <TrendingDown size={13} /> : null}
-                        <span>{trend >= 0 ? "+" : ""}{trend.toFixed(1)}%</span>
-                      </div>
+                      </>
+                    ) : prevMetricsLoading ? (
+                      <Skeleton className="h-4 w-16" />
                     ) : (
                       <span className="text-[11px] text-slate-600">—</span>
                     )}

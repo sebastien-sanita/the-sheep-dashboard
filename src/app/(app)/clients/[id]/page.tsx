@@ -72,6 +72,7 @@ export default function ClientDetailPage({
             metrics={metrics.data}
             metricsLoading={metrics.isLoading}
             prevMetrics={prevMetrics.data}
+            prevMetricsLoading={prevMetrics.isLoading}
           />
         )}
       </div>
