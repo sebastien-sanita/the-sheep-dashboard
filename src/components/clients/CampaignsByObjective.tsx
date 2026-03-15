@@ -21,6 +21,7 @@ import {
 } from "recharts";
 import type { Campaign } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils/format";
+import { cleanCampaignName } from "@/lib/utils/campaign-name";
 import { type CategoryKey, getObjectiveConfig, formatKpi, refineCategory } from "@/lib/utils/objective-metrics";
 import { CampaignDrilldown } from "./CampaignDrilldown";
 import { Skeleton } from "../ui/Skeleton";
@@ -268,7 +269,7 @@ function ObjectiveBlock({
                         )}
                       >
                         <ChevronRight size={14} className={cn("shrink-0 text-slate-500 transition-transform duration-200", isOpen && "rotate-90")} />
-                        <span className="min-w-0 flex-1 truncate text-slate-200">{c.name}</span>
+                        <span className="min-w-0 flex-1 truncate text-slate-200" title={c.name}>{cleanCampaignName(c.name)}</span>
                         <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium", STATUS_BADGES[c.status] ?? "bg-slate-500/10 text-slate-400")}>
                           {c.status}
                         </span>

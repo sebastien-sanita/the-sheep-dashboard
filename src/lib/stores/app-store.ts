@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import type { DateRange } from "../types";
 import { getDateRange } from "../utils/dates";
 
+type DatePreset = "today" | "yesterday" | "last7d" | "last30d" | "thisMonth" | "lastMonth" | "thisQuarter" | "lastQuarter";
 type PanelMode = "chat" | "split" | "dashboard";
 
 interface AppState {
@@ -21,9 +22,9 @@ interface AppState {
 
   // Date range
   dateRange: DateRange;
-  setDateRange: (range: DateRange) => void;
   datePreset: string;
   setDatePreset: (preset: string) => void;
+  setDateRange: (range: DateRange) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -42,29 +43,27 @@ export const useAppStore = create<AppState>()(
       activeWorkspaceId: null,
       setActiveWorkspace: (id) => set({ activeWorkspaceId: id }),
 
-      // Date range
+      // Date range — preset + range are kept in sync
       dateRange: getDateRange("last30d"),
-      setDateRange: (range) => set({ dateRange: range }),
       datePreset: "last30d",
-      setDatePreset: (preset) => set({ datePreset: preset }),
+      setDatePreset: (preset) => {
+        try {
+          const range = getDateRange(preset as DatePreset);
+          set({ datePreset: preset, dateRange: range });
+        } catch {
+          set({ datePreset: preset });
+        }
+      },
+      setDateRange: (range) => set({ dateRange: range }),
     }),
     {
       name: "the-sheep-app",
       partialize: (state) => ({
         sidebarOpen: state.sidebarOpen,
         datePreset: state.datePreset,
+        dateRange: state.dateRange,
         activeWorkspaceId: state.activeWorkspaceId,
       }),
-      onRehydrateStorage: () => (state) => {
-        // Recalculate dateRange from persisted datePreset after hydration
-        if (state?.datePreset) {
-          try {
-            state.dateRange = getDateRange(state.datePreset as Parameters<typeof getDateRange>[0]);
-          } catch {
-            state.dateRange = getDateRange("last30d");
-          }
-        }
-      },
     },
   ),
 );

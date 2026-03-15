@@ -14,6 +14,7 @@ import type { Campaign, AggregatedMetrics, Metrics30d } from "@/lib/types";
 import { formatCurrency, formatCompact } from "@/lib/utils/format";
 import { formatDate } from "@/lib/utils/dates";
 import { type CategoryKey } from "@/lib/utils/objective-metrics";
+import { cleanCampaignName } from "@/lib/utils/campaign-name";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils/cn";
 
@@ -101,7 +102,7 @@ function buildData(campaigns: Campaign[], totalSpend: number, daily: { date: str
 
     const spendMult = totalBudget > 0 ? totalSpend / totalBudget : 1;
     const topCampaigns = [...camps].sort((a, b) => (b.budget ?? 0) - (a.budget ?? 0)).slice(0, 5)
-      .map((c) => ({ name: c.name.length > 18 ? c.name.slice(0, 18) + "…" : c.name, fullName: c.name, spend: (c.budget ?? 0) * spendMult }));
+      .map((c) => ({ name: cleanCampaignName(c.name), fullName: c.name, spend: (c.budget ?? 0) * spendMult }));
 
     results.push({ key, count: camps.length, spend, pct, campaigns: camps, daily: objDaily, weekly, topCampaigns });
   }
@@ -152,15 +153,15 @@ function CompactBlock({ obj, totalSpend, onClick }: { obj: ObjData; totalSpend: 
       <div className="mt-3 grid grid-cols-3 gap-2">
         <div>
           <div className={cn("text-[9px] font-medium uppercase tracking-wider", v.labelColor)}>Dépense</div>
-          <div className="mt-0.5 text-[16px] font-semibold text-slate-50">{formatCurrency(obj.spend)}</div>
+          <div className="mt-0.5 text-[22px] font-bold text-slate-50">{formatCurrency(obj.spend)}</div>
         </div>
         <div>
           <div className={cn("text-[9px] font-medium uppercase tracking-wider", v.labelColor)}>Campagnes</div>
-          <div className="mt-0.5 text-[16px] font-semibold text-slate-50">{obj.count}</div>
+          <div className="mt-0.5 text-[22px] font-bold text-slate-50">{obj.count}</div>
         </div>
         <div>
           <div className={cn("text-[9px] font-medium uppercase tracking-wider", v.labelColor)}>Part budget</div>
-          <div className="mt-0.5 text-[16px] font-semibold text-slate-50">{obj.pct.toFixed(0)}%</div>
+          <div className="mt-0.5 text-[22px] font-bold text-slate-50">{obj.pct.toFixed(0)}%</div>
         </div>
       </div>
 
@@ -233,7 +234,7 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
           ].map((kpi) => (
             <div key={kpi.label} className="rounded-lg bg-slate-900/30 p-2.5">
               <div className={cn("text-[9px] font-medium uppercase tracking-wider", v.labelColor)}>{kpi.label}</div>
-              <div className="mt-0.5 text-lg font-semibold text-slate-50">{kpi.value}</div>
+              <div className="mt-0.5 text-2xl font-bold text-slate-50">{kpi.value}</div>
             </div>
           ))}
         </div>
@@ -373,7 +374,7 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-slate-800/30 px-5 py-3">
         <div>
           <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Dépense totale</div>
-          <div className="text-2xl font-semibold text-slate-50">{formatCurrency(displayTotal)}</div>
+          <div className="text-4xl font-bold text-slate-50">{formatCurrency(displayTotal)}</div>
         </div>
         {objectiveData.length > 1 && (
           <div className="flex-1 max-w-md">

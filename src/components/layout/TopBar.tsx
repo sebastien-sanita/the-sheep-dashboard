@@ -6,7 +6,7 @@ import { Calendar, ChevronRight, Plus, MessageSquare, Menu } from "lucide-react"
 import { useAppStore } from "@/lib/stores/app-store";
 import { useChatStore } from "@/lib/stores/chat-store";
 import { useWorkspace } from "@/lib/hooks/useWorkspace";
-import { getDateRange } from "@/lib/utils/dates";
+// dates utils no longer needed here — setDatePreset handles range
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -34,7 +34,7 @@ export function TopBar() {
   const router = useRouter();
   const datePreset = useAppStore((s) => s.datePreset);
   const setDatePreset = useAppStore((s) => s.setDatePreset);
-  const setDateRange = useAppStore((s) => s.setDateRange);
+  // setDateRange removed — setDatePreset updates both
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
   const startNewConversation = useChatStore((s) => s.startNewConversation);
 
@@ -77,7 +77,6 @@ export function TopBar() {
 
   function handlePresetSelect(key: string) {
     setDatePreset(key);
-    setDateRange(getDateRange(key as Parameters<typeof getDateRange>[0]));
     setDateDropdownOpen(false);
   }
 
