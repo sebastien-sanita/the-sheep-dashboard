@@ -4,7 +4,6 @@ import Link from "next/link";
 import { MessageSquare } from "lucide-react";
 import type { Client, Campaign, AggregatedMetrics, MetricValue, KPIItem } from "@/lib/types";
 import { formatCurrency, formatPercent, formatNumber, formatTrend } from "@/lib/utils/format";
-import { formatDate } from "@/lib/utils/dates";
 import { AccountBadge } from "./AccountBadge";
 import { SyncButton } from "./SyncButton";
 import { KPICard } from "../dashboard/KPICard";
@@ -42,6 +41,18 @@ function metricToKPI(
   };
 }
 
+function simpleKPI(label: string, value: number | undefined, formatter: (v: number) => string): KPIItem {
+  if (value == null || !isFinite(value)) return { label, value: "—" };
+  return { label, value: formatter(value) };
+}
+
+function timeAgo(dateStr: string): string {
+  const hours = (Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60);
+  if (hours < 1) return `il y a ${Math.max(1, Math.floor(hours * 60))} min`;
+  if (hours < 24) return `il y a ${Math.floor(hours)}h`;
+  return `il y a ${Math.floor(hours / 24)}j`;
+}
+
 interface ClientDetailProps {
   client: Client;
   campaigns: Campaign[] | undefined;
@@ -57,6 +68,9 @@ export function ClientDetail({
   metrics,
   metricsLoading,
 }: ClientDetailProps) {
+  const accounts = client.connectedAccounts ?? client.adAccounts ?? [];
+  const m30d = client.metrics30d;
+
   return (
     <div className="p-5">
       {/* Header */}
@@ -79,13 +93,13 @@ export function ClientDetail({
         </div>
       </div>
 
-      {/* Comptes connectes */}
+      {/* Comptes connectés */}
       <section className="mt-6">
         <h2 className="text-[14px] font-medium text-slate-300">
           Comptes publicitaires
         </h2>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-          {(client.adAccounts ?? []).map((account) => (
+          {accounts.map((account) => (
             <div
               key={account.id}
               className="flex items-center gap-3 rounded-lg bg-slate-800 p-4"
@@ -93,11 +107,20 @@ export function ClientDetail({
               <AccountBadge platform={account.platform} />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[13px] text-slate-200">
-                  {account.name}
+                  {"platformAccountName" in account && account.platformAccountName
+                    ? account.platformAccountName
+                    : ("name" in account ? account.name : account.id)}
                 </div>
-                <div className="text-[11px] font-mono text-slate-500">
-                  {account.platformId}
-                </div>
+                {"platformAccountId" in account && account.platformAccountId && (
+                  <div className="text-[11px] font-mono text-slate-500">
+                    {account.platformAccountId}
+                  </div>
+                )}
+                {"platformId" in account && !("platformAccountId" in account) && (
+                  <div className="text-[11px] font-mono text-slate-500">
+                    {(account as { platformId: string }).platformId}
+                  </div>
+                )}
               </div>
               <span
                 className={cn(
@@ -109,58 +132,49 @@ export function ClientDetail({
               </span>
               {account.lastSyncAt && (
                 <span className="text-[11px] text-slate-500">
-                  {formatDate(account.lastSyncAt, "short")}
+                  {timeAgo(account.lastSyncAt)}
                 </span>
               )}
             </div>
           ))}
-          {(client.adAccounts ?? []).length === 0 && (
+          {accounts.length === 0 && (
             <p className="text-[12px] text-slate-500">
-              Aucun compte connecte
+              Aucun compte connecté
             </p>
           )}
         </div>
       </section>
 
-      {/* Metriques */}
+      {/* Performance — prefer metrics30d from workspace, fallback to separate metrics query */}
       <section className="mt-6">
         <h2 className="text-[14px] font-medium text-slate-300">Performance</h2>
-        <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {metricsLoading ? (
+        <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+          {m30d ? (
             <>
-              <Skeleton className="h-28" />
-              <Skeleton className="h-28" />
-              <Skeleton className="h-28" />
-              <Skeleton className="h-28" />
+              <KPICard item={simpleKPI("Dépense", m30d.spend, formatCurrency)} />
+              <KPICard item={simpleKPI("Impressions", m30d.impressions, formatNumber)} />
+              <KPICard item={simpleKPI("Clics", m30d.clicks, formatNumber)} />
+              <KPICard item={simpleKPI("CTR", m30d.ctr, (v) => formatPercent(v))} />
+              <KPICard item={simpleKPI("CPC", m30d.cpc, formatCurrency)} />
+              <KPICard item={simpleKPI("CPM", m30d.cpm, formatCurrency)} />
+            </>
+          ) : metricsLoading ? (
+            <>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-28" />
+              ))}
             </>
           ) : metrics?.metrics ? (
             <>
-              <KPICard
-                item={metricToKPI("Dépense", metrics.metrics.spend, (v) =>
-                  formatCurrency(v),
-                )}
-              />
-              <KPICard
-                item={metricToKPI(
-                  "Coût / Lead",
-                  metrics.metrics.costPerConversion,
-                  (v) => formatCurrency(v),
-                  true,
-                )}
-              />
-              <KPICard
-                item={metricToKPI("CTR", metrics.metrics.ctr, (v) =>
-                  formatPercent(v),
-                )}
-              />
-              <KPICard
-                item={metricToKPI("Leads", metrics.metrics.conversions, (v) =>
-                  formatNumber(v),
-                )}
-              />
+              <KPICard item={metricToKPI("Dépense", metrics.metrics.spend, formatCurrency)} />
+              <KPICard item={metricToKPI("Impressions", metrics.metrics.impressions, formatNumber)} />
+              <KPICard item={metricToKPI("Clics", metrics.metrics.clicks, formatNumber)} />
+              <KPICard item={metricToKPI("CTR", metrics.metrics.ctr, (v) => formatPercent(v))} />
+              <KPICard item={metricToKPI("CPC", metrics.metrics.cpc, formatCurrency)} />
+              <KPICard item={metricToKPI("CPM", metrics.metrics.cpm, formatCurrency)} />
             </>
           ) : (
-            <p className="col-span-4 text-[12px] text-slate-500">
+            <p className="col-span-full text-[12px] text-slate-500">
               Aucune métrique disponible
             </p>
           )}
@@ -186,16 +200,16 @@ export function ClientDetail({
             <table className="w-full text-[13px]">
               <thead className="bg-slate-900/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
                     Nom
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
                     Statut
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
                     Budget
                   </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                  <th scope="col" className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
                     Objectif
                   </th>
                 </tr>
@@ -229,7 +243,7 @@ export function ClientDetail({
             </table>
           ) : (
             <p className="px-4 py-6 text-center text-[12px] text-slate-500">
-              Aucune campagne synchronisee
+              Aucune campagne synchronisée
             </p>
           )}
         </div>

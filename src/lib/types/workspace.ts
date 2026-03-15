@@ -75,6 +75,25 @@ export interface Pixel {
   platform: Platform;
 }
 
+export interface ConnectedAccount {
+  id: string;
+  platform: string;
+  platformAccountId?: string;
+  platformAccountName?: string;
+  name?: string;
+  status: string;
+  lastSyncAt: string | null;
+}
+
+export interface Metrics30d {
+  spend?: number;
+  impressions?: number;
+  clicks?: number;
+  ctr?: number;
+  cpc?: number;
+  cpm?: number;
+}
+
 export interface Client {
   id: string;
   name: string;
@@ -83,6 +102,13 @@ export interface Client {
   createdAt: string;
   updatedAt: string;
   adAccounts?: AdAccount[];
+  connectedAccounts?: ConnectedAccount[];
+  metrics30d?: Metrics30d;
+  activeCampaignsCount?: number;
+  connectedAccountsCount?: number;
+  platforms?: string[];
+  sector?: string;
+  isActive?: boolean;
   pages?: Page[];
   pixels?: Pixel[];
 }

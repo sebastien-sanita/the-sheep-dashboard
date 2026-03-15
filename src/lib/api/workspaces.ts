@@ -63,7 +63,10 @@ function normalizeClientSummary(raw: Record<string, unknown>): ClientSummary {
     createdAt: raw.createdAt as string,
     updatedAt: raw.updatedAt as string,
     adAccountsCount: safeNum(raw.adAccountsCount) ?? safeNum(count?.adAccounts) ?? safeNum(count?.AdAccount) ?? adAccounts?.length,
-    connectedAccountsCount: safeNum(raw.connectedAccountsCount) ?? safeNum(raw.adAccountsCount) ?? adAccounts?.length,
+    connectedAccountsCount: safeNum(raw.connectedAccountsCount)
+      ?? (raw.connectedAccounts as unknown[] | undefined)?.length
+      ?? safeNum(raw.adAccountsCount)
+      ?? adAccounts?.length,
     activeCampaignsCount: campaignCount,
     totalSpend: safeNum(raw.totalSpend),
     totalSpend30d: safeNum(raw.totalSpend30d),

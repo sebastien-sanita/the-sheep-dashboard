@@ -20,6 +20,8 @@ export type {
   AdAccount,
   Page,
   Pixel,
+  ConnectedAccount,
+  Metrics30d,
   Client,
   ClientSummary,
   SyncStatus,
