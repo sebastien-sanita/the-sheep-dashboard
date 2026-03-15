@@ -15,7 +15,6 @@ import { useAppStore } from "@/lib/stores/app-store";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useWorkspaces } from "@/lib/hooks/useWorkspace";
 import { cn } from "@/lib/utils/cn";
-import type { Platform } from "@/lib/types";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -24,11 +23,15 @@ const NAV_ITEMS = [
   { label: "Settings", href: "/settings", icon: Settings },
 ] as const;
 
-const PLATFORM_COLORS: Record<Platform, string> = {
+const PLATFORM_COLORS: Record<string, string> = {
   META: "bg-blue-500",
+  META_ADS: "bg-blue-500",
   GOOGLE: "bg-red-500",
+  GOOGLE_ADS: "bg-red-500",
   LINKEDIN: "bg-sky-600",
+  LINKEDIN_ADS: "bg-sky-600",
   TIKTOK: "bg-pink-500",
+  TIKTOK_ADS: "bg-pink-500",
 };
 
 export function Sidebar() {
