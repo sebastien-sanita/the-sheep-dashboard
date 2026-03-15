@@ -37,7 +37,7 @@ export function AccountBadge({ platform }: AccountBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${config.bg} ${config.text}`}
+      className={`inline-flex items-center gap-1 rounded-md px-2 py-[2px] text-[10px] font-medium tracking-wide ${config.bg} ${config.text}`}
     >
       {label}
     </span>
