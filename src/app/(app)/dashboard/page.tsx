@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   MessageSquare, Wallet, Users, Megaphone, Link as LinkIcon, Target,
   AlertTriangle, AlertCircle, Info, ChevronDown, ChevronUp, ArrowUpDown,
-  Search, Clock,
+  Search, Clock, X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
@@ -159,24 +159,71 @@ export default function DashboardPage() {
     return [...clients].sort((a, b) => (b.totalSpend30d ?? 0) - (a.totalSpend30d ?? 0)).slice(0, 10).map((c) => c.id);
   }, [clients]);
 
-  // Fetch metrics for top client (for chart data)
-  const topClientMetrics = useMetrics(top10Ids[0] ?? "", dateRange);
-
   const [chartMetric, setChartMetric] = useState<ChartMetricKey>("spend");
   const [sortKey, setSortKey] = useState<SortKey>("spend");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [filterQuery, setFilterQuery] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
 
-  // ── KPIs ──
+  // Filter clients when one is selected
+  const filteredClients = useMemo(() => {
+    if (!clients) return undefined;
+    if (!selectedClientId) return clients;
+    return clients.filter((c) => c.id === selectedClientId);
+  }, [clients, selectedClientId]);
+
+  const selectedClient = clients?.find((c) => c.id === selectedClientId);
+
+  // Fetch metrics for selected or top client (for chart data)
+  const topClientMetrics = useMetrics(selectedClientId ?? top10Ids[0] ?? "", dateRange);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Close filter dropdown on click outside
+  useEffect(() => {
+    if (!filterOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [filterOpen]);
+
+  // Ctrl+K / Cmd+K shortcut
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        const input = filterRef.current?.querySelector("input");
+        input?.focus();
+      }
+    }
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, []);
+
+  // Autocomplete suggestions
+  const filterSuggestions = useMemo(() => {
+    if (!clients || !filterQuery) return [];
+    const q = filterQuery.toLowerCase();
+    return clients.filter((c) => c.name.toLowerCase().includes(q)).slice(0, 8);
+  }, [clients, filterQuery]);
+
+  // Fetch metrics for selected client or top client
+  const metricsClientId = selectedClientId ?? top10Ids[0] ?? "";
+
+  // ── KPIs (filter-aware) ──
   const kpis = useMemo(() => {
-    if (!clients) return [];
-    const totalSpend = clients.reduce((s, c) => s + (c.totalSpend30d ?? 0), 0);
-    const totalImpressions = clients.reduce((s, c) => s + (c.totalImpressions30d ?? 0), 0);
-    const totalClicks = clients.reduce((s, c) => s + (c.totalClicks30d ?? 0), 0);
-    const activeClients = clients.filter((c) => (c.connectedAccountCount ?? 0) > 0 || (c.platforms?.length ?? 0) > 0).length;
-    const totalCampaigns = clients.reduce((s, c) => s + (c.activeCampaignsCount ?? 0), 0);
-    const totalAccounts = clients.reduce((s, c) => s + (c.connectedAccountCount ?? 0), 0);
+    const src = filteredClients;
+    if (!src) return [];
+    const totalSpend = src.reduce((s, c) => s + (c.totalSpend30d ?? 0), 0);
+    const totalImpressions = src.reduce((s, c) => s + (c.totalImpressions30d ?? 0), 0);
+    const totalClicks = src.reduce((s, c) => s + (c.totalClicks30d ?? 0), 0);
+    const activeClients = src.filter((c) => (c.connectedAccountCount ?? 0) > 0 || (c.platforms?.length ?? 0) > 0).length;
+    const totalCampaigns = src.reduce((s, c) => s + (c.activeCampaignsCount ?? 0), 0);
+    const totalAccounts = src.reduce((s, c) => s + (c.connectedAccountCount ?? 0), 0);
     const avgCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
 
     return [
@@ -186,24 +233,24 @@ export default function DashboardPage() {
       { label: "Comptes connectés", value: formatNumber(totalAccounts), icon: LinkIcon },
       { label: "CTR moyen", value: formatPercent(avgCtr, 2), icon: Target },
     ];
-  }, [clients]);
+  }, [filteredClients]);
 
   // ── Donuts ──
   const spendDonut = useMemo(() => {
-    if (!clients) return [];
-    return [...clients].sort((a, b) => (b.totalSpend30d ?? 0) - (a.totalSpend30d ?? 0)).slice(0, 10).map((c) => ({ name: c.name, id: c.id, value: c.totalSpend30d ?? 0 }));
-  }, [clients]);
+    if (!filteredClients) return [];
+    return [...filteredClients].sort((a, b) => (b.totalSpend30d ?? 0) - (a.totalSpend30d ?? 0)).slice(0, 10).map((c) => ({ name: c.name, id: c.id, value: c.totalSpend30d ?? 0 }));
+  }, [filteredClients]);
 
   const platformDonut = useMemo(() => {
-    if (!clients) return [];
+    if (!filteredClients) return [];
     const counts = new Map<string, number>();
-    for (const c of clients) {
+    for (const c of filteredClients) {
       for (const p of c.platforms ?? []) {
         counts.set(p, (counts.get(p) ?? 0) + 1);
       }
     }
     return Array.from(counts.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-  }, [clients]);
+  }, [filteredClients]);
 
   const totalSpendAll = spendDonut.reduce((s, d) => s + d.value, 0);
   const totalPlatforms = platformDonut.reduce((s, d) => s + d.value, 0);
@@ -224,8 +271,8 @@ export default function DashboardPage() {
 
   // ── Sorted table ──
   const sortedClients = useMemo(() => {
-    if (!clients) return [];
-    let list = searchQuery ? clients.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase())) : [...clients];
+    if (!filteredClients) return [];
+    let list = searchQuery ? filteredClients.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase())) : [...filteredClients];
     list.sort((a, b) => {
       let cmp = 0;
       const aSpend = a.totalSpend30d ?? 0, bSpend = b.totalSpend30d ?? 0;
@@ -242,7 +289,7 @@ export default function DashboardPage() {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return showAll ? list : list.slice(0, 10);
-  }, [clients, searchQuery, sortKey, sortDir, showAll]);
+  }, [filteredClients, searchQuery, sortKey, sortDir, showAll]);
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir((d) => d === "asc" ? "desc" : "asc");
@@ -250,13 +297,13 @@ export default function DashboardPage() {
   }
 
   // ── Alerts ──
-  const alerts = useMemo(() => clients ? buildSmartAlerts(clients) : [], [clients]);
+  const alerts = useMemo(() => filteredClients ? buildSmartAlerts(filteredClients) : [], [filteredClients]);
 
   // ── Recent syncs ──
   const recentClients = useMemo(() => {
-    if (!clients) return [];
-    return [...clients].filter((c) => (c.connectedAccountCount ?? 0) > 0).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 5);
-  }, [clients]);
+    if (!filteredClients) return [];
+    return [...filteredClients].filter((c) => (c.connectedAccountCount ?? 0) > 0).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 5);
+  }, [filteredClients]);
 
   function timeAgo(dateStr: string): string {
     const h = (Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60);
@@ -272,7 +319,38 @@ export default function DashboardPage() {
       <div className="flex-1 overflow-auto p-6">
         <div className="flex items-baseline justify-between">
           <h1 className="text-lg font-semibold text-slate-100">Vue d&apos;ensemble</h1>
-          <span className="text-[13px] text-slate-400">{formatDateRange(dateRange)}</span>
+          <div className="flex items-center gap-3">
+            {/* Client filter */}
+            <div className="relative" ref={filterRef}>
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <input
+                type="text"
+                value={filterQuery}
+                onChange={(e) => { setFilterQuery(e.target.value); setFilterOpen(true); }}
+                onFocus={() => filterQuery && setFilterOpen(true)}
+                placeholder="Filtrer par client..."
+                className="w-56 rounded-lg border border-slate-700 bg-slate-800 py-1.5 pl-9 pr-3 text-[12px] text-slate-50 outline-none placeholder:text-slate-500 focus:border-primary-500"
+              />
+              {filterOpen && filterSuggestions.length > 0 && (
+                <div className="absolute left-0 top-full z-50 mt-1 max-h-60 w-72 overflow-y-auto rounded-lg border border-slate-700 bg-slate-800 py-1 shadow-xl">
+                  {filterSuggestions.map((c) => (
+                    <button key={c.id} type="button" onClick={() => { setSelectedClientId(c.id); setFilterQuery(""); setFilterOpen(false); }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition-colors hover:bg-slate-700">
+                      <span className="text-slate-200">{c.name}</span>
+                      {c.sector && <span className="text-[10px] text-slate-500">{c.sector}</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {selectedClient && (
+              <button type="button" onClick={() => setSelectedClientId(null)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary-500/20 px-3 py-1 text-[12px] font-medium text-primary-400 transition-colors hover:bg-primary-500/30">
+                {selectedClient.name} <X size={12} />
+              </button>
+            )}
+            <span className="text-[13px] text-slate-400">{formatDateRange(dateRange)}</span>
+          </div>
         </div>
 
         {isLoading && (
@@ -333,7 +411,7 @@ export default function DashboardPage() {
                     </ResponsiveContainer>
                   </div>
                 ) : <p className="mt-8 text-center text-[12px] text-slate-500">Données non disponibles</p>}
-                {chartData.length > 0 && <p className="mt-2 text-[10px] italic text-slate-500">Basé sur le client principal</p>}
+                {chartData.length > 0 && !selectedClientId && <p className="mt-2 text-[10px] italic text-slate-500">Basé sur le client principal</p>}
               </div>
             </motion.div>
 
