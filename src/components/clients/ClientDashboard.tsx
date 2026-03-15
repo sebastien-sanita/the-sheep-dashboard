@@ -164,13 +164,17 @@ export function ClientDashboard({
     };
   }, [m30d, metrics]);
 
-  // Chart data
+  // Chart data — handle multiple response shapes
   const chartData = useMemo(() => {
     if (!metrics?.daily?.length) return [];
-    return metrics.daily.map((d) => ({
-      date: formatDate(d.date, "short"),
-      spend: d.metrics.spend ?? 0,
-    }));
+    return metrics.daily
+      .filter((d) => d.date)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((d) => ({
+        date: formatDate(d.date, "short"),
+        spend: d.metrics?.spend ?? (d as unknown as Record<string, unknown>).spend ?? 0,
+      }))
+      .filter((d) => typeof d.spend === "number");
   }, [metrics]);
 
   // Filtered + sorted campaigns
@@ -260,7 +264,7 @@ export function ClientDashboard({
               const isNegative = trend != null && (invertTrend ? trend > 0 : trend < 0);
 
               return (
-                <div key={key} className="rounded-xl border border-slate-700/50 bg-slate-800 p-4">
+                <div key={key} className="flex min-h-[120px] flex-col rounded-xl border border-slate-700/50 bg-slate-800 p-4">
                   <div className="flex items-center gap-2">
                     <Icon size={14} className="text-slate-400" />
                     <span className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
@@ -270,19 +274,23 @@ export function ClientDashboard({
                   <div className="mt-2 text-2xl font-semibold text-slate-50">
                     {value != null && isFinite(value) ? format(value) : "—"}
                   </div>
-                  {trend != null && isFinite(trend) && (
-                    <div
-                      className={cn(
-                        "mt-1.5 flex items-center gap-1 text-[12px] font-medium",
-                        isPositive && "text-emerald-400",
-                        isNegative && "text-rose-400",
-                        !isPositive && !isNegative && "text-slate-400",
-                      )}
-                    >
-                      {trend > 0 ? <TrendingUp size={13} /> : trend < 0 ? <TrendingDown size={13} /> : null}
-                      <span>{trend >= 0 ? "+" : ""}{trend.toFixed(1)}%</span>
-                    </div>
-                  )}
+                  <div className="mt-auto pt-1.5">
+                    {trend != null && isFinite(trend) ? (
+                      <div
+                        className={cn(
+                          "flex items-center gap-1 text-[12px] font-medium",
+                          isPositive && "text-emerald-400",
+                          isNegative && "text-rose-400",
+                          !isPositive && !isNegative && "text-slate-400",
+                        )}
+                      >
+                        {trend > 0 ? <TrendingUp size={13} /> : trend < 0 ? <TrendingDown size={13} /> : null}
+                        <span>{trend >= 0 ? "+" : ""}{trend.toFixed(1)}%</span>
+                      </div>
+                    ) : (
+                      <span className="text-[11px] text-slate-600">—</span>
+                    )}
+                  </div>
                 </div>
               );
             })

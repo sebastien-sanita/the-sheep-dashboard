@@ -81,6 +81,12 @@ function normalizeClientSummary(raw: Record<string, unknown>): ClientSummary {
 export async function getWorkspaces(): Promise<ClientSummary[]> {
   const raw = await apiGet<unknown>("/api/workspaces/me");
   const items = unwrapArray<Record<string, unknown>>(raw);
+
+  // Debug: log first 2 raw workspace objects to see actual API shape
+  if (typeof window !== "undefined" && items.length > 0) {
+    console.log("[DEBUG] Raw workspaces (first 2):", JSON.stringify(items.slice(0, 2), null, 2));
+  }
+
   return items.map(normalizeClientSummary);
 }
 
