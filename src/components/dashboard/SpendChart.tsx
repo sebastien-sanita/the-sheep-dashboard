@@ -45,9 +45,9 @@ export function SpendChart({ block, chartType }: SpendChartProps) {
   const ChartContainer = chartType === "line" ? LineChart : BarChart;
 
   return (
-    <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
+    <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
       {block.title && (
-        <h3 className="mb-4 text-[13px] font-medium text-slate-300">
+        <h3 className="mb-4 text-[13px] font-medium text-[var(--color-text-secondary)]">
           {block.title}
         </h3>
       )}

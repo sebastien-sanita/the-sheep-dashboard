@@ -40,7 +40,7 @@ export function SplitPanel({ renderChat, renderDashboard }: SplitPanelProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Mode toggle buttons */}
-      <div className="flex shrink-0 items-center gap-0.5 border-b border-slate-700/50 bg-slate-900 px-3 py-1.5">
+      <div className="flex shrink-0 items-center gap-0.5 border-b border-[var(--color-border-default)] bg-[var(--color-bg-subtle)] px-3 py-1.5">
         {modeButtons.map(({ mode, icon: Icon, label }) => (
           <button
             key={mode}
@@ -51,7 +51,7 @@ export function SplitPanel({ renderChat, renderDashboard }: SplitPanelProps) {
               "rounded p-1.5 transition-colors",
               activePanelMode === mode
                 ? "bg-primary-500/15 text-primary-400"
-                : "text-slate-500 hover:bg-slate-800 hover:text-slate-300",
+                : "text-[var(--color-text-primary)]0 hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-secondary)]",
             )}
           >
             <Icon size={15} />
@@ -74,7 +74,7 @@ export function SplitPanel({ renderChat, renderDashboard }: SplitPanelProps) {
           <div className="h-full overflow-auto">{renderChat()}</div>
         </Panel>
 
-        <Separator className="group relative w-[2px] bg-slate-700 transition-colors hover:bg-primary-500 data-[resize-handle-active]:bg-primary-500">
+        <Separator className="group relative w-[2px] bg-[var(--color-bg-elevated)] transition-colors hover:bg-primary-500 data-[resize-handle-active]:bg-primary-500">
           <div className="absolute inset-y-0 -left-1 -right-1 cursor-col-resize" />
         </Separator>
 

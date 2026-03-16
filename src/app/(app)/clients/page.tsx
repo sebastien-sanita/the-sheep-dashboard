@@ -29,9 +29,9 @@ export default function ClientsPage() {
         {/* Header */}
         <div className="mb-5 flex items-center justify-between gap-4">
           <div className="flex items-baseline gap-2">
-            <h1 className="text-lg font-semibold text-slate-100">Clients</h1>
+            <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">Clients</h1>
             {clients && (
-              <span className="text-[13px] text-slate-400">
+              <span className="text-[13px] text-[var(--color-text-secondary)]">
                 ({clients.length} clients)
               </span>
             )}
@@ -64,7 +64,7 @@ export default function ClientsPage() {
                 "rounded-md px-3 py-1 text-[12px] font-medium transition-colors",
                 sortBy === key
                   ? "bg-primary-500/10 text-primary-400"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-slate-200",
+                  : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-primary)]",
               )}
             >
               {label}
@@ -83,7 +83,7 @@ export default function ClientsPage() {
 
         {isError && (
           <div className="flex flex-col items-center justify-center py-20">
-            <p className="text-[13px] text-slate-400">
+            <p className="text-[13px] text-[var(--color-text-secondary)]">
               Erreur lors du chargement des clients
             </p>
             <Button size="sm" onClick={() => refetch()} className="mt-3">

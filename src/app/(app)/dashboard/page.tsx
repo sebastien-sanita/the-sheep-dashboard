@@ -318,26 +318,26 @@ export default function DashboardPage() {
       <TopBar />
       <div className="flex-1 overflow-auto p-6">
         <div className="flex items-baseline justify-between">
-          <h1 className="text-lg font-semibold text-slate-100">Vue d&apos;ensemble</h1>
+          <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">Vue d&apos;ensemble</h1>
           <div className="flex items-center gap-3">
             {/* Client filter */}
             <div className="relative" ref={filterRef}>
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" aria-hidden="true" />
               <input
                 type="text"
                 value={filterQuery}
                 onChange={(e) => { setFilterQuery(e.target.value); setFilterOpen(true); }}
                 onFocus={() => filterQuery && setFilterOpen(true)}
                 placeholder="Filtrer par client..."
-                className="w-56 rounded-lg border border-slate-700 bg-slate-800 py-1.5 pl-9 pr-3 text-[12px] text-slate-50 outline-none placeholder:text-slate-500 focus:border-primary-500"
+                className="w-56 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] py-1.5 pl-9 pr-3 text-[12px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-primary)]0 focus:border-primary-500"
               />
               {filterOpen && filterSuggestions.length > 0 && (
-                <div className="absolute left-0 top-full z-50 mt-1 max-h-60 w-72 overflow-y-auto rounded-lg border border-slate-700 bg-slate-800 py-1 shadow-xl">
+                <div className="absolute left-0 top-full z-50 mt-1 max-h-60 w-72 overflow-y-auto rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] py-1 shadow-xl">
                   {filterSuggestions.map((c) => (
                     <button key={c.id} type="button" onClick={() => { setSelectedClientId(c.id); setFilterQuery(""); setFilterOpen(false); }}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition-colors hover:bg-slate-700">
-                      <span className="text-slate-200">{c.name}</span>
-                      {c.sector && <span className="text-[10px] text-slate-500">{c.sector}</span>}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition-colors hover:bg-[var(--color-bg-elevated)]">
+                      <span className="text-[var(--color-text-primary)]">{c.name}</span>
+                      {c.sector && <span className="text-[10px] text-[var(--color-text-primary)]0">{c.sector}</span>}
                     </button>
                   ))}
                 </div>
@@ -349,7 +349,7 @@ export default function DashboardPage() {
                 {selectedClient.name} <X size={12} />
               </button>
             )}
-            <span className="text-[13px] text-slate-400">{formatDateRange(dateRange)}</span>
+            <span className="text-[13px] text-[var(--color-text-secondary)]">{formatDateRange(dateRange)}</span>
           </div>
         </div>
 
@@ -364,7 +364,7 @@ export default function DashboardPage() {
 
         {isError && (
           <div className="mt-8 flex flex-col items-center">
-            <p className="text-[13px] text-slate-400">Impossible de charger le dashboard</p>
+            <p className="text-[13px] text-[var(--color-text-secondary)]">Impossible de charger le dashboard</p>
             <button type="button" onClick={() => refetch()} className="mt-3 rounded-lg bg-primary-600 px-4 py-1.5 text-[12px] font-medium text-white hover:bg-primary-500">Réessayer</button>
           </div>
         )}
@@ -375,12 +375,12 @@ export default function DashboardPage() {
             <motion.div {...fadeIn(0)}>
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
                 {kpis.map(({ label, value, icon: Icon }) => (
-                  <div key={label} className="flex min-h-[100px] flex-col rounded-xl border border-slate-700/50 bg-slate-800 p-4">
+                  <div key={label} className="flex min-h-[100px] flex-col rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-4">
                     <div className="flex items-center gap-2">
-                      <Icon size={14} className="text-slate-400" />
-                      <span className="text-[11px] font-medium uppercase tracking-wider text-slate-400">{label}</span>
+                      <Icon size={14} className="text-[var(--color-text-secondary)]" />
+                      <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)]">{label}</span>
                     </div>
-                    <div className="mt-2 text-2xl font-semibold text-slate-50">{value}</div>
+                    <div className="mt-2 text-2xl font-semibold text-[var(--color-text-primary)]">{value}</div>
                   </div>
                 ))}
               </div>
@@ -388,12 +388,12 @@ export default function DashboardPage() {
 
             {/* ── S2 — Global chart ── */}
             <motion.div {...fadeIn(0.05)}>
-              <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
+              <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-[14px] font-medium text-slate-300">{activeChartDef.title}</h2>
+                  <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">{activeChartDef.title}</h2>
                   <div className="flex gap-1.5">
                     {CHART_METRICS.map((m) => (
-                      <button key={m.key} type="button" onClick={() => setChartMetric(m.key)} className={cn("rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors", chartMetric === m.key ? PILL_ACTIVE[m.key] : "bg-slate-800 text-slate-400 hover:bg-slate-700")}>{m.label}</button>
+                      <button key={m.key} type="button" onClick={() => setChartMetric(m.key)} className={cn("rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors", chartMetric === m.key ? PILL_ACTIVE[m.key] : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)]")}>{m.label}</button>
                     ))}
                   </div>
                 </div>
@@ -405,13 +405,13 @@ export default function DashboardPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
                         <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={{ stroke: "#334155" }} tickLine={false} />
                         <YAxis domain={[0, "auto"]} tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={activeChartDef.yFormat} />
-                        <Tooltip content={({ active, payload, label }) => active && payload?.length ? <div className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 shadow-xl"><p className="text-[11px] text-slate-400">{label}</p><p className="text-[14px] font-semibold text-slate-50">{activeChartDef.format(payload[0].value as number)}</p></div> : null} />
+                        <Tooltip content={({ active, payload, label }) => active && payload?.length ? <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-3 py-2 shadow-xl"><p className="text-[11px] text-[var(--color-text-secondary)]">{label}</p><p className="text-[14px] font-semibold text-[var(--color-text-primary)]">{activeChartDef.format(payload[0].value as number)}</p></div> : null} />
                         <Area type="monotone" dataKey={chartMetric} stroke={activeChartDef.color} strokeWidth={2} fill={`url(#dash_${activeChartDef.key})`} animationDuration={500} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
-                ) : <p className="mt-8 text-center text-[12px] text-slate-500">Données non disponibles</p>}
-                {chartData.length > 0 && !selectedClientId && <p className="mt-2 text-[10px] italic text-slate-500">Basé sur le client principal</p>}
+                ) : <p className="mt-8 text-center text-[12px] text-[var(--color-text-primary)]0">Données non disponibles</p>}
+                {chartData.length > 0 && !selectedClientId && <p className="mt-2 text-[10px] italic text-[var(--color-text-primary)]0">Basé sur le client principal</p>}
               </div>
             </motion.div>
 
@@ -419,8 +419,8 @@ export default function DashboardPage() {
             <motion.div {...fadeIn(0.1)}>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Spend donut */}
-                <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
-                  <h2 className="text-[14px] font-medium text-slate-300">Top 10 — Répartition budget</h2>
+                <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
+                  <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">Top 10 — Répartition budget</h2>
                   <div className="mt-4 flex items-center gap-4">
                     <div className="relative w-[55%]">
                       <ResponsiveContainer width="100%" height={200}>
@@ -431,25 +431,25 @@ export default function DashboardPage() {
                         </PieChart>
                       </ResponsiveContainer>
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <div className="text-center"><div className="text-lg font-semibold text-slate-50">{formatCurrency(totalSpendAll)}</div><div className="text-[10px] text-slate-500">Total</div></div>
+                        <div className="text-center"><div className="text-lg font-semibold text-[var(--color-text-primary)]">{formatCurrency(totalSpendAll)}</div><div className="text-[10px] text-[var(--color-text-primary)]0">Total</div></div>
                       </div>
                     </div>
                     <div className="flex w-[45%] flex-col gap-1.5">
                       {spendDonut.slice(0, 7).map((d, i) => (
                         <Link key={d.id} href={`/clients/${d.id}`} className="flex items-center gap-2 text-[11px] hover:text-primary-400">
                           <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: DONUT_COLORS[i] }} />
-                          <span className="min-w-0 flex-1 truncate text-slate-300">{d.name}</span>
-                          <span className="shrink-0 text-slate-500">{formatCurrency(d.value)}</span>
+                          <span className="min-w-0 flex-1 truncate text-[var(--color-text-secondary)]">{d.name}</span>
+                          <span className="shrink-0 text-[var(--color-text-primary)]0">{formatCurrency(d.value)}</span>
                         </Link>
                       ))}
-                      {spendDonut.length > 7 && <span className="text-[10px] text-slate-500">+{spendDonut.length - 7} autres</span>}
+                      {spendDonut.length > 7 && <span className="text-[10px] text-[var(--color-text-primary)]0">+{spendDonut.length - 7} autres</span>}
                     </div>
                   </div>
                 </div>
 
                 {/* Platform donut */}
-                <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
-                  <h2 className="text-[14px] font-medium text-slate-300">Répartition par plateforme</h2>
+                <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
+                  <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">Répartition par plateforme</h2>
                   <div className="mt-4 flex items-center gap-4">
                     <div className="relative w-[55%]">
                       <ResponsiveContainer width="100%" height={200}>
@@ -460,7 +460,7 @@ export default function DashboardPage() {
                         </PieChart>
                       </ResponsiveContainer>
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <div className="text-center"><div className="text-lg font-semibold text-slate-50">{totalPlatforms}</div><div className="text-[10px] text-slate-500">comptes</div></div>
+                        <div className="text-center"><div className="text-lg font-semibold text-[var(--color-text-primary)]">{totalPlatforms}</div><div className="text-[10px] text-[var(--color-text-primary)]0">comptes</div></div>
                       </div>
                     </div>
                     <div className="flex w-[45%] flex-col gap-1.5">
@@ -468,7 +468,7 @@ export default function DashboardPage() {
                         <div key={d.name} className="flex items-center gap-2 text-[11px]">
                           <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[d.name] ?? DONUT_COLORS[i % DONUT_COLORS.length] }} />
                           <AccountBadge platform={d.name} />
-                          <span className="shrink-0 text-slate-500">{d.value}</span>
+                          <span className="shrink-0 text-[var(--color-text-primary)]0">{d.value}</span>
                         </div>
                       ))}
                     </div>
@@ -480,18 +480,18 @@ export default function DashboardPage() {
             {/* ── S4 — Client table ── */}
             <motion.div {...fadeIn(0.15)}>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-[14px] font-medium text-slate-300">Tous les clients</h2>
+                <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">Tous les clients</h2>
                 <div className="relative w-56">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Rechercher..." className="w-full rounded-lg border border-slate-700 bg-slate-800 py-1.5 pl-9 pr-3 text-[12px] text-slate-50 outline-none placeholder:text-slate-500 focus:border-primary-500" />
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" aria-hidden="true" />
+                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Rechercher..." className="w-full rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] py-1.5 pl-9 pr-3 text-[12px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-primary)]0 focus:border-primary-500" />
                 </div>
               </div>
-              <div className="mt-3 overflow-hidden rounded-xl border border-slate-700/50 bg-slate-800">
+              <div className="mt-3 overflow-hidden rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)]">
                 <div className="overflow-x-auto">
                   <table className="w-full text-[13px]">
-                    <thead className="bg-slate-900/50">
+                    <thead className="bg-[var(--color-bg-subtle)]">
                       <tr>
-                        <th scope="col" className="w-10 px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">#</th>
+                        <th scope="col" className="w-10 px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)]">#</th>
                         {([
                           { key: "name" as SortKey, label: "Client" },
                           { key: "spend" as SortKey, label: "Dépense 30j" },
@@ -500,11 +500,11 @@ export default function DashboardPage() {
                           { key: "ctr" as SortKey, label: "CTR" },
                           { key: "campaigns" as SortKey, label: "Campagnes" },
                         ]).map(({ key, label }) => (
-                          <th key={key} scope="col" onClick={() => toggleSort(key)} className="cursor-pointer select-none px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400 hover:text-slate-200">
+                          <th key={key} scope="col" onClick={() => toggleSort(key)} className="cursor-pointer select-none px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]">
                             <span className="inline-flex items-center gap-1">{label}{sortKey === key ? (sortDir === "asc" ? <ChevronUp size={12} /> : <ChevronDown size={12} />) : <ArrowUpDown size={12} className="opacity-30" />}</span>
                           </th>
                         ))}
-                        <th scope="col" className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">Plateformes</th>
+                        <th scope="col" className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)]">Plateformes</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -513,14 +513,14 @@ export default function DashboardPage() {
                         const clk = c.totalClicks30d ?? 0;
                         const ctr = imp > 0 ? (clk / imp) * 100 : 0;
                         return (
-                          <tr key={c.id} className="border-t border-slate-700/30 transition-colors hover:bg-slate-700/20">
-                            <td className="px-4 py-3 text-[12px] text-slate-500">{i + 1}</td>
-                            <td className="px-4 py-3"><Link href={`/clients/${c.id}`} className="text-slate-200 hover:text-primary-400">{c.name}</Link></td>
-                            <td className="px-4 py-3 font-mono text-slate-200">{formatCurrency(c.totalSpend30d ?? 0)}</td>
-                            <td className="px-4 py-3 text-slate-300">{formatCompact(imp)}</td>
-                            <td className="px-4 py-3 text-slate-300">{formatCompact(clk)}</td>
-                            <td className="px-4 py-3 text-slate-300">{imp > 0 ? formatPercent(ctr, 2) : "—"}</td>
-                            <td className="px-4 py-3 text-slate-300">{c.activeCampaignsCount ?? 0}</td>
+                          <tr key={c.id} className="border-t border-[var(--color-border-subtle)] transition-colors hover:bg-[var(--color-bg-elevated)]">
+                            <td className="px-4 py-3 text-[12px] text-[var(--color-text-primary)]0">{i + 1}</td>
+                            <td className="px-4 py-3"><Link href={`/clients/${c.id}`} className="text-[var(--color-text-primary)] hover:text-primary-400">{c.name}</Link></td>
+                            <td className="px-4 py-3 font-mono text-[var(--color-text-primary)]">{formatCurrency(c.totalSpend30d ?? 0)}</td>
+                            <td className="px-4 py-3 text-[var(--color-text-secondary)]">{formatCompact(imp)}</td>
+                            <td className="px-4 py-3 text-[var(--color-text-secondary)]">{formatCompact(clk)}</td>
+                            <td className="px-4 py-3 text-[var(--color-text-secondary)]">{imp > 0 ? formatPercent(ctr, 2) : "—"}</td>
+                            <td className="px-4 py-3 text-[var(--color-text-secondary)]">{c.activeCampaignsCount ?? 0}</td>
                             <td className="px-4 py-3"><div className="flex gap-1">{(c.platforms ?? []).map((p) => <AccountBadge key={p} platform={p} />)}</div></td>
                           </tr>
                         );
@@ -529,7 +529,7 @@ export default function DashboardPage() {
                   </table>
                 </div>
                 {clients.length > 10 && !showAll && (
-                  <button type="button" onClick={() => setShowAll(true)} className="w-full border-t border-slate-700/30 py-3 text-center text-[12px] text-primary-400 transition-colors hover:bg-slate-700/20">
+                  <button type="button" onClick={() => setShowAll(true)} className="w-full border-t border-[var(--color-border-subtle)] py-3 text-center text-[12px] text-primary-400 transition-colors hover:bg-[var(--color-bg-elevated)]">
                     Voir les {clients.length} clients
                   </button>
                 )}
@@ -539,13 +539,13 @@ export default function DashboardPage() {
             {/* ── S5 — Alerts ── */}
             <motion.div {...fadeIn(0.2)}>
               <div className="flex items-center gap-2">
-                <h2 className="text-[14px] font-medium text-slate-300">Alertes</h2>
+                <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">Alertes</h2>
                 {alerts.length > 0 && <span className="rounded-full bg-danger-500/10 px-2 py-0.5 text-[11px] font-medium text-danger-400">{alerts.length}</span>}
               </div>
               <div className="mt-3 flex flex-col gap-2">
                 {alerts.length === 0 ? (
-                  <div className="flex items-center justify-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800 px-4 py-6">
-                    <span className="text-[13px] text-slate-400">Aucune alerte — tout est opérationnel</span>
+                  <div className="flex items-center justify-center gap-2 rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-4 py-6">
+                    <span className="text-[13px] text-[var(--color-text-secondary)]">Aucune alerte — tout est opérationnel</span>
                   </div>
                 ) : (
                   <>
@@ -555,11 +555,11 @@ export default function DashboardPage() {
                       return (
                         <Link key={i} href={`/clients/${a.clientId}`} role="alert" className={cn("flex items-center gap-3 rounded-lg border-l-4 px-4 py-3 transition-colors hover:brightness-110", style.border, style.bg)}>
                           <Icon size={16} className={style.icon} />
-                          <span className="text-[12px] text-slate-300">{a.message}</span>
+                          <span className="text-[12px] text-[var(--color-text-secondary)]">{a.message}</span>
                         </Link>
                       );
                     })}
-                    {alerts.length > 10 && <p className="text-center text-[11px] text-slate-500">+{alerts.length - 10} autres alertes</p>}
+                    {alerts.length > 10 && <p className="text-center text-[11px] text-[var(--color-text-primary)]0">+{alerts.length - 10} autres alertes</p>}
                   </>
                 )}
               </div>
@@ -567,13 +567,13 @@ export default function DashboardPage() {
 
             {/* ── S6 — Recent syncs ── */}
             <motion.div {...fadeIn(0.25)}>
-              <h2 className="text-[14px] font-medium text-slate-300">Dernières synchronisations</h2>
+              <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">Dernières synchronisations</h2>
               <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
                 {recentClients.map((c) => (
-                  <Link key={c.id} href={`/clients/${c.id}`} className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-700/50 bg-slate-800 px-3 py-2 transition-colors hover:border-primary-500/40">
+                  <Link key={c.id} href={`/clients/${c.id}`} className="flex shrink-0 items-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-3 py-2 transition-colors hover:border-primary-500/40">
                     {(c.platforms ?? []).slice(0, 1).map((p) => <AccountBadge key={p} platform={p} />)}
-                    <span className="text-[12px] text-slate-200">{c.name}</span>
-                    <span className="text-[10px] text-slate-500">{timeAgo(c.updatedAt)}</span>
+                    <span className="text-[12px] text-[var(--color-text-primary)]">{c.name}</span>
+                    <span className="text-[10px] text-[var(--color-text-primary)]0">{timeAgo(c.updatedAt)}</span>
                   </Link>
                 ))}
               </div>

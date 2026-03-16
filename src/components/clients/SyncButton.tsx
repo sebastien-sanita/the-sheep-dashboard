@@ -44,9 +44,9 @@ export function SyncButton({ workspaceId }: SyncButtonProps) {
       className={cn(
         "inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors",
         status === "idle" &&
-          "border-slate-600 text-slate-300 hover:border-slate-500 hover:text-slate-100",
+          "border-[var(--color-border-emphasis)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-emphasis)] hover:text-[var(--color-text-primary)]",
         status === "syncing" &&
-          "border-slate-600 text-slate-400 opacity-70",
+          "border-[var(--color-border-emphasis)] text-[var(--color-text-secondary)] opacity-70",
         status === "success" &&
           "border-emerald-500/30 text-emerald-400",
         status === "error" &&

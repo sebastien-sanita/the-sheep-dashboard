@@ -43,13 +43,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-700/50 bg-slate-800 p-8 shadow-xl">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--color-bg-base)] px-4">
+      <div className="w-full max-w-md rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-8 shadow-xl">
         <div className="mb-1 text-center text-2xl">🐑</div>
-        <h1 className="text-center text-lg font-semibold text-slate-100">
+        <h1 className="text-center text-lg font-semibold text-[var(--color-text-primary)]">
           The Sheep
         </h1>
-        <p className="mb-8 text-center text-[13px] text-slate-400">
+        <p className="mb-8 text-center text-[13px] text-[var(--color-text-secondary)]">
           Pilotage Ads
         </p>
 
@@ -61,7 +61,7 @@ export default function LoginPage() {
             placeholder="Email"
             required
             icon={<Mail size={16} />}
-            className="bg-slate-900"
+            className="bg-[var(--color-bg-subtle)]"
           />
 
           <Input
@@ -71,7 +71,7 @@ export default function LoginPage() {
             placeholder="Mot de passe"
             required
             icon={<Lock size={16} />}
-            className="bg-slate-900"
+            className="bg-[var(--color-bg-subtle)]"
           />
 
           {error && (

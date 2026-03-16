@@ -45,15 +45,15 @@ function CustomTooltip({
       : 0;
 
   return (
-    <div className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-[12px] shadow-xl">
-      <p className="mb-1 font-medium text-slate-300">{label}</p>
+    <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-3 py-2 text-[12px] shadow-xl">
+      <p className="mb-1 font-medium text-[var(--color-text-secondary)]">{label}</p>
       {current && (
-        <p className="text-slate-100">
+        <p className="text-[var(--color-text-primary)]">
           Actuel : {formatNumber(current.value)}
         </p>
       )}
       {previous && (
-        <p className="text-slate-400">
+        <p className="text-[var(--color-text-secondary)]">
           Precedent : {formatNumber(previous.value)}
         </p>
       )}
@@ -80,9 +80,9 @@ export function ComparisonChart({ block }: ComparisonChartProps) {
   }, [block]);
 
   return (
-    <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
+    <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
       {block.title && (
-        <h3 className="mb-4 text-[13px] font-medium text-slate-300">
+        <h3 className="mb-4 text-[13px] font-medium text-[var(--color-text-secondary)]">
           {block.title}
         </h3>
       )}

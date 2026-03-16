@@ -67,8 +67,8 @@ const CHART_METRICS: { key: ChartMetricKey; label: string; title: string; color:
 ];
 
 const PILL_ACTIVE: Record<ChartMetricKey, string> = {
-  spend: "bg-indigo-500 text-white", impressions: "bg-blue-500 text-white", clicks: "bg-emerald-500 text-white",
-  ctr: "bg-amber-500 text-white", cpc: "bg-rose-500 text-white", cpm: "bg-purple-500 text-white",
+  spend: "bg-indigo-500 text-[var(--color-text-primary)]", impressions: "bg-blue-500 text-[var(--color-text-primary)]", clicks: "bg-emerald-500 text-[var(--color-text-primary)]",
+  ctr: "bg-amber-500 text-[var(--color-text-primary)]", cpc: "bg-rose-500 text-[var(--color-text-primary)]", cpm: "bg-purple-500 text-[var(--color-text-primary)]",
 };
 
 // ---------------------------------------------------------------------------
@@ -78,8 +78,8 @@ const PILL_ACTIVE: Record<ChartMetricKey, string> = {
 const STATUS_BADGES: Record<string, string> = {
   ACTIVE: "bg-emerald-500/10 text-emerald-400",
   PAUSED: "bg-amber-500/10 text-amber-400",
-  DELETED: "bg-slate-500/10 text-slate-400",
-  ARCHIVED: "bg-slate-500/10 text-slate-400",
+  DELETED: "bg-slate-500/10 text-[var(--color-text-secondary)]",
+  ARCHIVED: "bg-slate-500/10 text-[var(--color-text-secondary)]",
 };
 
 // ---------------------------------------------------------------------------
@@ -135,14 +135,14 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
       {/* ── Section 1 — Header ── */}
       <motion.div {...fadeIn} className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-100">{client.name}</h1>
+          <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">{client.name}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {platforms.map((p) => <AccountBadge key={p} platform={p} />)}
-            {client.sector && <span className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[11px] text-slate-400">{client.sector}</span>}
+            {client.sector && <span className="rounded-full bg-[var(--color-bg-elevated)] px-2 py-0.5 text-[11px] text-[var(--color-text-secondary)]">{client.sector}</span>}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Link href={`/clients/${client.id}/chat`} className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-[12px] font-medium text-white transition-colors hover:bg-primary-500">
+          <Link href={`/clients/${client.id}/chat`} className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-[12px] font-medium text-[var(--color-text-primary)] transition-colors hover:bg-primary-500">
             <MessageSquare size={14} /> Ouvrir le chat
           </Link>
           <SyncButton workspaceId={client.id} />
@@ -156,12 +156,12 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
 
       {/* ── Section 3 — Chart with metric selector ── */}
       <motion.div {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.1 }}>
-        <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
+        <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-[14px] font-medium text-slate-300">{activeChart.title}</h2>
+            <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">{activeChart.title}</h2>
             <div className="flex gap-1.5">
               {CHART_METRICS.map((m) => (
-                <button key={m.key} type="button" onClick={() => setChartMetric(m.key)} className={cn("rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors", chartMetric === m.key ? PILL_ACTIVE[m.key] : "bg-slate-800 text-slate-400 hover:bg-slate-700")}>{m.label}</button>
+                <button key={m.key} type="button" onClick={() => setChartMetric(m.key)} className={cn("rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors", chartMetric === m.key ? PILL_ACTIVE[m.key] : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)]")}>{m.label}</button>
               ))}
             </div>
           </div>
@@ -174,20 +174,20 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
                     <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={{ stroke: "#334155" }} tickLine={false} />
                     <YAxis domain={[0, "auto"]} tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={activeChart.yFormat} />
-                    <Tooltip content={({ active, payload, label }) => active && payload?.length ? <div className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 shadow-xl"><p className="text-[11px] text-slate-400">{label}</p><p className="text-[14px] font-semibold text-slate-50">{activeChart.format(payload[0].value as number)}</p></div> : null} />
+                    <Tooltip content={({ active, payload, label }) => active && payload?.length ? <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-3 py-2 shadow-xl"><p className="text-[11px] text-[var(--color-text-secondary)]">{label}</p><p className="text-[14px] font-semibold text-[var(--color-text-primary)]">{activeChart.format(payload[0].value as number)}</p></div> : null} />
                     <Area type="monotone" dataKey={chartMetric} stroke={activeChart.color} strokeWidth={2} fill={`url(#${activeChart.gradientId})`} animationDuration={500} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
               {chartStats && (
-                <div className="mt-3 flex flex-wrap gap-4 text-[11px] text-slate-500">
+                <div className="mt-3 flex flex-wrap gap-4 text-[11px] text-[var(--color-text-primary)]0">
                   <span>{chartStats.days} jours</span>
-                  <span>{chartStats.totalLabel} : <span className="font-medium text-slate-300">{activeChart.format(chartStats.total)}</span></span>
-                  <span>Moy. quotidienne : <span className="font-medium text-slate-300">{activeChart.format(chartStats.dailyAvg)}</span></span>
+                  <span>{chartStats.totalLabel} : <span className="font-medium text-[var(--color-text-secondary)]">{activeChart.format(chartStats.total)}</span></span>
+                  <span>Moy. quotidienne : <span className="font-medium text-[var(--color-text-secondary)]">{activeChart.format(chartStats.dailyAvg)}</span></span>
                 </div>
               )}
             </>
-          ) : <p className="mt-8 text-center text-[12px] text-slate-500">Données détaillées non disponibles</p>}
+          ) : <p className="mt-8 text-center text-[12px] text-[var(--color-text-primary)]0">Données détaillées non disponibles</p>}
         </div>
       </motion.div>
 
@@ -198,24 +198,24 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
 
       {/* ── Section 5 — Connected accounts ── */}
       <motion.div {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.2 }}>
-        <div className="rounded-xl border border-slate-700/50 bg-slate-800">
+        <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)]">
           <button type="button" onClick={() => setAccountsExpanded((e) => !e)} className="flex w-full items-center justify-between px-5 py-4 text-left">
             <div className="flex items-center gap-2">
-              <h2 className="text-[14px] font-medium text-slate-300">Comptes connectés</h2>
-              <span className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[11px] text-slate-400">{accounts.length}</span>
+              <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">Comptes connectés</h2>
+              <span className="rounded-full bg-[var(--color-bg-elevated)] px-2 py-0.5 text-[11px] text-[var(--color-text-secondary)]">{accounts.length}</span>
             </div>
-            {accountsExpanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+            {accountsExpanded ? <ChevronUp size={16} className="text-[var(--color-text-secondary)]" /> : <ChevronDown size={16} className="text-[var(--color-text-secondary)]" />}
           </button>
           {accountsExpanded && (
-            <div className="border-t border-slate-700/50">
-              {accounts.length === 0 ? <p className="px-5 py-4 text-[12px] text-slate-500">Aucun compte connecté</p> : accounts.map((account) => (
-                <div key={account.id} className="flex items-center gap-3 border-t border-slate-700/30 px-5 py-3 first:border-t-0">
+            <div className="border-t border-[var(--color-border-default)]">
+              {accounts.length === 0 ? <p className="px-5 py-4 text-[12px] text-[var(--color-text-primary)]0">Aucun compte connecté</p> : accounts.map((account) => (
+                <div key={account.id} className="flex items-center gap-3 border-t border-[var(--color-border-subtle)] px-5 py-3 first:border-t-0">
                   <AccountBadge platform={account.platform} />
-                  <span className="min-w-0 flex-1 truncate text-[13px] text-slate-200">
+                  <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--color-text-primary)]">
                     {"platformAccountName" in account && account.platformAccountName ? account.platformAccountName : ("name" in account ? account.name : account.id)}
                   </span>
-                  <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", STATUS_BADGES[account.status] ?? "bg-slate-500/10 text-slate-400")}>{account.status}</span>
-                  {account.lastSyncAt && <span className="text-[11px] text-slate-500">{formatDate(account.lastSyncAt, "short")}</span>}
+                  <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", STATUS_BADGES[account.status] ?? "bg-slate-500/10 text-[var(--color-text-secondary)]")}>{account.status}</span>
+                  {account.lastSyncAt && <span className="text-[11px] text-[var(--color-text-primary)]0">{formatDate(account.lastSyncAt, "short")}</span>}
                 </div>
               ))}
             </div>

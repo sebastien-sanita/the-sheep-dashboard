@@ -31,8 +31,8 @@ function BlockRenderer({ block }: { block: DashboardBlock }) {
       return <FrequencyAlert block={block} />;
     case "text_summary":
       return (
-        <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-4">
-          <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-slate-300">
+        <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-4">
+          <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
             {block.content}
           </p>
         </div>
@@ -60,11 +60,11 @@ export function DashboardRenderer() {
   if (blocks.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 px-6">
-        <BarChart3 size={48} className="text-slate-600" />
-        <p className="text-[13px] text-slate-500">
+        <BarChart3 size={48} className="text-[var(--color-text-muted)]" />
+        <p className="text-[13px] text-[var(--color-text-primary)]0">
           Les visualisations apparaitront ici
         </p>
-        <p className="text-center text-[12px] text-slate-600">
+        <p className="text-center text-[12px] text-[var(--color-text-muted)]">
           Pose une question dans le chat pour generer des graphiques et tableaux
         </p>
       </div>
@@ -79,13 +79,13 @@ export function DashboardRenderer() {
   return (
     <div className="h-full overflow-y-auto p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-100">
+        <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
           {dashboardTitle ?? "Dashboard"}
         </h2>
         <button
           type="button"
           onClick={handleClear}
-          className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
+          className="rounded-md p-1.5 text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-primary)]"
           title="Effacer"
         >
           <X size={16} />

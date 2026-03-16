@@ -42,7 +42,7 @@ export function Tooltip({ content, children, side = "top" }: TooltipProps) {
       {isOpen && (
         <div
           className={cn(
-            "pointer-events-none absolute z-50 whitespace-nowrap rounded-md bg-slate-700 px-2 py-1 text-[11px] text-slate-200 shadow-lg transition-opacity duration-150",
+            "pointer-events-none absolute z-50 whitespace-nowrap rounded-md bg-[var(--color-bg-elevated)] px-2 py-1 text-[11px] text-[var(--color-text-primary)] shadow-lg transition-opacity duration-150",
             SIDE_CLASSES[side],
           )}
         >

@@ -51,13 +51,13 @@ export default function ClientDetailPage({
 
         {workspace.isError && (
           <div className="flex flex-col items-center justify-center py-20">
-            <p className="text-[13px] text-slate-400">
+            <p className="text-[13px] text-[var(--color-text-secondary)]">
               Erreur lors du chargement du client
             </p>
             <button
               type="button"
               onClick={() => workspace.refetch()}
-              className="mt-3 rounded-lg bg-primary-600 px-4 py-1.5 text-[12px] font-medium text-white hover:bg-primary-500"
+              className="mt-3 rounded-lg bg-primary-600 px-4 py-1.5 text-[12px] font-medium text-[var(--color-text-primary)] hover:bg-primary-500"
             >
               Réessayer
             </button>

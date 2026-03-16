@@ -324,11 +324,11 @@ export default function SettingsPage() {
         {/* Section 1 — Diagnostic API */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-semibold text-slate-100">
+            <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">
               Diagnostic API
             </h1>
             {(successCount > 0 || errorCount > 0) && (
-              <p className="mt-1 text-[12px] text-slate-500">
+              <p className="mt-1 text-[12px] text-[var(--color-text-primary)]0">
                 {successCount}/{tests.length} OK
                 {errorCount > 0 && (
                   <span className="ml-2 text-rose-400">
@@ -348,20 +348,20 @@ export default function SettingsPage() {
         </div>
 
         {/* Test table */}
-        <div className="mt-4 overflow-hidden rounded-xl border border-slate-700/50 bg-slate-800">
+        <div className="mt-4 overflow-hidden rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)]">
           <table className="w-full text-[13px]">
-            <thead className="bg-slate-900/50">
+            <thead className="bg-[var(--color-bg-subtle)]">
               <tr>
-                <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)]">
                   Endpoint
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400 w-24">
+                <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)] w-24">
                   Statut
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400 w-20">
+                <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)] w-20">
                   Temps
                 </th>
-                <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)]">
                   Resultat
                 </th>
                 <th className="px-4 py-3 w-16" />
@@ -371,23 +371,23 @@ export default function SettingsPage() {
               {tests.map((test) => (
                 <tr
                   key={test.id}
-                  className="border-t border-slate-700/30 transition-colors hover:bg-slate-700/20"
+                  className="border-t border-[var(--color-border-subtle)] transition-colors hover:bg-[var(--color-bg-elevated)]"
                 >
                   <td className="px-4 py-3">
-                    <div className="text-slate-200">{test.name}</div>
-                    <div className="font-mono text-[11px] text-slate-500">
+                    <div className="text-[var(--color-text-primary)]">{test.name}</div>
+                    <div className="font-mono text-[11px] text-[var(--color-text-primary)]0">
                       {test.endpoint}
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={test.status} />
                   </td>
-                  <td className="px-4 py-3 font-mono text-[12px] text-slate-400">
+                  <td className="px-4 py-3 font-mono text-[12px] text-[var(--color-text-secondary)]">
                     {test.responseTime !== undefined ? `${test.responseTime}ms` : "—"}
                   </td>
                   <td className="px-4 py-3">
                     {test.status === "success" && (
-                      <span className="text-[12px] text-slate-300">
+                      <span className="text-[12px] text-[var(--color-text-secondary)]">
                         {test.result}
                       </span>
                     )}
@@ -397,7 +397,7 @@ export default function SettingsPage() {
                       </span>
                     )}
                     {test.status === "idle" && (
-                      <span className="text-[12px] text-slate-600">—</span>
+                      <span className="text-[12px] text-[var(--color-text-muted)]">—</span>
                     )}
                     {test.status === "testing" && (
                       <Skeleton className="h-4 w-32" />
@@ -408,7 +408,7 @@ export default function SettingsPage() {
                       type="button"
                       onClick={() => runSingleTest(test.id)}
                       disabled={test.status === "testing" || isRunningAll}
-                      className="rounded p-1 text-slate-500 transition-colors hover:bg-slate-700 hover:text-slate-300 disabled:opacity-30"
+                      className="rounded p-1 text-[var(--color-text-primary)]0 transition-colors hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-secondary)] disabled:opacity-30"
                       title="Relancer ce test"
                     >
                       <RotateCw size={14} />
@@ -421,10 +421,10 @@ export default function SettingsPage() {
         </div>
 
         {/* Section 2 — Configuration */}
-        <h2 className="mt-8 text-[14px] font-medium text-slate-300">
+        <h2 className="mt-8 text-[14px] font-medium text-[var(--color-text-secondary)]">
           Configuration
         </h2>
-        <div className="mt-3 rounded-xl border border-slate-700/50 bg-slate-800 p-5">
+        <div className="mt-3 rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
           <dl className="flex flex-col gap-3">
             <ConfigRow label="API URL" value={process.env.NEXT_PUBLIC_API_URL ?? "non defini"} mono />
             <ConfigRow
@@ -451,7 +451,7 @@ function StatusBadge({ status }: { status: TestStatus }) {
   switch (status) {
     case "idle":
       return (
-        <span className="inline-flex items-center gap-1.5 text-[12px] text-slate-500">
+        <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-text-primary)]0">
           <span className="h-2 w-2 rounded-full bg-slate-600" />
           En attente
         </span>
@@ -491,10 +491,10 @@ function ConfigRow({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
-      <dt className="text-[12px] text-slate-500">{label}</dt>
+      <dt className="text-[12px] text-[var(--color-text-primary)]0">{label}</dt>
       <dd
         className={cn(
-          "text-right text-[13px] text-slate-200",
+          "text-right text-[13px] text-[var(--color-text-primary)]",
           mono && "font-mono",
         )}
       >

@@ -35,7 +35,7 @@ export function ClientList({ clients, searchQuery, sortBy }: ClientListProps) {
   if (sorted.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-[13px] text-slate-400">Aucun client trouve</p>
+        <p className="text-[13px] text-[var(--color-text-secondary)]">Aucun client trouve</p>
       </div>
     );
   }

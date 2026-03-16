@@ -34,9 +34,9 @@ export function PlatformBreakdown({ block }: PlatformBreakdownProps) {
   );
 
   return (
-    <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
+    <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
       {block.title && (
-        <h3 className="mb-4 text-[13px] font-medium text-slate-300">
+        <h3 className="mb-4 text-[13px] font-medium text-[var(--color-text-secondary)]">
           {block.title}
         </h3>
       )}
@@ -63,10 +63,10 @@ export function PlatformBreakdown({ block }: PlatformBreakdownProps) {
           {/* Center label */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-lg font-semibold text-slate-50">
+              <div className="text-lg font-semibold text-[var(--color-text-primary)]">
                 {formatCurrency(total)}
               </div>
-              <div className="text-[11px] text-slate-500">Total</div>
+              <div className="text-[11px] text-[var(--color-text-primary)]0">Total</div>
             </div>
           </div>
         </div>
@@ -82,10 +82,10 @@ export function PlatformBreakdown({ block }: PlatformBreakdownProps) {
                   style={{ backgroundColor: getColor(entry, i) }}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-[12px] text-slate-300">
+                  <div className="truncate text-[12px] text-[var(--color-text-secondary)]">
                     {entry.label}
                   </div>
-                  <div className="text-[11px] text-slate-500">
+                  <div className="text-[11px] text-[var(--color-text-primary)]0">
                     {formatCurrency(entry.value)} · {formatPercent(pct, 0)}
                   </div>
                 </div>

@@ -11,7 +11,7 @@ interface BadgeProps {
 }
 
 const VARIANT_CLASSES: Record<BadgeVariant, string> = {
-  default: "bg-slate-700/50 text-slate-300",
+  default: "bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)]",
   success: "bg-emerald-500/10 text-emerald-400",
   warning: "bg-amber-500/10 text-amber-400",
   danger: "bg-rose-500/10 text-rose-400",

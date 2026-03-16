@@ -25,7 +25,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-xl border border-slate-700/50 bg-slate-800",
+        "rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)]",
         PADDING_CLASSES[padding],
         hover && "cursor-pointer transition-colors hover:border-primary-500/50",
         className,
@@ -38,7 +38,7 @@ export function Card({
 
 function CardHeader({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("border-b border-slate-700/30 px-5 py-4", className)}>
+    <div className={cn("border-b border-[var(--color-border-subtle)] px-5 py-4", className)}>
       {children}
     </div>
   );

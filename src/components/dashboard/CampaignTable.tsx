@@ -13,8 +13,8 @@ interface CampaignTableProps {
 const STATUS_BADGES: Record<string, string> = {
   ACTIVE: "bg-emerald-500/10 text-emerald-400",
   PAUSED: "bg-amber-500/10 text-amber-400",
-  DELETED: "bg-slate-500/10 text-slate-400",
-  ARCHIVED: "bg-slate-500/10 text-slate-400",
+  DELETED: "bg-slate-500/10 text-[var(--color-text-secondary)]",
+  ARCHIVED: "bg-slate-500/10 text-[var(--color-text-secondary)]",
 };
 
 function formatCell(value: unknown, format?: ColumnFormat): React.ReactNode {
@@ -78,23 +78,23 @@ export function CampaignTable({ block }: CampaignTableProps) {
   const manyRows = sortedRows.length > 10;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-700/50 bg-slate-800">
+    <div className="overflow-hidden rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)]">
       {block.title && (
-        <h3 className="p-4 pb-0 text-[13px] font-medium text-slate-300">
+        <h3 className="p-4 pb-0 text-[13px] font-medium text-[var(--color-text-secondary)]">
           {block.title}
         </h3>
       )}
       <div className={manyRows ? "max-h-[400px] overflow-y-auto" : ""}>
         <table className="w-full text-[13px]">
-          <thead className="sticky top-0 bg-slate-900/80 backdrop-blur-sm">
+          <thead className="sticky top-0 bg-[var(--color-bg-subtle)]/80 backdrop-blur-sm">
             <tr>
               {block.columns.map((col) => (
                 <th
                   key={col.key}
                   onClick={() => handleSort(col.key)}
                   className={cn(
-                    "px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-slate-400",
-                    block.sortable && "cursor-pointer select-none hover:text-slate-200",
+                    "px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)]",
+                    block.sortable && "cursor-pointer select-none hover:text-[var(--color-text-primary)]",
                   )}
                 >
                   <span className="inline-flex items-center gap-1">
@@ -115,10 +115,10 @@ export function CampaignTable({ block }: CampaignTableProps) {
             {sortedRows.map((row, i) => (
               <tr
                 key={i}
-                className="border-t border-slate-700/30 transition-colors hover:bg-slate-700/20"
+                className="border-t border-[var(--color-border-subtle)] transition-colors hover:bg-[var(--color-bg-elevated)]"
               >
                 {block.columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3 text-slate-200">
+                  <td key={col.key} className="px-4 py-3 text-[var(--color-text-primary)]">
                     {formatCell(row[col.key], col.format)}
                   </td>
                 ))}

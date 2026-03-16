@@ -53,7 +53,7 @@ const VIS: Record<CategoryKey, { icon: typeof Target; label: string; color: stri
   video: { icon: Play, label: "Vidéo", color: "#22d3ee", border: "border-l-cyan-500", text: "text-cyan-400", labelColor: "text-cyan-500/70" },
   sales: { icon: ShoppingCart, label: "Ventes", color: "#fb7185", border: "border-l-rose-500", text: "text-rose-400", labelColor: "text-rose-500/70" },
   messages: { icon: MessageCircle, label: "Messages", color: "#22d3ee", border: "border-l-cyan-500", text: "text-cyan-400", labelColor: "text-cyan-500/70" },
-  other: { icon: Wallet, label: "Autre", color: "#94a3b8", border: "border-l-slate-500", text: "text-slate-400", labelColor: "text-slate-500/70" },
+  other: { icon: Wallet, label: "Autre", color: "#94a3b8", border: "border-l-slate-500", text: "text-[var(--color-text-secondary)]", labelColor: "text-[var(--color-text-primary)]0/70" },
 };
 const DONUT_COLORS = ["#818cf8", "#34d399", "#fbbf24", "#60a5fa", "#fb7185", "#a78bfa"];
 
@@ -66,7 +66,7 @@ const AX_TICK = { fontSize: 10, fill: "#94a3b8" };
 const TT_STYLE = { backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 8 };
 function Tt({ active, payload, label, fmt }: { active?: boolean; payload?: Array<{ value: number }>; label?: string; fmt: (v: number) => string }) {
   if (!active || !payload?.length) return null;
-  return <div style={TT_STYLE} className="px-2 py-1 shadow-xl"><p className="text-[10px] text-slate-400">{label}</p><p className="text-[12px] font-semibold text-slate-50">{fmt(payload[0].value)}</p></div>;
+  return <div style={TT_STYLE} className="px-2 py-1 shadow-xl"><p className="text-[10px] text-[var(--color-text-secondary)]">{label}</p><p className="text-[12px] font-semibold text-[var(--color-text-primary)]">{fmt(payload[0].value)}</p></div>;
 }
 
 // ---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ function CompactBlock({ obj, totalSpend, onClick }: { obj: ObjData; totalSpend: 
       <div className="flex items-center gap-2">
         <Icon size={14} className={v.text} />
         <span className={cn("text-[12px] font-semibold", v.text)}>{v.label}</span>
-        <span className="text-[10px] text-slate-500">{obj.count}</span>
+        <span className="text-[10px] text-[var(--color-text-primary)]0">{obj.count}</span>
         <div className="ml-auto relative w-10 h-10 shrink-0">
           <PieChart width={40} height={40}>
             <Pie data={[{ value: obj.spend }, { value: Math.max(0, totalSpend - obj.spend) }]} cx={20} cy={20} innerRadius={12} outerRadius={18} dataKey="value" stroke="none" startAngle={90} endAngle={-270}>
@@ -153,15 +153,15 @@ function CompactBlock({ obj, totalSpend, onClick }: { obj: ObjData; totalSpend: 
       <div className="mt-3 grid grid-cols-3 gap-2">
         <div>
           <div className={cn("text-[9px] font-medium uppercase tracking-wider", v.labelColor)}>Dépense</div>
-          <div className="mt-0.5 text-[22px] font-bold text-slate-50">{formatCurrency(obj.spend)}</div>
+          <div className="mt-0.5 text-[22px] font-bold text-[var(--color-text-primary)]">{formatCurrency(obj.spend)}</div>
         </div>
         <div>
           <div className={cn("text-[9px] font-medium uppercase tracking-wider", v.labelColor)}>Campagnes</div>
-          <div className="mt-0.5 text-[22px] font-bold text-slate-50">{obj.count}</div>
+          <div className="mt-0.5 text-[22px] font-bold text-[var(--color-text-primary)]">{obj.count}</div>
         </div>
         <div>
           <div className={cn("text-[9px] font-medium uppercase tracking-wider", v.labelColor)}>Part budget</div>
-          <div className="mt-0.5 text-[22px] font-bold text-slate-50">{obj.pct.toFixed(0)}%</div>
+          <div className="mt-0.5 text-[22px] font-bold text-[var(--color-text-primary)]">{obj.pct.toFixed(0)}%</div>
         </div>
       </div>
 
@@ -181,7 +181,7 @@ function CompactBlock({ obj, totalSpend, onClick }: { obj: ObjData; totalSpend: 
       )}
 
       {/* CTA */}
-      <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-slate-500">
+      <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-[var(--color-text-primary)]0">
         <span>Voir détails</span><ChevronDown size={10} />
       </div>
     </button>
@@ -216,9 +216,9 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
           <div className="flex items-center gap-2">
             <Icon size={16} className={v.text} />
             <span className={cn("text-[13px] font-semibold", v.text)}>{v.label}</span>
-            <span className="text-[11px] text-slate-500">{obj.count} campagne{obj.count > 1 ? "s" : ""} · {obj.pct.toFixed(0)}% du budget</span>
+            <span className="text-[11px] text-[var(--color-text-primary)]0">{obj.count} campagne{obj.count > 1 ? "s" : ""} · {obj.pct.toFixed(0)}% du budget</span>
           </div>
-          <button type="button" onClick={onClose} className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-slate-400 transition-colors hover:bg-slate-700 hover:text-slate-200">
+          <button type="button" onClick={onClose} className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]">
             Réduire <ChevronUp size={12} />
           </button>
         </div>
@@ -232,9 +232,9 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
             { label: "Impressions", value: obj.daily.length > 0 ? formatCompact(obj.daily.reduce((s, d) => s + d.impressions, 0)) : "—" },
             { label: "Clics", value: obj.daily.length > 0 ? formatCompact(obj.daily.reduce((s, d) => s + d.clicks, 0)) : "—" },
           ].map((kpi) => (
-            <div key={kpi.label} className="rounded-lg bg-slate-900/30 p-2.5">
+            <div key={kpi.label} className="rounded-lg bg-[var(--color-bg-subtle)]/30 p-2.5">
               <div className={cn("text-[9px] font-medium uppercase tracking-wider", v.labelColor)}>{kpi.label}</div>
-              <div className="mt-0.5 text-2xl font-bold text-slate-50">{kpi.value}</div>
+              <div className="mt-0.5 text-2xl font-bold text-[var(--color-text-primary)]">{kpi.value}</div>
             </div>
           ))}
         </div>
@@ -242,7 +242,7 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
         {/* Charts row */}
         <div ref={containerRef} className="mt-4 flex gap-4">
           <div className="flex-[3] min-w-0">
-            <div className="text-[10px] font-medium text-slate-500 mb-1">Évolution par jour</div>
+            <div className="text-[10px] font-medium text-[var(--color-text-primary)]0 mb-1">Évolution par jour</div>
             {hasDaily ? (
               <AreaChart width={leftW} height={180} data={obj.daily} margin={{ top: 5, right: 5, bottom: 0, left: -15 }}>
                 <defs>
@@ -258,12 +258,12 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
                 <Area type="monotone" dataKey="spend" stroke={v.color} strokeWidth={2} fill={`url(#ex_${obj.key})`} isAnimationActive={false} />
               </AreaChart>
             ) : (
-              <div className="flex h-[180px] items-center justify-center rounded-lg bg-slate-900/20"><span className="text-[11px] text-slate-600">Données insuffisantes</span></div>
+              <div className="flex h-[180px] items-center justify-center rounded-lg bg-[var(--color-bg-subtle)]/20"><span className="text-[11px] text-[var(--color-text-muted)]">Données insuffisantes</span></div>
             )}
           </div>
 
           <div className="flex-[2] min-w-0">
-            <div className="text-[10px] font-medium text-slate-500 mb-1">Top campagnes</div>
+            <div className="text-[10px] font-medium text-[var(--color-text-primary)]0 mb-1">Top campagnes</div>
             {obj.topCampaigns.length > 1 ? (
               <div className="flex items-center gap-2">
                 <PieChart width={Math.min(rightW * 0.45, 100)} height={140}>
@@ -275,13 +275,13 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
                   {obj.topCampaigns.slice(0, 5).map((c, i) => (
                     <div key={c.fullName} className="flex items-center gap-1.5 text-[9px]">
                       <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }} />
-                      <span className="truncate text-slate-400" title={c.fullName}>{c.name}</span>
+                      <span className="truncate text-[var(--color-text-secondary)]" title={c.fullName}>{c.name}</span>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="flex h-[140px] items-center justify-center rounded-lg bg-slate-900/20"><span className="text-[11px] text-slate-600">—</span></div>
+              <div className="flex h-[140px] items-center justify-center rounded-lg bg-[var(--color-bg-subtle)]/20"><span className="text-[11px] text-[var(--color-text-muted)]">—</span></div>
             )}
           </div>
         </div>
@@ -289,17 +289,17 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
         {/* Horizontal bars — top campaigns by spend */}
         {obj.topCampaigns.length > 1 && (
           <div className="mt-4">
-            <div className="text-[10px] font-medium text-slate-500 mb-2">Répartition des dépenses</div>
+            <div className="text-[10px] font-medium text-[var(--color-text-primary)]0 mb-2">Répartition des dépenses</div>
             <div className="space-y-1.5">
               {obj.topCampaigns.map((c, i) => {
                 const pct = maxBarSpend > 0 ? (c.spend / maxBarSpend) * 100 : 0;
                 return (
                   <div key={c.fullName} className="flex items-center gap-2">
-                    <span className="w-36 truncate text-[11px] text-slate-300" title={c.fullName}>{c.name}</span>
-                    <div className="flex-1 h-4 rounded-full bg-slate-700/30 overflow-hidden">
+                    <span className="w-36 truncate text-[11px] text-[var(--color-text-secondary)]" title={c.fullName}>{c.name}</span>
+                    <div className="flex-1 h-4 rounded-full bg-[var(--color-bg-elevated)] overflow-hidden">
                       <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length], opacity: 0.7 }} />
                     </div>
-                    <span className="shrink-0 text-[11px] font-medium text-slate-300 w-16 text-right">{formatCurrency(c.spend)}</span>
+                    <span className="shrink-0 text-[11px] font-medium text-[var(--color-text-secondary)] w-16 text-right">{formatCurrency(c.spend)}</span>
                   </div>
                 );
               })}
@@ -366,9 +366,9 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
 
   if (objectiveData.length === 0) {
     return (
-      <div className="rounded-xl border border-slate-700/50 bg-slate-800 p-5">
-        <div className="flex items-center gap-2 text-[13px] text-slate-400"><Wallet size={14} /> Aucune campagne active — métriques globales</div>
-        <div className="mt-3 text-2xl font-semibold text-slate-50">{formatCurrency(displayTotal)}</div>
+      <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
+        <div className="flex items-center gap-2 text-[13px] text-[var(--color-text-secondary)]"><Wallet size={14} /> Aucune campagne active — métriques globales</div>
+        <div className="mt-3 text-2xl font-semibold text-[var(--color-text-primary)]">{formatCurrency(displayTotal)}</div>
       </div>
     );
   }
@@ -376,17 +376,17 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
   return (
     <div className="space-y-4">
       {/* Global spend bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-slate-800/30 px-5 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-[var(--color-bg-surface)] px-5 py-3">
         <div>
-          <div className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Dépense totale</div>
-          <div className="text-4xl font-bold text-slate-50">{formatCurrency(displayTotal)}</div>
+          <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-primary)]0">Dépense totale</div>
+          <div className="text-4xl font-bold text-[var(--color-text-primary)]">{formatCurrency(displayTotal)}</div>
         </div>
         {objectiveData.length > 1 && (
           <div className="flex-1 max-w-md">
             <div className="flex h-3 overflow-hidden rounded-full">
               {objectiveData.map(({ key, pct }) => pct >= 1 ? <div key={key} style={{ width: `${pct}%`, backgroundColor: VIS[key].color }} title={`${VIS[key].label} : ${pct.toFixed(0)}%`} /> : null)}
             </div>
-            <div className="mt-1 flex flex-wrap gap-3 text-[10px] text-slate-500">
+            <div className="mt-1 flex flex-wrap gap-3 text-[10px] text-[var(--color-text-primary)]0">
               {objectiveData.map(({ key, spend }) => (
                 <span key={key}><span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: VIS[key].color }} /> {VIS[key].label} {formatCurrency(spend)}</span>
               ))}
@@ -394,10 +394,10 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
           </div>
         )}
         {globalTrend != null && isFinite(globalTrend) && (
-          <div className={cn("flex items-center gap-1 text-[13px] font-medium", globalTrend < 0 ? "text-emerald-400" : globalTrend > 0 ? "text-rose-400" : "text-slate-400")}>
+          <div className={cn("flex items-center gap-1 text-[13px] font-medium", globalTrend < 0 ? "text-emerald-400" : globalTrend > 0 ? "text-rose-400" : "text-[var(--color-text-secondary)]")}>
             {globalTrend > 1 ? <TrendingUp size={14} /> : globalTrend < -1 ? <TrendingDown size={14} /> : null}
             <span>{globalTrend >= 0 ? "+" : ""}{globalTrend.toFixed(1)}%</span>
-            <span className="text-[11px] text-slate-500">vs préc.</span>
+            <span className="text-[11px] text-[var(--color-text-primary)]0">vs préc.</span>
           </div>
         )}
         {prevMetricsLoading && <Skeleton className="h-5 w-24" />}

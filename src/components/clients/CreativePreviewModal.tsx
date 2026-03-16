@@ -128,10 +128,10 @@ export function CreativePreviewModal({
     return (
       <div>
         <div className="flex justify-between text-[11px]">
-          <span className="text-slate-400">{label}</span>
-          <span className="font-medium text-slate-200">{formatted}</span>
+          <span className="text-[var(--color-text-secondary)]">{label}</span>
+          <span className="font-medium text-[var(--color-text-primary)]">{formatted}</span>
         </div>
-        <div className="mt-1 h-1.5 w-full rounded-full bg-slate-700/50">
+        <div className="mt-1 h-1.5 w-full rounded-full bg-[var(--color-bg-elevated)]">
           <div className="h-1.5 rounded-full bg-primary-500/60 transition-all" style={{ width: `${pct}%` }} />
         </div>
       </div>
@@ -155,20 +155,20 @@ export function CreativePreviewModal({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className="relative z-10 flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl md:flex-row"
+        className="relative z-10 flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-bg-subtle)] shadow-2xl md:flex-row"
       >
         {/* Close button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 z-20 rounded-lg bg-slate-800/80 p-1.5 text-slate-400 transition-colors hover:text-slate-200"
+          className="absolute right-3 top-3 z-20 rounded-lg bg-[var(--color-bg-surface)] p-1.5 text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
           aria-label="Fermer"
         >
           <X size={16} />
         </button>
 
         {/* Left: Image preview */}
-        <div className="relative flex min-h-[200px] flex-1 items-center justify-center bg-slate-950 md:min-h-0 md:w-[60%]">
+        <div className="relative flex min-h-[200px] flex-1 items-center justify-center bg-[var(--color-bg-base)] md:min-h-0 md:w-[60%]">
           {imgUrl ? (
             <>
               <img
@@ -180,13 +180,13 @@ export function CreativePreviewModal({
               {isVideo && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="rounded-full bg-black/50 p-4">
-                    <Play size={32} className="text-white" fill="white" />
+                    <Play size={32} className="text-[var(--color-text-primary)]" fill="white" />
                   </div>
                 </div>
               )}
             </>
           ) : (
-            <div className="flex flex-col items-center gap-3 bg-gradient-to-b from-slate-800 to-slate-700 p-12 text-slate-500">
+            <div className="flex flex-col items-center gap-3 bg-gradient-to-b from-slate-800 to-slate-700 p-12 text-[var(--color-text-primary)]0">
               <ImageOff size={48} />
               <span className="text-[12px]">{format.label}</span>
             </div>
@@ -197,7 +197,7 @@ export function CreativePreviewModal({
             <button
               type="button"
               onClick={() => onNavigate(prevAd.id)}
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-slate-800/80 p-2 text-slate-400 transition-colors hover:text-slate-200"
+              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-[var(--color-bg-surface)] p-2 text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
               aria-label="Créatif précédent"
             >
               <ChevronLeft size={20} />
@@ -207,7 +207,7 @@ export function CreativePreviewModal({
             <button
               type="button"
               onClick={() => onNavigate(nextAd.id)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-slate-800/80 p-2 text-slate-400 transition-colors hover:text-slate-200"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-[var(--color-bg-surface)] p-2 text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
               aria-label="Créatif suivant"
             >
               <ChevronRight size={20} />
@@ -216,11 +216,11 @@ export function CreativePreviewModal({
         </div>
 
         {/* Right: Details */}
-        <div className="w-full overflow-y-auto border-t border-slate-700 p-5 md:w-[40%] md:border-l md:border-t-0">
+        <div className="w-full overflow-y-auto border-t border-[var(--color-border-default)] p-5 md:w-[40%] md:border-l md:border-t-0">
           {/* Name + badges */}
-          <h3 className="text-[15px] font-semibold text-slate-100">{ad.name}</h3>
+          <h3 className="text-[15px] font-semibold text-[var(--color-text-primary)]">{ad.name}</h3>
           <div className="mt-2 flex flex-wrap gap-2">
-            <span className="rounded bg-slate-700/50 px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
+            <span className="rounded bg-[var(--color-bg-elevated)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-text-secondary)]">
               {format.label}
             </span>
             <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", tierBadge.cls)}>
@@ -229,11 +229,11 @@ export function CreativePreviewModal({
           </div>
 
           {ad.adSetName && (
-            <div className="mt-2 text-[11px] text-slate-500">{ad.adSetName}</div>
+            <div className="mt-2 text-[11px] text-[var(--color-text-primary)]0">{ad.adSetName}</div>
           )}
 
           {/* Rank */}
-          <div className="mt-3 text-[12px] text-slate-400">
+          <div className="mt-3 text-[12px] text-[var(--color-text-secondary)]">
             #{rank} sur {ads.length} — {tier === "top" ? "🏆 Top performer" : tier === "mid" ? "⚡ Performer" : "⚠️ À optimiser"}
           </div>
 
@@ -271,17 +271,17 @@ export function CreativePreviewModal({
 
           {/* Creative text — social post style */}
           {creative && (creative.title || creative.body) && (
-            <div className="mt-5 border-t border-slate-700/50 pt-4">
-              <div className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Contenu du créatif</div>
-              <div className="mt-3 rounded-xl bg-slate-800 p-4">
+            <div className="mt-5 border-t border-[var(--color-border-default)] pt-4">
+              <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-primary)]0">Contenu du créatif</div>
+              <div className="mt-3 rounded-xl bg-[var(--color-bg-surface)] p-4">
                 {creative.title && (
-                  <p className="text-[13px] font-semibold text-slate-100">{creative.title}</p>
+                  <p className="text-[13px] font-semibold text-[var(--color-text-primary)]">{creative.title}</p>
                 )}
                 {creative.body && (
-                  <p className="mt-2 whitespace-pre-line text-[12px] leading-relaxed text-slate-300">{creative.body}</p>
+                  <p className="mt-2 whitespace-pre-line text-[12px] leading-relaxed text-[var(--color-text-secondary)]">{creative.body}</p>
                 )}
                 {creative.ctaType && (
-                  <div className="mt-3 inline-block rounded-md bg-primary-600 px-4 py-1.5 text-[11px] font-medium text-white">
+                  <div className="mt-3 inline-block rounded-md bg-primary-600 px-4 py-1.5 text-[11px] font-medium text-[var(--color-text-primary)]">
                     {CTA_LABELS[creative.ctaType] ?? creative.ctaType}
                   </div>
                 )}

@@ -32,7 +32,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   // Loading while hydrating
   if (!hydrated) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-950">
+      <div className="flex h-screen items-center justify-center bg-[var(--color-bg-base)]">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-600 border-t-primary-500" />
       </div>
     );
