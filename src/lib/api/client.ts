@@ -1,14 +1,12 @@
 import type { ApiError } from "../types";
 
-// Browser: use relative URLs so Next.js rewrite proxy handles CORS
-// Server (SSR): use the full backend URL directly
-const BASE_URL =
-  typeof window !== "undefined"
-    ? ""
-    : process.env.NEXT_PUBLIC_API_URL ?? "https://api.the-sheep.fr";
-
-// Direct backend URL for SSE streaming (bypasses Next.js proxy which buffers/times out)
-const STREAM_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.the-sheep.fr";
+// Always call the backend directly. The Next.js rewrite in next.config.ts is
+// bypassed in production: Cloudflare blocks server-to-server calls between two
+// CF-proxied hostnames (app.the-sheep.fr -> api.the-sheep.fr) with error 1014
+// "DNS points to prohibited IP" — the rewrite() does run on Railway, but the
+// resulting fetch hits CF's anti-loop guard and returns 403 + HTML.
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.the-sheep.fr";
+const STREAM_BASE_URL = BASE_URL;
 
 const AUTH_STORAGE_KEY = "the-sheep-auth";
 
