@@ -2,11 +2,10 @@
 
 import { useState, useRef, useEffect, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Calendar, ChevronRight, Plus, MessageSquare, Menu } from "lucide-react";
+import { Calendar, Plus, Menu } from "lucide-react";
 import { useAppStore } from "@/lib/stores/app-store";
 import { useChatStore } from "@/lib/stores/chat-store";
 import { useWorkspace } from "@/lib/hooks/useWorkspace";
-import { cn } from "@/lib/utils/cn";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 const DATE_PRESETS = [
@@ -59,17 +58,17 @@ export function TopBar() {
   const label = DATE_PRESETS.find((p) => p.key === datePreset)?.label ?? "30 jours";
 
   return (
-    <header className="flex shrink-0 items-center justify-between px-6" style={{ height: "var(--topbar-height)", borderBottom: "1px solid var(--color-border-default)" }}>
-      {/* Left */}
+    <header className="flex shrink-0 items-center justify-between" style={{ height: "var(--topbar-height)", padding: "0 24px", borderBottom: "1px solid var(--color-border-default)" }}>
+      {/* Left — breadcrumb (DS spec: 12px font, 10px separator, last segment primary 500) */}
       <div className="flex items-center gap-2">
-        <button type="button" onClick={toggleSidebar} aria-label="Menu" className="rounded-md p-1.5 md:hidden" style={{ color: "var(--color-text-tertiary)", transition: "color var(--transition-fast)" }}
+        <button type="button" onClick={toggleSidebar} aria-label="Menu" className="md:hidden" style={{ width: 24, height: 24, display: "grid", placeItems: "center", color: "var(--color-text-tertiary)", borderRadius: "var(--radius-xs)", border: "none", background: "transparent", transition: "color var(--transition-fast)" }}
           onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-text-secondary)"; }} onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-text-tertiary)"; }}>
-          <Menu size={16} />
+          <Menu size={14} />
         </button>
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5" style={{ fontSize: 13 }}>
+        <nav aria-label="Breadcrumb" className="flex items-center" style={{ gap: 6, fontSize: 12 }}>
           {breadcrumb.map((item, i) => (
-            <span key={i} className="flex items-center gap-1.5">
-              {i > 0 && <span style={{ color: "var(--color-text-muted)", fontSize: 11 }}>/</span>}
+            <span key={i} className="flex items-center" style={{ gap: 6 }}>
+              {i > 0 && <span style={{ color: "var(--color-text-muted)", fontSize: 10 }}>/</span>}
               {item.loading ? <Skeleton className="inline-block h-4 w-24" /> : (
                 <span style={{ color: i === breadcrumb.length - 1 ? "var(--color-text-primary)" : "var(--color-text-tertiary)", fontWeight: i === breadcrumb.length - 1 ? 500 : 400 }}>{item.label}</span>
               )}
@@ -78,16 +77,16 @@ export function TopBar() {
         </nav>
       </div>
 
-      {/* Right */}
-      <div className="flex items-center gap-2">
+      {/* Right — date preset (mono) + new chat (DS spec: 28px buttons, var --radius-xs, mono labels) */}
+      <div className="flex items-center" style={{ gap: 8 }}>
         <div className="relative" ref={ref}>
           <button type="button" onClick={() => setOpen((o) => !o)} aria-label="Période" aria-expanded={open}
-            className="flex items-center gap-2 px-2.5"
-            style={{ height: 30, borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border-default)", background: "transparent", color: "var(--color-text-secondary)", fontSize: 12, transition: "all var(--transition-fast)" }}
+            className="inline-flex items-center"
+            style={{ height: 28, padding: "0 10px", gap: 6, fontSize: 11, fontFamily: "var(--font-mono)", borderRadius: "var(--radius-xs)", border: "1px solid var(--color-border-default)", background: "transparent", color: "var(--color-text-secondary)", transition: "all var(--transition-fast)" }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--color-border-emphasis)"; e.currentTarget.style.background = "var(--color-bg-elevated)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--color-border-default)"; e.currentTarget.style.background = "transparent"; }}
           >
-            <Calendar size={13} style={{ color: "var(--color-text-tertiary)" }} />
+            <Calendar size={11} style={{ color: "var(--color-text-tertiary)" }} />
             <span className="hidden sm:inline">{label}</span>
           </button>
           {open && (
@@ -105,12 +104,11 @@ export function TopBar() {
           )}
         </div>
         <button type="button" onClick={() => { startNewConversation(); router.push("/chat"); }} aria-label="Nouveau chat"
-          className="flex items-center justify-center"
-          style={{ width: 30, height: 30, borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border-default)", color: "var(--color-text-tertiary)", transition: "all var(--transition-fast)" }}
+          style={{ width: 28, height: 28, display: "grid", placeItems: "center", borderRadius: "var(--radius-xs)", border: "1px solid var(--color-border-default)", background: "transparent", color: "var(--color-text-tertiary)", transition: "all var(--transition-fast)" }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--color-border-emphasis)"; e.currentTarget.style.background = "var(--color-bg-elevated)"; e.currentTarget.style.color = "var(--color-text-secondary)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--color-border-default)"; e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--color-text-tertiary)"; }}
         >
-          <Plus size={14} />
+          <Plus size={13} />
         </button>
       </div>
     </header>
