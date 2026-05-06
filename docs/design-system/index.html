@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-accent="moss">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Sheep — Design System · Calm Precision v2</title>
+<!-- DM Sans + JetBrains Mono are self-hosted via @font-face in tokens.css. -->
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="page.css" />
+</head>
+<body>
+
+<!-- Toggles top right -->
+<div class="ds-toggles">
+  <div class="ds-toggle" id="accent-toggle">
+    <button data-accent="moss"   data-active="true">Moss</button>
+    <button data-accent="amber">Amber</button>
+    <button data-accent="teal">Teal</button>
+  </div>
+  <div class="ds-toggle" id="theme-toggle">
+    <button data-theme="dark"  data-active="true">Dark</button>
+    <button data-theme="light">Light</button>
+  </div>
+</div>
+
+<div class="ds-shell">
+
+  <!-- ── Side nav ── -->
+  <nav class="ds-nav">
+    <div class="ds-nav-brand">
+      <span class="ds-nav-brand-mark" id="brand-mark"></span>
+      <div>
+        <div class="ds-nav-brand-name">The Sheep</div>
+        <div class="ds-nav-brand-sub">DS · Calm Precision v2</div>
+      </div>
+    </div>
+
+    <div class="ds-nav-section">
+      <div class="ds-nav-label">Foundations</div>
+      <a class="ds-nav-link" href="#foundations"><span>Foundations</span><span class="ds-nav-link-num">01</span></a>
+      <a class="ds-nav-link" href="#primitives"><span>Primitives</span><span class="ds-nav-link-num">02</span></a>
+      <a class="ds-nav-link" href="#kpi"><span>KPI cards</span><span class="ds-nav-link-num">03</span></a>
+      <a class="ds-nav-link" href="#charts"><span>Charts</span><span class="ds-nav-link-num">04</span></a>
+    </div>
+
+    <div class="ds-nav-section">
+      <div class="ds-nav-label">Composants</div>
+      <a class="ds-nav-link" href="#tables"><span>Tables</span><span class="ds-nav-link-num">05</span></a>
+      <a class="ds-nav-link" href="#chat"><span>Chat IA</span><span class="ds-nav-link-num">06</span></a>
+      <a class="ds-nav-link" href="#clients"><span>Clients</span><span class="ds-nav-link-num">07</span></a>
+      <a class="ds-nav-link" href="#layout"><span>Layout</span><span class="ds-nav-link-num">08</span></a>
+    </div>
+
+    <div class="ds-nav-section">
+      <div class="ds-nav-label">Surfaces</div>
+      <a class="ds-nav-link" href="#surfaces"><span>Hub vs Self-Service</span><span class="ds-nav-link-num">09</span></a>
+    </div>
+
+    <div class="ds-nav-section" style="margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--color-border-default);">
+      <div class="ds-nav-label">Stack</div>
+      <div style="font-family: var(--font-mono); font-size: 10px; color: var(--color-text-muted); padding: 0 8px; line-height: 1.8;">
+        Next.js 15<br/>
+        Tailwind v4<br/>
+        Recharts<br/>
+        Framer Motion
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Main ── -->
+  <main class="ds-main">
+
+    <!-- Hero -->
+    <header class="ds-hero" data-screen-label="00 Hero">
+      <div class="ds-hero-meta">
+        <span class="ds-hero-meta-dot"></span>
+        <span>Source de vérité · v2 · Mai 2026</span>
+        <span style="color: var(--color-text-tertiary);">·</span>
+        <span>Frontend overhaul</span>
+      </div>
+      <h1>Calm <em>Precision</em> — design system pour The&nbsp;Sheep.</h1>
+      <p class="ds-hero-lede">
+        Un système de tokens, de composants et de règles de densité pour deux surfaces produit :
+        l'<strong style="color: var(--color-text-primary); font-weight: 500;">Agency&nbsp;Hub</strong> dense pour Hamza et l'équipe,
+        et le <strong style="color: var(--color-text-primary); font-weight: 500;">Client Self-Service</strong> aéré pour les annonceurs.
+        Mêmes tokens, deux densités. Documentation directe, pas de fluff.
+      </p>
+
+      <div class="ds-hero-stats">
+        <div class="ds-hero-stat">
+          <div class="ds-hero-stat-label">Tokens</div>
+          <div class="ds-hero-stat-value">114</div>
+        </div>
+        <div class="ds-hero-stat">
+          <div class="ds-hero-stat-label">Composants</div>
+          <div class="ds-hero-stat-value">9</div>
+        </div>
+        <div class="ds-hero-stat">
+          <div class="ds-hero-stat-label">Surfaces</div>
+          <div class="ds-hero-stat-value">2</div>
+        </div>
+        <div class="ds-hero-stat">
+          <div class="ds-hero-stat-label">Accent</div>
+          <div class="ds-hero-stat-value" id="accent-name">Moss</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sections injected by React -->
+    <div id="ds-foundations" data-screen-label="01 Foundations"></div>
+    <div id="ds-primitives"  data-screen-label="02 Primitives"></div>
+    <div id="ds-kpi"         data-screen-label="03 KPI cards"></div>
+    <div id="ds-charts"      data-screen-label="04 Charts"></div>
+    <div id="ds-tables"      data-screen-label="05 Tables"></div>
+    <div id="ds-chat"        data-screen-label="06 Chat"></div>
+    <div id="ds-clients"     data-screen-label="07 Clients"></div>
+    <div id="ds-layout"      data-screen-label="08 Layout"></div>
+    <div id="ds-surfaces"    data-screen-label="09 Surfaces"></div>
+
+    <footer style="padding: 48px 56px 56px; border-top: 1px solid var(--color-border-default); display: flex; align-items: center; justify-content: space-between; gap: 24px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="width: 22px; height: 22px; display: grid; place-items: center; border: 1px solid var(--color-border-emphasis); border-radius: 6px;" id="brand-mark-foot"></span>
+        <div>
+          <div style="font-size: 12px; font-weight: 600;">The Sheep — Design System</div>
+          <div style="font-family: var(--font-mono); font-size: 10px; color: var(--color-text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px;">Calm Precision v2 · Mai 2026 · Source de vérité</div>
+        </div>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 10px; color: var(--color-text-muted); letter-spacing: 0.06em;">
+        Maintained by · Hamza Boukraa
+      </div>
+    </footer>
+  </main>
+</div>
+
+<!-- Brand mark renderer (vanilla SVG, used twice) -->
+<template id="sheep-mark-tpl">
+  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="8" cy="9" r="2.6"/>
+    <path d="M10.4 9 c1.4 -0.2 2.6 0.6 3.4 1.6 c0.6 -0.8 1.6 -1.2 2.6 -1 c1.4 0.3 2.2 1.6 1.9 3 c-0.2 0.9 -0.9 1.6 -1.7 1.9 c0.3 0.9 -0.1 2 -0.9 2.5 c-0.9 0.5 -2.1 0.3 -2.7 -0.5 c-0.6 0.5 -1.5 0.5 -2.1 0 c-0.6 0.7 -1.7 0.8 -2.4 0.2 c-0.7 -0.6 -0.8 -1.6 -0.4 -2.4 c-0.7 -0.4 -1.1 -1.1 -1.1 -1.9 c0 -1.4 1.1 -2.4 2.5 -2.4 z"/>
+    <circle cx="7.4" cy="9" r="0.45" fill="currentColor" stroke="none"/>
+    <path d="M9.5 17.5 v2"/>
+    <path d="M14 17.8 v2"/>
+  </svg>
+</template>
+
+<!-- React + Babel -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- Recharts (for charts section) -->
+<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js" crossorigin="anonymous"></script>
+
+<!-- Brand mark inject (no React needed) -->
+<script>
+(function injectBrandMark(){
+  var tpl = document.getElementById("sheep-mark-tpl");
+  ["brand-mark", "brand-mark-foot"].forEach(function(id){
+    var slot = document.getElementById(id);
+    if (slot && tpl) slot.appendChild(tpl.content.cloneNode(true));
+  });
+})();
+</script>
+
+<!-- Toggle wiring -->
+<script>
+(function wireToggles(){
+  function bind(group, attr) {
+    var buttons = group.querySelectorAll("button");
+    buttons.forEach(function(b){
+      b.addEventListener("click", function(){
+        buttons.forEach(function(o){ o.removeAttribute("data-active"); });
+        b.setAttribute("data-active", "true");
+        document.documentElement.setAttribute("data-" + attr, b.getAttribute("data-" + attr));
+        if (attr === "accent") {
+          var name = b.textContent.trim();
+          var el = document.getElementById("accent-name");
+          if (el) el.textContent = name;
+        }
+      });
+    });
+  }
+  bind(document.getElementById("accent-toggle"), "accent");
+  bind(document.getElementById("theme-toggle"),  "theme");
+})();
+</script>
+
+<!-- Section parts -->
+<script type="text/babel" src="parts/shared.jsx"></script>
+<script type="text/babel" src="parts/foundations.jsx"></script>
+<script type="text/babel" src="parts/primitives.jsx"></script>
+<script type="text/babel" src="parts/kpi.jsx"></script>
+<script type="text/babel" src="parts/charts.jsx"></script>
+<script type="text/babel" src="parts/tables.jsx"></script>
+<script type="text/babel" src="parts/chat.jsx"></script>
+<script type="text/babel" src="parts/clients.jsx"></script>
+<script type="text/babel" src="parts/layout.jsx"></script>
+<script type="text/babel" src="parts/surfaces.jsx"></script>
+
+<!-- Mount each section -->
+<script type="text/babel">
+const mounts = [
+  ["ds-foundations", "FoundationsSection"],
+  ["ds-primitives",  "PrimitivesSection"],
+  ["ds-kpi",         "KpiSection"],
+  ["ds-charts",      "ChartsSection"],
+  ["ds-tables",      "TableSection"],
+  ["ds-chat",        "ChatSection"],
+  ["ds-clients",     "ClientsSection"],
+  ["ds-layout",      "LayoutSection"],
+  ["ds-surfaces",    "SurfaceSection"],
+];
+
+function tryMount() {
+  let allReady = true;
+  for (const [id, name] of mounts) {
+    const Comp = window[name];
+    const el = document.getElementById(id);
+    if (!el) continue;
+    if (el.dataset.mounted === "true") continue;
+    if (typeof Comp !== "function") { allReady = false; continue; }
+    ReactDOM.createRoot(el).render(<Comp />);
+    el.dataset.mounted = "true";
+  }
+  return allReady;
+}
+
+let attempts = 0;
+const interval = setInterval(() => {
+  attempts++;
+  if (tryMount() || attempts > 40) clearInterval(interval);
+}, 100);
+</script>
+
+<!-- Scrollspy -->
+<script>
+(function spy(){
+  var links = Array.from(document.querySelectorAll(".ds-nav-link"));
+  var sections = links.map(function(l){
+    var id = l.getAttribute("href").slice(1);
+    return { link: l, target: document.getElementById(id) || document.querySelector('[id="' + id + '"]') };
+  }).filter(function(s){ return s.target; });
+
+  function update() {
+    var y = window.scrollY + 120;
+    var current = sections[0];
+    for (var i = 0; i < sections.length; i++) {
+      var t = sections[i].target;
+      if (t.offsetTop <= y) current = sections[i];
+    }
+    sections.forEach(function(s){
+      s.link.removeAttribute("data-active");
+    });
+    if (current) current.link.setAttribute("data-active", "true");
+  }
+  window.addEventListener("scroll", update, { passive: true });
+  // Periodic check after dynamic content mounts (sections inject IDs into DOM)
+  setTimeout(function recheck(){
+    sections = links.map(function(l){
+      var id = l.getAttribute("href").slice(1);
+      return { link: l, target: document.getElementById(id) || document.querySelector('[id="' + id + '"]') };
+    }).filter(function(s){ return s.target; });
+    update();
+  }, 1500);
+})();
+</script>
+
+</body>
+</html>
