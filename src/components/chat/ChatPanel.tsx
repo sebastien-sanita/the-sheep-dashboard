@@ -8,7 +8,7 @@ import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
 import { SuggestedPrompts } from "./SuggestedPrompts";
 import { ConversationList } from "./ConversationList";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { SheepMark } from "@/components/ui/SheepMark";
 import { cn } from "@/lib/utils/cn";
 
 interface ChatPanelProps { clientId?: string }
@@ -66,10 +66,13 @@ export function ChatPanel({ clientId }: ChatPanelProps) {
         </div>
       ) : isEmpty ? (
         <div className="flex flex-1 flex-col items-center justify-center">
-          <span style={{ fontSize: 44 }}>🐑</span>
-          <span style={{ fontSize: 18, fontWeight: 600, color: "var(--color-text-primary)", marginTop: 12 }}>The Sheep</span>
+          <span style={{ width: 44, height: 44, display: "grid", placeItems: "center", border: "1px solid var(--color-border-emphasis)", borderRadius: "var(--radius-md)", color: "var(--color-text-primary)" }}>
+            <SheepMark size={22} />
+          </span>
+          <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.015em", color: "var(--color-text-primary)", marginTop: 14 }}>The Sheep</span>
           <span style={{ fontSize: 13, color: "var(--color-text-secondary)", marginTop: 4 }}>Interroge tes données marketing</span>
           <div style={{ marginTop: 28, width: "100%", maxWidth: 480 }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 8, padding: "0 16px" }}>Suggestions</div>
             <SuggestedPrompts onSend={sendMessage} clientId={clientId} />
           </div>
         </div>

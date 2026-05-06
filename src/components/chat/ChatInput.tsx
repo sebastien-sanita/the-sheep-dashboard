@@ -55,31 +55,32 @@ export function ChatInput({ onSend, isStreaming, onStop, placeholder = "Pose ta 
           rows={1}
           className="w-full resize-none outline-none disabled:opacity-60"
           style={{
-            background: "var(--color-bg-elevated)",
+            background: "var(--color-bg-surface)",
             border: "1px solid var(--color-border-default)",
-            borderRadius: "var(--radius-lg)",
-            padding: "10px 48px 10px 16px",
+            borderRadius: "var(--radius-md)",
+            padding: "10px 44px 10px 14px",
             color: "var(--color-text-primary)",
             fontSize: 13,
             fontFamily: "var(--font-sans)",
+            lineHeight: 1.5,
             transition: "border-color var(--transition-fast), box-shadow var(--transition-fast)",
           }}
           onFocus={(e) => { e.currentTarget.style.borderColor = "var(--color-accent)"; e.currentTarget.style.boxShadow = "0 0 0 2px var(--color-accent-muted)"; }}
           onBlur={(e) => { e.currentTarget.style.borderColor = "var(--color-border-default)"; e.currentTarget.style.boxShadow = "none"; }}
         />
-        <div className="absolute bottom-[7px] right-[7px]">
+        <div className="absolute" style={{ bottom: 8, right: 8 }}>
           {isStreaming ? (
             <button type="button" onClick={onStop} aria-label="Arrêter"
-              className="flex items-center justify-center text-white" style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--color-danger)", transition: "all var(--transition-fast)" }}>
-              <Square size={13} />
+              style={{ width: 26, height: 26, display: "grid", placeItems: "center", borderRadius: "var(--radius-xs)", background: "var(--color-danger)", border: "none", color: "var(--color-accent-contrast)", cursor: "pointer", transition: "all var(--transition-fast)" }}>
+              <Square size={12} />
             </button>
           ) : (
             <button type="button" onClick={handleSend} disabled={!value.trim()} aria-label="Envoyer"
-              className="flex items-center justify-center text-white disabled:opacity-25 disabled:cursor-not-allowed"
-              style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--color-accent)", transition: "all var(--transition-fast)" }}
+              className="disabled:opacity-25 disabled:cursor-not-allowed"
+              style={{ width: 26, height: 26, display: "grid", placeItems: "center", borderRadius: "var(--radius-xs)", background: "var(--color-accent)", border: "none", color: "var(--color-accent-contrast)", cursor: "pointer", transition: "all var(--transition-fast)" }}
               onMouseEnter={(e) => { if (value.trim()) { e.currentTarget.style.background = "var(--color-accent-hover)"; e.currentTarget.style.boxShadow = "var(--shadow-glow-accent)"; } }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "var(--color-accent)"; e.currentTarget.style.boxShadow = "none"; }}>
-              <ArrowUp size={15} />
+              <ArrowUp size={13} strokeWidth={2.5} />
             </button>
           )}
         </div>
