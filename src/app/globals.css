@@ -1,5 +1,41 @@
 @import "tailwindcss";
 
+/* ── Brand fonts (variable, self-hosted) ── */
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans-VariableFont_opsz_wght.ttf') format('truetype-variations'),
+       url('/fonts/DMSans-VariableFont_opsz_wght.ttf') format('truetype');
+  font-weight: 100 1000;
+  font-style: normal;
+  font-stretch: 75% 125%;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DMSans-Italic-VariableFont_opsz_wght.ttf') format('truetype-variations'),
+       url('/fonts/DMSans-Italic-VariableFont_opsz_wght.ttf') format('truetype');
+  font-weight: 100 1000;
+  font-style: italic;
+  font-stretch: 75% 125%;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype-variations'),
+       url('/fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 1000;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf') format('truetype-variations'),
+       url('/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 1000;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* ============================================================
    THE SHEEP — Design System "Calm Precision"
    ============================================================ */
@@ -55,8 +91,8 @@
   --color-facebook-muted: rgba(24, 119, 242, 0.12);
 
   /* ── Typography ── */
-  --font-sans: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), 'SF Mono', 'Fira Code', monospace;
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 
   /* ── Shadows ── */
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
@@ -97,8 +133,8 @@
   --color-border: var(--color-border-default);
   --color-ring: var(--color-accent);
 
-  --font-sans: var(--font-dm-sans);
-  --font-mono: var(--font-jetbrains-mono);
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 
   --color-primary-50: #eef2ff;
   --color-primary-100: #e0e7ff;
