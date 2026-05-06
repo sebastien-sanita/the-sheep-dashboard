@@ -56,7 +56,7 @@ const VIS: Record<CategoryKey, { icon: typeof Target; label: string; color: stri
   video:      { icon: Play,               label: "Vidéo",               color: "#3d8585", border: "border-l-[#3d8585]",    text: "text-[#3d8585]",    labelColor: "text-[#3d8585]/70" },
   sales:      { icon: ShoppingCart,       label: "Ventes",              color: "#d96a6a", border: "border-l-danger-400",   text: "text-danger-400",   labelColor: "text-danger-400/70" },
   messages:   { icon: MessageCircle,      label: "Messages",            color: "#3d8585", border: "border-l-[#3d8585]",    text: "text-[#3d8585]",    labelColor: "text-[#3d8585]/70" },
-  other:      { icon: Wallet,             label: "Autre",               color: "#5a5a6e", border: "border-l-slate-500",    text: "text-[var(--color-text-secondary)]", labelColor: "text-[var(--color-text-primary)]0/70" },
+  other:      { icon: Wallet,             label: "Autre",               color: "#5a5a6e", border: "border-l-slate-500",    text: "text-[var(--color-text-secondary)]", labelColor: "text-[var(--color-text-tertiary)]/70" },
 };
 const DONUT_COLORS = ["#7f996d", "#5cb88e", "#d6a64a", "#6a9ad6", "#d96a6a", "#a89bd2"];
 
@@ -141,7 +141,7 @@ function CompactBlock({ obj, totalSpend, onClick }: { obj: ObjData; totalSpend: 
       <div className="flex items-center gap-2">
         <Icon size={14} className={v.text} />
         <span className={cn("text-[12px] font-semibold", v.text)}>{v.label}</span>
-        <span className="text-[10px] text-[var(--color-text-primary)]0">{obj.count}</span>
+        <span className="text-[10px] text-[var(--color-text-tertiary)]">{obj.count}</span>
         <div className="ml-auto relative w-10 h-10 shrink-0">
           <PieChart width={40} height={40}>
             <Pie data={[{ value: obj.spend }, { value: Math.max(0, totalSpend - obj.spend) }]} cx={20} cy={20} innerRadius={12} outerRadius={18} dataKey="value" stroke="none" startAngle={90} endAngle={-270}>
@@ -184,7 +184,7 @@ function CompactBlock({ obj, totalSpend, onClick }: { obj: ObjData; totalSpend: 
       )}
 
       {/* CTA */}
-      <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-[var(--color-text-primary)]0">
+      <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-[var(--color-text-tertiary)]">
         <span>Voir détails</span><ChevronDown size={10} />
       </div>
     </button>
@@ -219,7 +219,7 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
           <div className="flex items-center gap-2">
             <Icon size={16} className={v.text} />
             <span className={cn("text-[13px] font-semibold", v.text)}>{v.label}</span>
-            <span className="text-[11px] text-[var(--color-text-primary)]0">{obj.count} campagne{obj.count > 1 ? "s" : ""} · {obj.pct.toFixed(0)}% du budget</span>
+            <span className="text-[11px] text-[var(--color-text-tertiary)]">{obj.count} campagne{obj.count > 1 ? "s" : ""} · {obj.pct.toFixed(0)}% du budget</span>
           </div>
           <button type="button" onClick={onClose} className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]">
             Réduire <ChevronUp size={12} />
@@ -245,7 +245,7 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
         {/* Charts row */}
         <div ref={containerRef} className="mt-4 flex gap-4">
           <div className="flex-[3] min-w-0">
-            <div className="text-[10px] font-medium text-[var(--color-text-primary)]0 mb-1">Évolution par jour</div>
+            <div className="text-[10px] font-medium text-[var(--color-text-tertiary)] mb-1">Évolution par jour</div>
             {hasDaily ? (
               <AreaChart width={leftW} height={180} data={obj.daily} margin={{ top: 5, right: 5, bottom: 0, left: -15 }}>
                 <defs>
@@ -266,7 +266,7 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
           </div>
 
           <div className="flex-[2] min-w-0">
-            <div className="text-[10px] font-medium text-[var(--color-text-primary)]0 mb-1">Top campagnes</div>
+            <div className="text-[10px] font-medium text-[var(--color-text-tertiary)] mb-1">Top campagnes</div>
             {obj.topCampaigns.length > 1 ? (
               <div className="flex items-center gap-2">
                 <PieChart width={Math.min(rightW * 0.45, 100)} height={140}>
@@ -292,7 +292,7 @@ function ExpandedBlock({ obj, totalSpend, onClose }: { obj: ObjData; totalSpend:
         {/* Horizontal bars — top campaigns by spend */}
         {obj.topCampaigns.length > 1 && (
           <div className="mt-4">
-            <div className="text-[10px] font-medium text-[var(--color-text-primary)]0 mb-2">Répartition des dépenses</div>
+            <div className="text-[10px] font-medium text-[var(--color-text-tertiary)] mb-2">Répartition des dépenses</div>
             <div className="space-y-1.5">
               {obj.topCampaigns.map((c, i) => {
                 const pct = maxBarSpend > 0 ? (c.spend / maxBarSpend) * 100 : 0;
@@ -381,7 +381,7 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
       {/* Global spend bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-[var(--color-bg-surface)] px-5 py-3">
         <div>
-          <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-primary)]0">Dépense totale</div>
+          <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)]">Dépense totale</div>
           <div className="text-4xl font-bold text-[var(--color-text-primary)]">{formatCurrency(displayTotal)}</div>
         </div>
         {objectiveData.length > 1 && (
@@ -389,7 +389,7 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
             <div className="flex h-3 overflow-hidden rounded-full">
               {objectiveData.map(({ key, pct }) => pct >= 1 ? <div key={key} style={{ width: `${pct}%`, backgroundColor: VIS[key].color }} title={`${VIS[key].label} : ${pct.toFixed(0)}%`} /> : null)}
             </div>
-            <div className="mt-1 flex flex-wrap gap-3 text-[10px] text-[var(--color-text-primary)]0">
+            <div className="mt-1 flex flex-wrap gap-3 text-[10px] text-[var(--color-text-tertiary)]">
               {objectiveData.map(({ key, spend }) => (
                 <span key={key}><span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: VIS[key].color }} /> {VIS[key].label} {formatCurrency(spend)}</span>
               ))}
@@ -400,7 +400,7 @@ export function ExecutiveSummary({ campaigns, metrics, metricsLoading, prevMetri
           <div className={cn("flex items-center gap-1 text-[13px] font-medium", globalTrend < 0 ? "text-emerald-400" : globalTrend > 0 ? "text-rose-400" : "text-[var(--color-text-secondary)]")}>
             {globalTrend > 1 ? <TrendingUp size={14} /> : globalTrend < -1 ? <TrendingDown size={14} /> : null}
             <span>{globalTrend >= 0 ? "+" : ""}{globalTrend.toFixed(1)}%</span>
-            <span className="text-[11px] text-[var(--color-text-primary)]0">vs préc.</span>
+            <span className="text-[11px] text-[var(--color-text-tertiary)]">vs préc.</span>
           </div>
         )}
         {prevMetricsLoading && <Skeleton className="h-5 w-24" />}

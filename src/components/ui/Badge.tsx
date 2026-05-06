@@ -10,12 +10,16 @@ interface BadgeProps {
   className?: string;
 }
 
+// Variant tokens aligned with Calm Precision DS (parts/primitives.jsx, BadgeRow):
+// each pair uses the semantic token + its -muted background, not the Tailwind
+// rgba palette ; this also keeps the badge consistent when --color-success
+// is retoned in tokens.css.
 const VARIANT_CLASSES: Record<BadgeVariant, string> = {
   default: "bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)]",
-  success: "bg-emerald-500/10 text-emerald-400",
-  warning: "bg-amber-500/10 text-amber-400",
-  danger: "bg-rose-500/10 text-rose-400",
-  info: "bg-primary-500/10 text-primary-400",
+  success: "bg-[var(--color-success-muted)] text-[var(--color-success)]",
+  warning: "bg-[var(--color-warning-muted)] text-[var(--color-warning)]",
+  danger:  "bg-[var(--color-danger-muted)] text-[var(--color-danger)]",
+  info:    "bg-[var(--color-info-muted)] text-[var(--color-info)]",
 };
 
 const SIZE_CLASSES: Record<BadgeSize, string> = {

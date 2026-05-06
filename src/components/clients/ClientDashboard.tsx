@@ -198,7 +198,7 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
                 </div>
               )}
             </>
-          ) : <p className="mt-8 text-center text-[12px] text-[var(--color-text-primary)]0">Données détaillées non disponibles</p>}
+          ) : <p className="mt-8 text-center text-[12px] text-[var(--color-text-tertiary)]">Données détaillées non disponibles</p>}
         </div>
       </motion.div>
 
@@ -219,14 +219,14 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
           </button>
           {accountsExpanded && (
             <div className="border-t border-[var(--color-border-default)]">
-              {accounts.length === 0 ? <p className="px-5 py-4 text-[12px] text-[var(--color-text-primary)]0">Aucun compte connecté</p> : accounts.map((account) => (
+              {accounts.length === 0 ? <p className="px-5 py-4 text-[12px] text-[var(--color-text-tertiary)]">Aucun compte connecté</p> : accounts.map((account) => (
                 <div key={account.id} className="flex items-center gap-3 border-t border-[var(--color-border-subtle)] px-5 py-3 first:border-t-0">
                   <AccountBadge platform={account.platform} />
                   <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--color-text-primary)]">
                     {"platformAccountName" in account && account.platformAccountName ? account.platformAccountName : ("name" in account ? account.name : account.id)}
                   </span>
                   <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", STATUS_BADGES[account.status] ?? "bg-slate-500/10 text-[var(--color-text-secondary)]")}>{account.status}</span>
-                  {account.lastSyncAt && <span className="text-[11px] text-[var(--color-text-primary)]0">{formatDate(account.lastSyncAt, "short")}</span>}
+                  {account.lastSyncAt && <span className="text-[11px] text-[var(--color-text-tertiary)]">{formatDate(account.lastSyncAt, "short")}</span>}
                 </div>
               ))}
             </div>

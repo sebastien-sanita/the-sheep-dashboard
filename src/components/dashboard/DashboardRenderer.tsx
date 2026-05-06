@@ -61,7 +61,7 @@ export function DashboardRenderer() {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 px-6">
         <BarChart3 size={48} className="text-[var(--color-text-muted)]" />
-        <p className="text-[13px] text-[var(--color-text-primary)]0">
+        <p className="text-[13px] text-[var(--color-text-tertiary)]">
           Les visualisations apparaitront ici
         </p>
         <p className="text-center text-[12px] text-[var(--color-text-muted)]">

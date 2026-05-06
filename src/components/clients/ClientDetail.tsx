@@ -79,7 +79,7 @@ export function ClientDetail({
           <h1 className="text-xl font-semibold text-[var(--color-text-primary)]">
             {client.name}
           </h1>
-          <p className="text-[12px] text-[var(--color-text-primary)]0">{client.slug}</p>
+          <p className="text-[12px] text-[var(--color-text-tertiary)]">{client.slug}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link
@@ -112,12 +112,12 @@ export function ClientDetail({
                     : ("name" in account ? account.name : account.id)}
                 </div>
                 {"platformAccountId" in account && account.platformAccountId && (
-                  <div className="text-[11px] font-mono text-[var(--color-text-primary)]0">
+                  <div className="text-[11px] font-mono text-[var(--color-text-tertiary)]">
                     {account.platformAccountId}
                   </div>
                 )}
                 {"platformId" in account && !("platformAccountId" in account) && (
-                  <div className="text-[11px] font-mono text-[var(--color-text-primary)]0">
+                  <div className="text-[11px] font-mono text-[var(--color-text-tertiary)]">
                     {(account as { platformId: string }).platformId}
                   </div>
                 )}
@@ -131,14 +131,14 @@ export function ClientDetail({
                 {account.status}
               </span>
               {account.lastSyncAt && (
-                <span className="text-[11px] text-[var(--color-text-primary)]0">
+                <span className="text-[11px] text-[var(--color-text-tertiary)]">
                   {timeAgo(account.lastSyncAt)}
                 </span>
               )}
             </div>
           ))}
           {accounts.length === 0 && (
-            <p className="text-[12px] text-[var(--color-text-primary)]0">
+            <p className="text-[12px] text-[var(--color-text-tertiary)]">
               Aucun compte connecté
             </p>
           )}
@@ -174,7 +174,7 @@ export function ClientDetail({
               <KPICard item={metricToKPI("CPM", metrics.metrics.cpm, formatCurrency)} />
             </>
           ) : (
-            <p className="col-span-full text-[12px] text-[var(--color-text-primary)]0">
+            <p className="col-span-full text-[12px] text-[var(--color-text-tertiary)]">
               Aucune métrique disponible
             </p>
           )}
@@ -242,7 +242,7 @@ export function ClientDetail({
               </tbody>
             </table>
           ) : (
-            <p className="px-4 py-6 text-center text-[12px] text-[var(--color-text-primary)]0">
+            <p className="px-4 py-6 text-center text-[12px] text-[var(--color-text-tertiary)]">
               Aucune campagne synchronisée
             </p>
           )}

@@ -67,7 +67,7 @@ export function PlatformBreakdown({ block }: PlatformBreakdownProps) {
               <div className="text-lg font-semibold text-[var(--color-text-primary)]">
                 {formatCurrency(total)}
               </div>
-              <div className="text-[11px] text-[var(--color-text-primary)]0">Total</div>
+              <div className="text-[11px] text-[var(--color-text-tertiary)]">Total</div>
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@ export function PlatformBreakdown({ block }: PlatformBreakdownProps) {
                   <div className="truncate text-[12px] text-[var(--color-text-secondary)]">
                     {entry.label}
                   </div>
-                  <div className="text-[11px] text-[var(--color-text-primary)]0">
+                  <div className="text-[11px] text-[var(--color-text-tertiary)]">
                     {formatCurrency(entry.value)} · {formatPercent(pct, 0)}
                   </div>
                 </div>

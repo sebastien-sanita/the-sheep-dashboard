@@ -186,7 +186,7 @@ export function CreativePreviewModal({
               )}
             </>
           ) : (
-            <div className="flex flex-col items-center gap-3 bg-gradient-to-b from-slate-800 to-slate-700 p-12 text-[var(--color-text-primary)]0">
+            <div className="flex flex-col items-center gap-3 bg-gradient-to-b from-slate-800 to-slate-700 p-12 text-[var(--color-text-tertiary)]">
               <ImageOff size={48} />
               <span className="text-[12px]">{format.label}</span>
             </div>
@@ -229,7 +229,7 @@ export function CreativePreviewModal({
           </div>
 
           {ad.adSetName && (
-            <div className="mt-2 text-[11px] text-[var(--color-text-primary)]0">{ad.adSetName}</div>
+            <div className="mt-2 text-[11px] text-[var(--color-text-tertiary)]">{ad.adSetName}</div>
           )}
 
           {/* Rank */}
@@ -272,7 +272,7 @@ export function CreativePreviewModal({
           {/* Creative text — social post style */}
           {creative && (creative.title || creative.body) && (
             <div className="mt-5 border-t border-[var(--color-border-default)] pt-4">
-              <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-primary)]0">Contenu du créatif</div>
+              <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)]">Contenu du créatif</div>
               <div className="mt-3 rounded-xl bg-[var(--color-bg-surface)] p-4">
                 {creative.title && (
                   <p className="text-[13px] font-semibold text-[var(--color-text-primary)]">{creative.title}</p>
