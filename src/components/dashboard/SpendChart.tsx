@@ -14,27 +14,29 @@ import {
 } from "recharts";
 import type { LineChartBlock, BarChartBlock } from "@/lib/types";
 
+// Calm Precision palette : posée, désaturée, alignée sur les tokens v2.
 const DEFAULT_COLORS = [
-  "#818cf8", // indigo-400
-  "#34d399", // emerald-400
-  "#fbbf24", // amber-400
-  "#fb7185", // rose-400
-  "#38bdf8", // sky-400
+  "#7f996d", // moss accent
+  "#5cb88e", // success
+  "#d6a64a", // warning
+  "#d96a6a", // danger
+  "#6a9ad6", // info
 ];
 
-const AXIS_TICK = { fill: "#94a3b8", fontSize: 12 };
-const AXIS_LINE = { stroke: "#334155" };
+const AXIS_TICK = { fill: "#5a5a6e", fontSize: 11, fontFamily: "var(--font-mono)" };
+const AXIS_LINE = { stroke: "rgba(255,255,255,0.06)" };
 const TOOLTIP_STYLE = {
   contentStyle: {
-    backgroundColor: "#1e293b",
-    border: "1px solid #334155",
+    backgroundColor: "#1a1a24",
+    border: "1px solid rgba(255,255,255,0.08)",
     borderRadius: 8,
-    fontSize: 13,
+    fontSize: 12,
+    fontFamily: "var(--font-mono)",
   },
-  labelStyle: { color: "#cbd5e1" },
-  itemStyle: { color: "#f8fafc" },
+  labelStyle: { color: "#8b8b9e", fontFamily: "var(--font-sans)" },
+  itemStyle: { color: "#f0f0f5" },
 };
-const LEGEND_STYLE = { fontSize: 12, color: "#94a3b8" };
+const LEGEND_STYLE = { fontSize: 11, color: "#8b8b9e" };
 
 interface SpendChartProps {
   block: LineChartBlock | BarChartBlock;
@@ -56,8 +58,8 @@ export function SpendChart({ block, chartType }: SpendChartProps) {
           <CartesianGrid
             horizontal
             vertical={false}
-            strokeDasharray="3 3"
-            stroke="#334155"
+            strokeDasharray="2 4"
+            stroke="rgba(255,255,255,0.06)"
           />
           <XAxis
             dataKey={block.xAxisKey}

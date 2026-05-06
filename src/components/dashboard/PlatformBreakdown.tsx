@@ -21,7 +21,8 @@ const PLATFORM_COLORS: Record<string, string> = {
   TikTok: "#E84393",
 };
 
-const FALLBACK_COLORS = ["#818cf8", "#34d399", "#fbbf24", "#fb7185", "#38bdf8"];
+// Calm Precision palette : moss → success → warning → danger → info.
+const FALLBACK_COLORS = ["#7f996d", "#5cb88e", "#d6a64a", "#d96a6a", "#6a9ad6"];
 
 function getColor(entry: { label: string; color?: string }, index: number): string {
   return entry.color || PLATFORM_COLORS[entry.label] || FALLBACK_COLORS[index % FALLBACK_COLORS.length];

@@ -58,17 +58,22 @@ function aggregateFromResponse(data: AggregatedMetrics | undefined): Partial<Met
 type ChartMetricKey = "spend" | "impressions" | "clicks" | "ctr" | "cpc" | "cpm";
 
 const CHART_METRICS: { key: ChartMetricKey; label: string; title: string; color: string; gradientId: string; format: (v: number) => string; yFormat: (v: number) => string; aggregate: "sum" | "ratio"; totalLabel: string }[] = [
-  { key: "spend", label: "Dépenses", title: "Évolution des dépenses", color: "#818cf8", gradientId: "grad_spend", format: formatCurrency, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k€` : `${Math.round(v)}€`, aggregate: "sum", totalLabel: "Total" },
-  { key: "impressions", label: "Impressions", title: "Évolution des impressions", color: "#60a5fa", gradientId: "grad_imp", format: formatCompact, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k` : String(Math.round(v)), aggregate: "sum", totalLabel: "Total" },
-  { key: "clicks", label: "Clics", title: "Évolution des clics", color: "#34d399", gradientId: "grad_clicks", format: formatCompact, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(Math.round(v)), aggregate: "sum", totalLabel: "Total" },
-  { key: "ctr", label: "CTR", title: "Évolution du CTR", color: "#fbbf24", gradientId: "grad_ctr", format: (v) => formatPercent(v, 2), yFormat: (v) => `${v.toFixed(1)}%`, aggregate: "ratio", totalLabel: "Moyenne" },
-  { key: "cpc", label: "CPC", title: "Évolution du CPC", color: "#fb7185", gradientId: "grad_cpc", format: formatCurrency, yFormat: (v) => `${v.toFixed(2)}€`, aggregate: "ratio", totalLabel: "Moyenne" },
-  { key: "cpm", label: "CPM", title: "Évolution du CPM", color: "#a78bfa", gradientId: "grad_cpm", format: formatCurrency, yFormat: (v) => `${v.toFixed(1)}€`, aggregate: "ratio", totalLabel: "Moyenne" },
+  { key: "spend", label: "Dépenses", title: "Évolution des dépenses", color: "#7f996d", gradientId: "grad_spend", format: formatCurrency, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k€` : `${Math.round(v)}€`, aggregate: "sum", totalLabel: "Total" },
+  { key: "impressions", label: "Impressions", title: "Évolution des impressions", color: "#6a9ad6", gradientId: "grad_imp", format: formatCompact, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k` : String(Math.round(v)), aggregate: "sum", totalLabel: "Total" },
+  { key: "clicks", label: "Clics", title: "Évolution des clics", color: "#5cb88e", gradientId: "grad_clicks", format: formatCompact, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(Math.round(v)), aggregate: "sum", totalLabel: "Total" },
+  { key: "ctr", label: "CTR", title: "Évolution du CTR", color: "#d6a64a", gradientId: "grad_ctr", format: (v) => formatPercent(v, 2), yFormat: (v) => `${v.toFixed(1)}%`, aggregate: "ratio", totalLabel: "Moyenne" },
+  { key: "cpc", label: "CPC", title: "Évolution du CPC", color: "#d96a6a", gradientId: "grad_cpc", format: formatCurrency, yFormat: (v) => `${v.toFixed(2)}€`, aggregate: "ratio", totalLabel: "Moyenne" },
+  { key: "cpm", label: "CPM", title: "Évolution du CPM", color: "#a89bd2", gradientId: "grad_cpm", format: formatCurrency, yFormat: (v) => `${v.toFixed(1)}€`, aggregate: "ratio", totalLabel: "Moyenne" },
 ];
 
+// Active tab pill colors — match each metric's chart series color (Calm Precision palette).
 const PILL_ACTIVE: Record<ChartMetricKey, string> = {
-  spend: "bg-indigo-500 text-[var(--color-text-primary)]", impressions: "bg-blue-500 text-[var(--color-text-primary)]", clicks: "bg-emerald-500 text-[var(--color-text-primary)]",
-  ctr: "bg-amber-500 text-[var(--color-text-primary)]", cpc: "bg-rose-500 text-[var(--color-text-primary)]", cpm: "bg-purple-500 text-[var(--color-text-primary)]",
+  spend:       "bg-[#7f996d] text-white",
+  impressions: "bg-[#6a9ad6] text-white",
+  clicks:      "bg-[#5cb88e] text-white",
+  ctr:         "bg-[#d6a64a] text-white",
+  cpc:         "bg-[#d96a6a] text-white",
+  cpm:         "bg-[#a89bd2] text-white",
 };
 
 // ---------------------------------------------------------------------------
@@ -171,9 +176,9 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: -10 }}>
                     <defs><linearGradient id={activeChart.gradientId} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={activeChart.color} stopOpacity={0.2} /><stop offset="95%" stopColor={activeChart.color} stopOpacity={0} /></linearGradient></defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={{ stroke: "#334155" }} tickLine={false} />
-                    <YAxis domain={[0, "auto"]} tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={activeChart.yFormat} />
+                    <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.06)" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#5a5a6e", fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, "auto"]} tick={{ fontSize: 11, fill: "#5a5a6e", fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} tickFormatter={activeChart.yFormat} />
                     <Tooltip content={({ active, payload, label }) => active && payload?.length ? <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-3 py-2 shadow-xl"><p className="text-[11px] text-[var(--color-text-secondary)]">{label}</p><p className="text-[14px] font-semibold text-[var(--color-text-primary)]">{activeChart.format(payload[0].value as number)}</p></div> : null} />
                     <Area type="monotone" dataKey={chartMetric} stroke={activeChart.color} strokeWidth={2} fill={`url(#${activeChart.gradientId})`} animationDuration={500} />
                   </AreaChart>

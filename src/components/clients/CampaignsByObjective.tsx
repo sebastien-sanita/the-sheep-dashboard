@@ -278,11 +278,11 @@ function ObjectiveBlock({
               <div className="h-48 overflow-x-auto">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={comparisonData} margin={{ top: 5, right: 5, bottom: 5, left: -10 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#64748b" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${Math.round(v)}€`} />
+                    <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.06)" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#5a5a6e", fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: "#5a5a6e", fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? `${(v / 1000).toFixed(0)}k€` : `${Math.round(v)}€`} />
                     <RechartsTooltip content={({ active, payload }) => active && payload?.length ? <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-3 py-2 shadow-xl text-[11px]"><p className="text-[var(--color-text-primary)]">{(payload[0].payload as { fullName: string }).fullName}</p><p className="font-semibold text-[var(--color-text-primary)]">{formatCurrency(payload[0].value as number)}</p></div> : null} />
-                    <Bar dataKey="budget" radius={[4, 4, 0, 0]} fill={category.key === "leads" ? "#34d399" : category.key === "traffic" ? "#60a5fa" : category.key === "awareness" ? "#a78bfa" : category.key === "engagement" ? "#fbbf24" : category.key === "sales" ? "#fb7185" : "#94a3b8"} />
+                    <Bar dataKey="budget" radius={[4, 4, 0, 0]} fill={category.key === "leads" ? "#5cb88e" : category.key === "traffic" ? "#6a9ad6" : category.key === "awareness" ? "#a89bd2" : category.key === "engagement" ? "#d6a64a" : category.key === "sales" ? "#d96a6a" : "#5a5a6e"} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
