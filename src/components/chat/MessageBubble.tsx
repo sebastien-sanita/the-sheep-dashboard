@@ -71,9 +71,9 @@ export function MessageBubble({ message, isStreaming }: MessageBubbleProps) {
   if (isUser) {
     return (
       <div className="flex justify-end group">
-        <div style={{ maxWidth: "72%", background: "var(--color-accent)", borderRadius: "14px 14px 4px 14px", padding: "10px 16px", boxShadow: "var(--shadow-xs)" }}>
-          <p className="whitespace-pre-wrap" style={{ fontSize: 13, lineHeight: 1.5, color: "white" }}>{message.content}</p>
-          {time && <p className="mt-1 text-right" style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{time}</p>}
+        <div style={{ maxWidth: "72%", background: "var(--color-accent)", borderRadius: "14px 14px 4px 14px", padding: "10px 14px", boxShadow: "var(--shadow-xs)" }}>
+          <p className="whitespace-pre-wrap" style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: "var(--color-accent-contrast)" }}>{message.content}</p>
+          {time && <p className="mt-1 text-right" style={{ margin: "4px 0 0", fontSize: 10, color: "rgba(0,0,0,0.45)", fontFamily: "var(--font-mono)" }}>{time}</p>}
         </div>
       </div>
     );
