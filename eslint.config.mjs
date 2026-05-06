@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Frozen design-system snapshot — JSX prototypes, not production code.
+    "docs/**",
   ]),
 ]);
 
