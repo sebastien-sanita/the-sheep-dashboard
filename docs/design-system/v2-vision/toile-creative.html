@@ -467,6 +467,384 @@
   margin-top: 56px;
 }
 .toile-actions .btn { height: 36px; padding: 0 18px; font-size: 13px; }
+
+/* ============================================================
+   ENRICHMENTS v2.1
+   ============================================================ */
+
+/* ── Multi-format preview ── */
+.multiformat {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+@media (max-width: 720px) {
+  .multiformat { grid-template-columns: 1fr; }
+}
+.format-card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.format-card-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.format-card-name {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+.format-card-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-success);
+  font-variant-numeric: tabular-nums;
+}
+.format-card-status.warn { color: var(--color-warning); }
+.format-card-status.muted { color: var(--color-text-muted); }
+.format-thumb {
+  width: 100%;
+  height: 240px;
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+}
+/* Story 9:16 */
+.format-thumb.story {
+  aspect-ratio: 9/16;
+  height: auto;
+  max-height: 280px;
+  background: linear-gradient(180deg, rgba(127, 153, 109, 0.55) 0%, rgba(127, 153, 109, 0.2) 50%, rgba(214, 166, 74, 0.55) 100%);
+}
+/* Feed 1:1 */
+.format-thumb.feed {
+  aspect-ratio: 1/1;
+  background: linear-gradient(180deg, rgba(127, 153, 109, 0.5) 0%, rgba(214, 166, 74, 0.5) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Reels 9:16 */
+.format-thumb.reels {
+  aspect-ratio: 9/16;
+  height: auto;
+  max-height: 280px;
+  background: linear-gradient(135deg, rgba(176, 122, 154, 0.4) 0%, rgba(127, 153, 109, 0.5) 100%);
+}
+.format-thumb-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 18px 14px;
+  text-align: center;
+  color: white;
+}
+.format-thumb-claim {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.format-thumb-cta {
+  background: white;
+  color: #0e0e14;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 6px;
+  border-radius: 999px;
+  margin-top: 8px;
+}
+.format-spec {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 10px;
+}
+.format-spec .label { color: var(--color-text-muted); }
+
+/* ── A/B test ── */
+.abtest {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+@media (max-width: 720px) {
+  .abtest { grid-template-columns: 1fr; }
+  .abtest .vs { display: none; }
+}
+.ab-card {
+  padding: 22px 24px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  position: relative;
+}
+.ab-card.champion {
+  border-color: var(--color-success-muted);
+  background: linear-gradient(180deg, rgba(92, 184, 142, 0.04) 0%, var(--color-bg-surface) 100%);
+}
+.ab-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.ab-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.ab-tag.champion { background: var(--color-success-muted); color: var(--color-success); }
+.ab-tag.challenger { background: var(--color-bg-elevated); color: var(--color-text-secondary); }
+.ab-card-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+.ab-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0 0 10px;
+  letter-spacing: -0.005em;
+}
+.ab-card-claim {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  background: var(--color-bg-base);
+  border-left: 2px solid var(--color-border-emphasis);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+}
+.ab-card.champion .ab-card-claim {
+  border-left-color: var(--color-success);
+}
+.ab-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.ab-stat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.ab-stat-value {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.ab-card.champion .ab-stat-value { color: var(--color-success); }
+.vs {
+  display: grid;
+  place-items: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--color-text-muted);
+  width: 28px;
+}
+.abtest-verdict {
+  margin-top: 18px;
+  padding: 14px 18px;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+.abtest-verdict strong { color: var(--color-text-primary); font-weight: 500; }
+.abtest-verdict .mono {
+  font-family: var(--font-mono);
+  color: var(--color-success);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Asset components ── */
+.assets-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .assets-grid { grid-template-columns: 1fr; }
+}
+.asset-card {
+  padding: 22px 24px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+.asset-card h4 {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+.copy-list { list-style: none; margin: 0; padding: 0; }
+.copy-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.copy-list li:last-child { border-bottom: none; }
+.copy-list em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  flex: 1;
+}
+.copy-list .role {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  flex-shrink: 0;
+  width: 76px;
+}
+
+.palette {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.swatch-mini {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.swatch-mini-fill {
+  height: 56px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border-default);
+}
+.swatch-mini-name {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.font-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 13px;
+}
+.font-row:last-child { border-bottom: none; }
+.font-row .role {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.font-row .name { color: var(--color-text-primary); font-weight: 500; }
+.font-row .name.serif { font-family: var(--font-serif); font-style: italic; font-weight: 400; }
+
+/* ── Performance over time chart ── */
+.perf-chart {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  padding: 22px 24px;
+}
+.perf-chart-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.perf-chart-tabs { display: flex; gap: 4px; }
+.perf-tab {
+  height: 24px;
+  padding: 0 10px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-xs);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.perf-tab.active { background: var(--color-accent); color: var(--color-accent-contrast); }
+.perf-tab:hover:not(.active) { background: var(--color-bg-elevated); color: var(--color-text-primary); }
+.perf-area svg { width: 100%; height: 160px; display: block; }
+.perf-stats {
+  display: flex;
+  gap: 32px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border-subtle);
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+.perf-stats .mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  margin-left: 4px;
+}
+.perf-stats .delta {
+  color: var(--color-success);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
 </style>
 </head>
 <body>
@@ -725,6 +1103,250 @@
         <div class="audience-row"><span class="label">Hommes 35-44</span><span class="value">8&nbsp;%<span class="bar"><span class="bar-fill" style="width: 8%;"></span></span></span></div>
         <div class="audience-row"><span class="label">Autres</span><span class="value">3&nbsp;%</span></div>
         <div class="audience-row" style="margin-top: 8px;"><span class="label" style="color: var(--color-text-muted); font-size: 12px;">Top 3 villes</span><span class="value" style="color: var(--color-text-secondary);">Paris · Lyon · Toulouse</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Multi-format preview : même creative décliné Story / Feed / Reels -->
+  <section class="section">
+    <header class="section-head">
+      <h2>Décliné sur 3 formats</h2>
+      <span class="section-meta">Adaptation auto par l'IA · même brief, mêmes assets</span>
+    </header>
+    <div class="multiformat">
+
+      <article class="format-card">
+        <div class="format-card-head">
+          <span class="format-card-name">Instagram · Story 9:16</span>
+          <span class="format-card-status">EN DIFFUSION</span>
+        </div>
+        <div class="format-thumb story">
+          <div class="format-thumb-content">
+            <div class="format-thumb-claim">La pâte feuilletée<br/>de votre enfance.</div>
+            <div class="format-thumb-cta">Commander en ligne →</div>
+          </div>
+        </div>
+        <div class="format-spec">
+          <span><span class="label">Dépense</span> 510 €</span>
+          <span><span class="label">CPL</span> 9,80 €</span>
+        </div>
+      </article>
+
+      <article class="format-card">
+        <div class="format-card-head">
+          <span class="format-card-name">Facebook · Feed 1:1</span>
+          <span class="format-card-status warn">À OPTIMISER</span>
+        </div>
+        <div class="format-thumb feed">
+          <div class="format-thumb-content">
+            <div class="format-thumb-claim" style="font-size: 18px;">La pâte feuilletée<br/>de votre enfance.</div>
+            <div class="format-thumb-cta">Commander en ligne →</div>
+          </div>
+        </div>
+        <div class="format-spec">
+          <span><span class="label">Dépense</span> 380 €</span>
+          <span><span class="label">CPL</span> 13,40 €</span>
+        </div>
+      </article>
+
+      <article class="format-card">
+        <div class="format-card-head">
+          <span class="format-card-name">TikTok · Reels 9:16</span>
+          <span class="format-card-status muted">À TESTER</span>
+        </div>
+        <div class="format-thumb reels">
+          <div class="format-thumb-content">
+            <div class="format-thumb-claim">La pâte feuilletée<br/>de votre enfance.</div>
+            <div class="format-thumb-cta">Commander en ligne →</div>
+          </div>
+        </div>
+        <div class="format-spec">
+          <span><span class="label">Dépense</span> 0 €</span>
+          <span><span class="label">CPL</span> —</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- A/B test : champion vs challenger -->
+  <section class="section">
+    <header class="section-head">
+      <h2>A/B test en cours</h2>
+      <span class="section-meta">Lancé il y a 5 jours · 50/50 · 18 640 reach unique</span>
+    </header>
+    <div class="abtest">
+
+      <article class="ab-card champion">
+        <div class="ab-card-head">
+          <span class="ab-tag champion">CHAMPION</span>
+          <span class="ab-card-meta">52&nbsp;% du trafic</span>
+        </div>
+        <h3 class="ab-card-title">Variante A — claim sensoriel</h3>
+        <p class="ab-card-claim">"La pâte feuilletée de votre enfance."</p>
+        <div class="ab-stats">
+          <div>
+            <div class="ab-stat-label">CTR</div>
+            <div class="ab-stat-value">2,7&nbsp;%</div>
+          </div>
+          <div>
+            <div class="ab-stat-label">CPL</div>
+            <div class="ab-stat-value">9,80&nbsp;€</div>
+          </div>
+          <div>
+            <div class="ab-stat-label">Leads</div>
+            <div class="ab-stat-value">52</div>
+          </div>
+        </div>
+      </article>
+
+      <div class="vs">vs</div>
+
+      <article class="ab-card">
+        <div class="ab-card-head">
+          <span class="ab-tag challenger">CHALLENGER</span>
+          <span class="ab-card-meta">48&nbsp;% du trafic</span>
+        </div>
+        <h3 class="ab-card-title">Variante B — claim promotionnel</h3>
+        <p class="ab-card-claim" style="font-style: normal; font-family: var(--font-sans);">"−10 % sur la galette pour la fève d'or."</p>
+        <div class="ab-stats">
+          <div>
+            <div class="ab-stat-label">CTR</div>
+            <div class="ab-stat-value">1,8&nbsp;%</div>
+          </div>
+          <div>
+            <div class="ab-stat-label">CPL</div>
+            <div class="ab-stat-value">14,80&nbsp;€</div>
+          </div>
+          <div>
+            <div class="ab-stat-label">Leads</div>
+            <div class="ab-stat-value">31</div>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="abtest-verdict">
+      <strong>Verdict IA · confiance 94 %</strong> · La variante A bat la B sur les 3 axes (CTR <span class="mono">+50 %</span>,
+      CPL <span class="mono">−34 %</span>, volume <span class="mono">+68 %</span>). À significance statistique
+      (<span class="mono" style="color: var(--color-text-primary);">p &lt; 0,01</span>) au bout de 5 jours.
+      L'IA recommande de <a href="#" style="color: var(--color-accent-hover);">terminer le test et reverser 100 % du budget sur A</a>.
+    </div>
+  </section>
+
+  <!-- Asset components : palette + copy hooks + fonts -->
+  <section class="section">
+    <header class="section-head">
+      <h2>Composants du creative</h2>
+      <span class="section-meta">Assets, copy, palette, typographie</span>
+    </header>
+    <div class="assets-grid">
+
+      <div class="asset-card">
+        <h4>Copy hooks</h4>
+        <ul class="copy-list">
+          <li><span class="role">Pre-claim</span><span style="font-family: var(--font-mono); font-size: 11px; color: var(--color-text-secondary); letter-spacing: 0.08em; text-transform: uppercase;">Galette des rois</span></li>
+          <li><span class="role">Claim</span><em>La pâte feuilletée de votre enfance.</em></li>
+          <li><span class="role">Super</span>5,80 € · à emporter</li>
+          <li><span class="role">CTA</span>Commander en ligne →</li>
+          <li><span class="role">Hashtags</span><span style="font-family: var(--font-mono); font-size: 11px; color: var(--color-text-tertiary);">#galettedesrois #boulangerie #paris11</span></li>
+        </ul>
+      </div>
+
+      <div class="asset-card">
+        <h4>Typographie</h4>
+        <div class="font-row">
+          <span class="role">Pre-claim</span>
+          <span class="name" style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;">JetBrains Mono · 9 / 600</span>
+        </div>
+        <div class="font-row">
+          <span class="role">Claim</span>
+          <span class="name serif">Newsreader · 26 / 400 italic</span>
+        </div>
+        <div class="font-row">
+          <span class="role">Super</span>
+          <span class="name" style="font-family: var(--font-mono);">JetBrains Mono · 14 / 600</span>
+        </div>
+        <div class="font-row">
+          <span class="role">CTA</span>
+          <span class="name">DM Sans · 12 / 600</span>
+        </div>
+      </div>
+
+      <div class="asset-card" style="grid-column: span 2;">
+        <h4>Palette utilisée</h4>
+        <div class="palette">
+          <div class="swatch-mini">
+            <div class="swatch-mini-fill" style="background: #7f996d;"></div>
+            <span class="swatch-mini-name">Moss · #7F996D</span>
+          </div>
+          <div class="swatch-mini">
+            <div class="swatch-mini-fill" style="background: #6b8459;"></div>
+            <span class="swatch-mini-name">Moss-active · #6B8459</span>
+          </div>
+          <div class="swatch-mini">
+            <div class="swatch-mini-fill" style="background: #d6a64a;"></div>
+            <span class="swatch-mini-name">Wheat · #D6A64A</span>
+          </div>
+          <div class="swatch-mini">
+            <div class="swatch-mini-fill" style="background: #c98a3c;"></div>
+            <span class="swatch-mini-name">Caramel · #C98A3C</span>
+          </div>
+          <div class="swatch-mini">
+            <div class="swatch-mini-fill" style="background: #ffffff; border-color: var(--color-border-emphasis);"></div>
+            <span class="swatch-mini-name">White · #FFFFFF</span>
+          </div>
+          <div class="swatch-mini">
+            <div class="swatch-mini-fill" style="background: #0e0e14;"></div>
+            <span class="swatch-mini-name">Ink · #0E0E14</span>
+          </div>
+        </div>
+        <p style="font-size: 12px; color: var(--color-text-tertiary); margin: 0; line-height: 1.5;">
+          Palette dérivée du brand book Boulangerie Martin (verts du tablier, ocres de la cuisson). Vérification
+          conformité brand : <span style="color: var(--color-success); font-weight: 600;">✓ alignée</span>.
+          Pas d'écart de teinte au-delà de la tolérance ΔE&nbsp;3.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Performance over time -->
+  <section class="section">
+    <header class="section-head">
+      <h2>Performance dans le temps</h2>
+      <span class="section-meta">Depuis la mise en ligne · 9 jours</span>
+    </header>
+    <div class="perf-chart">
+      <div class="perf-chart-head">
+        <div>
+          <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; color: var(--color-text-muted); text-transform: uppercase; margin-bottom: 4px;">Évolution · CPL</div>
+          <h3 style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0;">CPL quotidien · creative #3</h3>
+        </div>
+        <div class="perf-chart-tabs">
+          <button class="perf-tab">CTR</button>
+          <button class="perf-tab active">CPL</button>
+          <button class="perf-tab">Reach</button>
+          <button class="perf-tab">Frequency</button>
+        </div>
+      </div>
+      <div class="perf-area">
+        <svg viewBox="0 0 800 160" preserveAspectRatio="none">
+          <line x1="0" y1="32" x2="800" y2="32" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4" />
+          <line x1="0" y1="64" x2="800" y2="64" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4" />
+          <line x1="0" y1="96" x2="800" y2="96" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4" />
+          <line x1="0" y1="128" x2="800" y2="128" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4" />
+          <!-- chart : CPL starts high, drops over time -->
+          <path d="M0,28 L90,32 L180,40 L270,48 L360,62 L450,76 L540,90 L630,102 L720,118 L800,126 L800,160 L0,160 Z"
+                fill="var(--color-success)" opacity="0.08" />
+          <path d="M0,28 L90,32 L180,40 L270,48 L360,62 L450,76 L540,90 L630,102 L720,118 L800,126"
+                fill="none" stroke="var(--color-success)" stroke-width="1.6" />
+          <circle cx="800" cy="126" r="4" fill="var(--vision-bg)" stroke="var(--color-success)" stroke-width="1.6" />
+        </svg>
+      </div>
+      <div class="perf-stats">
+        <span>CPL au lancement<span class="mono">14,80&nbsp;€</span></span>
+        <span>CPL aujourd'hui<span class="mono">9,80&nbsp;€</span></span>
+        <span>Trajectoire<span class="delta">−34&nbsp;% en 9 jours</span></span>
       </div>
     </div>
   </section>

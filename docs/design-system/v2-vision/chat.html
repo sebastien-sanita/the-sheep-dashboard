@@ -10,15 +10,188 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="vision.css" />
 <style>
-/* ── Toile chat — full-page conversation ── */
+/* ── Sidebar historique (260px fixe à gauche, sous la topbar) ── */
+.chat-sidebar {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  width: 260px;
+  height: calc(100vh - 56px);
+  border-right: 1px solid var(--color-border-default);
+  background: rgba(10, 10, 13, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+}
+.chat-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 12px;
+}
+.chat-sidebar-head h3 {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: 0;
+}
+.chat-new {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.chat-new:hover { border-color: var(--color-accent); color: var(--color-accent-hover); }
+
+.chat-search {
+  margin: 0 14px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+}
+.chat-search svg { color: var(--color-text-muted); flex-shrink: 0; }
+.chat-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--color-text-primary);
+}
+.chat-search input::placeholder { color: var(--color-text-tertiary); }
+
+.chat-history {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px 16px;
+}
+.chat-history-group {
+  margin-bottom: 14px;
+}
+.chat-history-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  padding: 8px 10px 4px;
+}
+.chat-history-item {
+  display: block;
+  padding: 8px 10px;
+  border-left: 2px solid transparent;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: 1px;
+  text-decoration: none;
+}
+.chat-history-item:hover {
+  background: var(--color-bg-elevated);
+}
+.chat-history-item.active {
+  border-left-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+  padding-left: 8px;
+}
+.chat-history-title {
+  font-size: 12px;
+  color: var(--color-text-primary);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.4;
+  margin-bottom: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.chat-history-item.active .chat-history-title { color: var(--color-accent-hover); font-weight: 500; }
+.chat-history-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* ── Toile chat — full-page conversation (décalée sidebar) ── */
 .chat-page {
   max-width: 880px;
-  margin: 0 auto;
+  margin: 0 auto 0 calc(260px + (100vw - 260px - 880px) / 2);
   padding: 56px 32px 200px;
   display: flex;
   flex-direction: column;
   gap: 36px;
 }
+@media (max-width: 1280px) {
+  .chat-page { margin: 0 0 0 260px; }
+}
+
+/* ── Drafts pendants — banner au-dessus de la conversation ── */
+.drafts-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border: 1px solid var(--color-warning-muted);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(214, 166, 74, 0.04) 0%, transparent 100%);
+  position: relative;
+}
+.drafts-banner::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 12px; bottom: 12px;
+  width: 2px;
+  background: var(--color-warning);
+  border-radius: 1px;
+}
+.drafts-banner-icon {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  background: var(--color-warning-muted);
+  color: var(--color-warning);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.drafts-banner-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+.drafts-banner-text strong { color: var(--color-text-primary); font-weight: 500; }
+.drafts-banner-text .mono {
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+  font-size: 12px;
+}
+.drafts-banner-cta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+.drafts-banner-cta:hover { color: var(--color-accent-hover); }
 
 .chat-meta {
   display: flex;
@@ -207,16 +380,24 @@
   50% { opacity: 0; }
 }
 
-/* ── Composer fixé en bas ── */
+/* ── Composer fixé en bas (décalé de la sidebar) ── */
 .composer-wrap {
   position: fixed;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0; left: 260px; right: 0;
   z-index: 60;
   padding: 14px 32px 24px;
   background: linear-gradient(180deg, transparent 0%, rgba(10, 10, 13, 0.9) 30%, var(--vision-bg) 100%);
   display: flex;
   justify-content: center;
   pointer-events: none;
+}
+@media (max-width: 1280px) {
+  .composer-wrap { padding: 14px 32px 24px; }
+}
+@media (max-width: 720px) {
+  .composer-wrap { left: 0; }
+  .chat-sidebar { display: none; }
+  .chat-page { margin: 0 auto; }
 }
 .composer {
   pointer-events: auto;
@@ -356,6 +537,83 @@
   </div>
 </header>
 
+<!-- Sidebar historique (260px à gauche) -->
+<aside class="chat-sidebar">
+  <div class="chat-sidebar-head">
+    <h3>Historique</h3>
+    <button class="chat-new" aria-label="Nouvelle conversation">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+  </div>
+
+  <div class="chat-search">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="Chercher dans l'historique…" />
+  </div>
+
+  <div class="chat-history">
+    <div class="chat-history-group">
+      <div class="chat-history-label">Aujourd'hui</div>
+      <a class="chat-history-item active" href="#">
+        <div class="chat-history-title">Pourquoi le CPL baisse cette semaine ?</div>
+        <div class="chat-history-meta">Boulangerie Martin · il y a 2h</div>
+      </a>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Audit campagnes Pizzeria Roma</div>
+        <div class="chat-history-meta">Pizzeria Roma · il y a 4h</div>
+      </a>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Recap budget mensuel · 47 clients</div>
+        <div class="chat-history-meta">Tous les clients · 09:12</div>
+      </a>
+    </div>
+
+    <div class="chat-history-group">
+      <div class="chat-history-label">Hier</div>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Génération 3 variantes Brendy's</div>
+        <div class="chat-history-meta">Brendy's · 22:14</div>
+      </a>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Pourquoi Concept Store Élise dépasse</div>
+        <div class="chat-history-meta">Concept Store Élise · 18:30</div>
+      </a>
+    </div>
+
+    <div class="chat-history-group">
+      <div class="chat-history-label">Cette semaine</div>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Pause campagnes saturées (fréq &gt; 4)</div>
+        <div class="chat-history-meta">Tous les clients · mardi</div>
+      </a>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Comparaison Meta vs Google avril</div>
+        <div class="chat-history-meta">Tous les clients · lundi</div>
+      </a>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Setup retargeting Boulangerie</div>
+        <div class="chat-history-meta">Boulangerie Martin · lundi</div>
+      </a>
+    </div>
+
+    <div class="chat-history-group">
+      <div class="chat-history-label">Plus ancien</div>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Stratégie Saint-Valentin</div>
+        <div class="chat-history-meta">12 février</div>
+      </a>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Analyse audience femmes 25-44</div>
+        <div class="chat-history-meta">3 février</div>
+      </a>
+      <a class="chat-history-item" href="#">
+        <div class="chat-history-title">Plan creatives Q1 2026</div>
+        <div class="chat-history-meta">15 janvier</div>
+      </a>
+    </div>
+  </div>
+</aside>
+
 <main class="chat-page">
 
   <!-- Méta de la conversation -->
@@ -364,6 +622,19 @@
     <span>Conversation · 14:21</span>
     <span style="color: var(--color-text-tertiary);">·</span>
     <span>Boulangerie Martin · Meta Ads</span>
+  </div>
+
+  <!-- Drafts pendants — mutations IA en attente d'approbation -->
+  <div class="drafts-banner">
+    <span class="drafts-banner-icon">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </span>
+    <div class="drafts-banner-text">
+      <strong>3 mutations IA en attente d'approbation</strong> · la plus ancienne depuis <span class="mono">4h</span>
+      sur <em style="font-family: var(--font-serif); color: var(--color-text-primary);">Pizzeria Roma</em>.
+      Les drafts persistent entre les conversations.
+    </div>
+    <a class="drafts-banner-cta" href="#">Voir les drafts →</a>
   </div>
 
   <!-- USER -->
