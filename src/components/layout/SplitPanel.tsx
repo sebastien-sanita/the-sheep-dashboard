@@ -51,7 +51,7 @@ export function SplitPanel({ renderChat, renderDashboard }: SplitPanelProps) {
               "rounded p-1.5 transition-colors",
               activePanelMode === mode
                 ? "bg-primary-500/15 text-primary-400"
-                : "text-[var(--color-text-primary)]0 hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-secondary)]",
+                : "text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-secondary)]",
             )}
           >
             <Icon size={15} />

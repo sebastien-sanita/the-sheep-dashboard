@@ -328,7 +328,7 @@ export default function SettingsPage() {
               Diagnostic API
             </h1>
             {(successCount > 0 || errorCount > 0) && (
-              <p className="mt-1 text-[12px] text-[var(--color-text-primary)]0">
+              <p className="mt-1 text-[12px] text-[var(--color-text-tertiary)]">
                 {successCount}/{tests.length} OK
                 {errorCount > 0 && (
                   <span className="ml-2 text-rose-400">
@@ -375,7 +375,7 @@ export default function SettingsPage() {
                 >
                   <td className="px-4 py-3">
                     <div className="text-[var(--color-text-primary)]">{test.name}</div>
-                    <div className="font-mono text-[11px] text-[var(--color-text-primary)]0">
+                    <div className="font-mono text-[11px] text-[var(--color-text-tertiary)]">
                       {test.endpoint}
                     </div>
                   </td>
@@ -408,7 +408,7 @@ export default function SettingsPage() {
                       type="button"
                       onClick={() => runSingleTest(test.id)}
                       disabled={test.status === "testing" || isRunningAll}
-                      className="rounded p-1 text-[var(--color-text-primary)]0 transition-colors hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-secondary)] disabled:opacity-30"
+                      className="rounded p-1 text-[var(--color-text-tertiary)] transition-colors hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-secondary)] disabled:opacity-30"
                       title="Relancer ce test"
                     >
                       <RotateCw size={14} />
@@ -451,7 +451,7 @@ function StatusBadge({ status }: { status: TestStatus }) {
   switch (status) {
     case "idle":
       return (
-        <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-text-primary)]0">
+        <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-text-tertiary)]">
           <span className="h-2 w-2 rounded-full bg-slate-600" />
           En attente
         </span>
@@ -491,7 +491,7 @@ function ConfigRow({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-4">
-      <dt className="text-[12px] text-[var(--color-text-primary)]0">{label}</dt>
+      <dt className="text-[12px] text-[var(--color-text-tertiary)]">{label}</dt>
       <dd
         className={cn(
           "text-right text-[13px] text-[var(--color-text-primary)]",

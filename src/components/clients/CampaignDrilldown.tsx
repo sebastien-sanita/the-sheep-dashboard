@@ -112,7 +112,7 @@ function AudiencesTab({ adsets, config }: { adsets: AdSetWithMetrics[]; config: 
     <div className="overflow-x-auto">
       <table className="w-full text-[12px]">
         <thead>
-          <tr className="border-b border-[var(--color-border-subtle)] text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-primary)]0">
+          <tr className="border-b border-[var(--color-border-subtle)] text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)]">
             <th className="px-4 py-2 text-left">Audience</th>
             <th className="px-3 py-2 text-left">Statut</th>
             {config.kpis.slice(0, 3).map((kpi) => (
@@ -133,7 +133,7 @@ function AudiencesTab({ adsets, config }: { adsets: AdSetWithMetrics[]; config: 
                 <td className="px-4 py-2.5">
                   <button type="button" onClick={() => setExpandedId(isExpanded ? null : adset.id)} className="text-left">
                     <div className="text-[var(--color-text-primary)] group-hover:text-primary-400 transition-colors">{adset.name}</div>
-                    {adset.bidStrategy && <div className="mt-0.5 text-[10px] text-[var(--color-text-primary)]0">{adset.bidStrategy}</div>}
+                    {adset.bidStrategy && <div className="mt-0.5 text-[10px] text-[var(--color-text-tertiary)]">{adset.bidStrategy}</div>}
                     {targeting && !isExpanded && (
                       <div className="mt-1 flex flex-wrap gap-1">
                         {targeting.location !== "—" && <span className="rounded-full bg-[var(--color-bg-elevated)] px-1.5 py-0.5 text-[9px] text-[var(--color-text-secondary)]">📍 {targeting.location}</span>}
@@ -151,16 +151,16 @@ function AudiencesTab({ adsets, config }: { adsets: AdSetWithMetrics[]; config: 
                       </div>
                       {targeting.interests.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
-                          <span className="text-[10px] text-[var(--color-text-primary)]0">🎯</span>
+                          <span className="text-[10px] text-[var(--color-text-tertiary)]">🎯</span>
                           {targeting.interests.slice(0, 6).map((i) => (
                             <span key={i} className="rounded-full bg-[var(--color-bg-elevated)] px-2 py-0.5 text-[10px] text-[var(--color-text-secondary)]">{i}</span>
                           ))}
-                          {targeting.interests.length > 6 && <span className="text-[10px] text-[var(--color-text-primary)]0">+{targeting.interests.length - 6} autres</span>}
+                          {targeting.interests.length > 6 && <span className="text-[10px] text-[var(--color-text-tertiary)]">+{targeting.interests.length - 6} autres</span>}
                         </div>
                       )}
                       {targeting.placements.length > 0 && (
                         <div className="mt-1.5 flex flex-wrap gap-1">
-                          <span className="text-[10px] text-[var(--color-text-primary)]0">📍</span>
+                          <span className="text-[10px] text-[var(--color-text-tertiary)]">📍</span>
                           {targeting.placements.map((p) => (
                             <span key={p} className="rounded-full bg-[var(--color-bg-elevated)] px-2 py-0.5 text-[10px] text-[var(--color-text-secondary)]">{p}</span>
                           ))}
@@ -208,14 +208,14 @@ function AdCard({ ad, config, onClick }: { ad: AdWithMetrics; config: ObjectiveM
         {imgUrl ? (
           <img src={imgUrl} alt={ad.name} className="h-16 w-16 shrink-0 rounded-md object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
         ) : (
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-[var(--color-bg-elevated)]"><FormatIcon size={20} className="text-[var(--color-text-primary)]0" /></div>
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-[var(--color-bg-elevated)]"><FormatIcon size={20} className="text-[var(--color-text-tertiary)]" /></div>
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="truncate text-[13px] font-medium text-[var(--color-text-primary)]">{ad.name}</span>
             <span className="shrink-0 rounded bg-[var(--color-bg-elevated)] px-1.5 py-0.5 text-[9px] font-medium text-[var(--color-text-secondary)]">{format.label}</span>
           </div>
-          {ad.adSetName && <div className="mt-0.5 truncate text-[11px] text-[var(--color-text-primary)]0">{ad.adSetName}</div>}
+          {ad.adSetName && <div className="mt-0.5 truncate text-[11px] text-[var(--color-text-tertiary)]">{ad.adSetName}</div>}
           <div className="mt-2 flex items-center gap-3 text-[11px]">
             <span className="text-[var(--color-text-secondary)]">{config.primaryKpiLabel} <span className="font-medium text-[var(--color-text-primary)]">{formatKpi(primaryVal, config.kpis.find((k) => k.key === config.primaryKpi)?.format ?? "currency")}</span></span>
             <span className="text-[var(--color-text-secondary)]">CTR <span className="font-medium text-[var(--color-text-primary)]">{formatPercent(ad.metrics.ctr ?? 0, 2)}</span></span>
@@ -246,8 +246,8 @@ function TierSection({ tier, ads, config, defaultOpen, onAdClick }: { tier: type
         <div className="flex items-center gap-2">
           <span className="text-[14px]">{tier.emoji}</span>
           <span className={cn("text-[13px] font-medium", tier.text)}>{tier.label}</span>
-          <span className="text-[11px] text-[var(--color-text-primary)]0">({ads.length})</span>
-          {avgScore != null && <span className="text-[11px] text-[var(--color-text-primary)]0">· {config.primaryKpiLabel} moy. {formatKpi(avgScore, primaryFormat)}</span>}
+          <span className="text-[11px] text-[var(--color-text-tertiary)]">({ads.length})</span>
+          {avgScore != null && <span className="text-[11px] text-[var(--color-text-tertiary)]">· {config.primaryKpiLabel} moy. {formatKpi(avgScore, primaryFormat)}</span>}
         </div>
         <ChevronDown size={14} className={cn("text-[var(--color-text-secondary)] transition-transform", expanded && "rotate-180")} />
       </button>
@@ -291,9 +291,9 @@ function CreativesTab({ ads, config, usingFallback, onAdClick }: { ads: AdWithMe
       <div className="rounded-lg bg-[var(--color-bg-surface)] p-3">
         <div className="text-[12px] text-[var(--color-text-secondary)]">
           <span className="font-medium">{total} créatifs</span>
-          {avgScore != null && <span className="text-[var(--color-text-primary)]0"> · {config.primaryKpiLabel} moy. {formatKpi(avgScore, primaryFormat)}</span>}
+          {avgScore != null && <span className="text-[var(--color-text-tertiary)]"> · {config.primaryKpiLabel} moy. {formatKpi(avgScore, primaryFormat)}</span>}
           {bestAd && bestScore != null && (
-            <span className="text-[var(--color-text-primary)]0"> · Meilleur : <span className="text-emerald-400">{bestAd.name.slice(0, 30)}{bestAd.name.length > 30 ? "…" : ""}</span> ({config.primaryKpiLabel} {formatKpi(bestScore, primaryFormat)})</span>
+            <span className="text-[var(--color-text-tertiary)]"> · Meilleur : <span className="text-emerald-400">{bestAd.name.slice(0, 30)}{bestAd.name.length > 30 ? "…" : ""}</span> ({config.primaryKpiLabel} {formatKpi(bestScore, primaryFormat)})</span>
           )}
         </div>
         {total > 0 && (
@@ -303,7 +303,7 @@ function CreativesTab({ ads, config, usingFallback, onAdClick }: { ads: AdWithMe
               {midCount > 0 && <div className="bg-blue-500" style={{ width: `${(midCount / total) * 100}%` }} />}
               {lowCount > 0 && <div className="bg-amber-500" style={{ width: `${(lowCount / total) * 100}%` }} />}
             </div>
-            <div className="mt-1.5 flex gap-4 text-[10px] text-[var(--color-text-primary)]0">
+            <div className="mt-1.5 flex gap-4 text-[10px] text-[var(--color-text-tertiary)]">
               <span><span className="inline-block h-2 w-2 rounded-full bg-emerald-500" /> Top {topCount}</span>
               <span><span className="inline-block h-2 w-2 rounded-full bg-blue-500" /> Perf. {midCount}</span>
               <span><span className="inline-block h-2 w-2 rounded-full bg-amber-500" /> À opt. {lowCount}</span>
@@ -311,7 +311,7 @@ function CreativesTab({ ads, config, usingFallback, onAdClick }: { ads: AdWithMe
           </>
         )}
         {usingFallback && (
-          <p className="mt-2 text-[10px] italic text-[var(--color-text-primary)]0">Classement par CTR (conversions non disponibles)</p>
+          <p className="mt-2 text-[10px] italic text-[var(--color-text-tertiary)]">Classement par CTR (conversions non disponibles)</p>
         )}
       </div>
 
@@ -379,18 +379,18 @@ export function CampaignDrilldown({ workspaceId, campaignId, categoryKey, catego
           <div className="flex items-center justify-between">
             <div className="flex gap-1">
               {([{ key: "audiences" as const, label: `Audiences${adsets ? ` (${adsets.length})` : ""}` }, { key: "creatives" as const, label: `Créatifs${ads ? ` (${ads.length})` : ""}` }]).map(({ key, label }) => (
-                <button key={key} type="button" onClick={() => setTab(key)} className={cn("rounded-md px-3 py-1 text-[12px] font-medium transition-colors", tab === key ? "bg-[var(--color-bg-surface)] text-[var(--color-text-primary)]" : "text-[var(--color-text-primary)]0 hover:text-[var(--color-text-secondary)]")}>{label}</button>
+                <button key={key} type="button" onClick={() => setTab(key)} className={cn("rounded-md px-3 py-1 text-[12px] font-medium transition-colors", tab === key ? "bg-[var(--color-bg-surface)] text-[var(--color-text-primary)]" : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]")}>{label}</button>
               ))}
             </div>
-            <button type="button" onClick={onClose} className="rounded-md p-1 text-[var(--color-text-primary)]0 transition-colors hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-secondary)]" aria-label="Fermer"><X size={14} /></button>
+            <button type="button" onClick={onClose} className="rounded-md p-1 text-[var(--color-text-tertiary)] transition-colors hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-secondary)]" aria-label="Fermer"><X size={14} /></button>
           </div>
           <div className="mt-3">
             {loading ? (
               <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-12" />)}</div>
             ) : tab === "audiences" ? (
-              adsets && adsets.length > 0 ? <AudiencesTab adsets={adsets} config={config} /> : <p className="py-6 text-center text-[12px] text-[var(--color-text-primary)]0">Aucune audience trouvée</p>
+              adsets && adsets.length > 0 ? <AudiencesTab adsets={adsets} config={config} /> : <p className="py-6 text-center text-[12px] text-[var(--color-text-tertiary)]">Aucune audience trouvée</p>
             ) : (
-              ads && ads.length > 0 ? <CreativesTab ads={ads} config={config} usingFallback={usingFallback} onAdClick={setPreviewAdId} /> : <p className="py-6 text-center text-[12px] text-[var(--color-text-primary)]0">Aucun créatif trouvé</p>
+              ads && ads.length > 0 ? <CreativesTab ads={ads} config={config} usingFallback={usingFallback} onAdClick={setPreviewAdId} /> : <p className="py-6 text-center text-[12px] text-[var(--color-text-tertiary)]">Aucun créatif trouvé</p>
             )}
           </div>
         </div>

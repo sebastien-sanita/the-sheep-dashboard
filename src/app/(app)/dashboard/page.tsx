@@ -334,7 +334,7 @@ export default function DashboardPage() {
                 onChange={(e) => { setFilterQuery(e.target.value); setFilterOpen(true); }}
                 onFocus={() => filterQuery && setFilterOpen(true)}
                 placeholder="Filtrer par client..."
-                className="w-56 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] py-1.5 pl-9 pr-3 text-[12px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-primary)]0 focus:border-primary-500"
+                className="w-56 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] py-1.5 pl-9 pr-3 text-[12px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-tertiary)] focus:border-primary-500"
               />
               {filterOpen && filterSuggestions.length > 0 && (
                 <div className="absolute left-0 top-full z-50 mt-1 max-h-60 w-72 overflow-y-auto rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] py-1 shadow-xl">
@@ -342,7 +342,7 @@ export default function DashboardPage() {
                     <button key={c.id} type="button" onClick={() => { setSelectedClientId(c.id); setFilterQuery(""); setFilterOpen(false); }}
                       className="flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition-colors hover:bg-[var(--color-bg-elevated)]">
                       <span className="text-[var(--color-text-primary)]">{c.name}</span>
-                      {c.sector && <span className="text-[10px] text-[var(--color-text-primary)]0">{c.sector}</span>}
+                      {c.sector && <span className="text-[10px] text-[var(--color-text-tertiary)]">{c.sector}</span>}
                     </button>
                   ))}
                 </div>
@@ -421,8 +421,8 @@ export default function DashboardPage() {
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
-                ) : <p className="mt-8 text-center text-[12px] text-[var(--color-text-primary)]0">Données non disponibles</p>}
-                {chartData.length > 0 && !selectedClientId && <p className="mt-2 text-[10px] italic text-[var(--color-text-primary)]0">Basé sur le client principal</p>}
+                ) : <p className="mt-8 text-center text-[12px] text-[var(--color-text-tertiary)]">Données non disponibles</p>}
+                {chartData.length > 0 && !selectedClientId && <p className="mt-2 text-[10px] italic text-[var(--color-text-tertiary)]">Basé sur le client principal</p>}
               </div>
             </motion.div>
 
@@ -442,7 +442,7 @@ export default function DashboardPage() {
                         </PieChart>
                       </ResponsiveContainer>
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <div className="text-center"><div className="text-lg font-semibold text-[var(--color-text-primary)]">{formatCurrency(totalSpendAll)}</div><div className="text-[10px] text-[var(--color-text-primary)]0">Total</div></div>
+                        <div className="text-center"><div className="text-lg font-semibold text-[var(--color-text-primary)]">{formatCurrency(totalSpendAll)}</div><div className="text-[10px] text-[var(--color-text-tertiary)]">Total</div></div>
                       </div>
                     </div>
                     <div className="flex w-[45%] flex-col gap-1.5">
@@ -450,10 +450,10 @@ export default function DashboardPage() {
                         <Link key={d.id} href={`/clients/${d.id}`} className="flex items-center gap-2 text-[11px] hover:text-primary-400">
                           <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: DONUT_COLORS[i] }} />
                           <span className="min-w-0 flex-1 truncate text-[var(--color-text-secondary)]">{d.name}</span>
-                          <span className="shrink-0 text-[var(--color-text-primary)]0">{formatCurrency(d.value)}</span>
+                          <span className="shrink-0 text-[var(--color-text-tertiary)]">{formatCurrency(d.value)}</span>
                         </Link>
                       ))}
-                      {spendDonut.length > 7 && <span className="text-[10px] text-[var(--color-text-primary)]0">+{spendDonut.length - 7} autres</span>}
+                      {spendDonut.length > 7 && <span className="text-[10px] text-[var(--color-text-tertiary)]">+{spendDonut.length - 7} autres</span>}
                     </div>
                   </div>
                 </div>
@@ -471,7 +471,7 @@ export default function DashboardPage() {
                         </PieChart>
                       </ResponsiveContainer>
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <div className="text-center"><div className="text-lg font-semibold text-[var(--color-text-primary)]">{totalPlatforms}</div><div className="text-[10px] text-[var(--color-text-primary)]0">comptes</div></div>
+                        <div className="text-center"><div className="text-lg font-semibold text-[var(--color-text-primary)]">{totalPlatforms}</div><div className="text-[10px] text-[var(--color-text-tertiary)]">comptes</div></div>
                       </div>
                     </div>
                     <div className="flex w-[45%] flex-col gap-1.5">
@@ -479,7 +479,7 @@ export default function DashboardPage() {
                         <div key={d.name} className="flex items-center gap-2 text-[11px]">
                           <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: PLATFORM_COLORS[d.name] ?? DONUT_COLORS[i % DONUT_COLORS.length] }} />
                           <AccountBadge platform={d.name} />
-                          <span className="shrink-0 text-[var(--color-text-primary)]0">{d.value}</span>
+                          <span className="shrink-0 text-[var(--color-text-tertiary)]">{d.value}</span>
                         </div>
                       ))}
                     </div>
@@ -494,7 +494,7 @@ export default function DashboardPage() {
                 <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">Tous les clients</h2>
                 <div className="relative w-56">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)]" aria-hidden="true" />
-                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Rechercher..." className="w-full rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] py-1.5 pl-9 pr-3 text-[12px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-primary)]0 focus:border-primary-500" />
+                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Rechercher..." className="w-full rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] py-1.5 pl-9 pr-3 text-[12px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-tertiary)] focus:border-primary-500" />
                 </div>
               </div>
               <div className="mt-3 overflow-hidden rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)]">
@@ -525,7 +525,7 @@ export default function DashboardPage() {
                         const ctr = imp > 0 ? (clk / imp) * 100 : 0;
                         return (
                           <tr key={c.id} className="border-t border-[var(--color-border-subtle)] transition-colors hover:bg-[var(--color-bg-elevated)]">
-                            <td className="px-4 py-3 text-[12px] text-[var(--color-text-primary)]0">{i + 1}</td>
+                            <td className="px-4 py-3 text-[12px] text-[var(--color-text-tertiary)]">{i + 1}</td>
                             <td className="px-4 py-3"><Link href={`/clients/${c.id}`} className="text-[var(--color-text-primary)] hover:text-primary-400">{c.name}</Link></td>
                             <td className="px-4 py-3 font-mono text-[var(--color-text-primary)]">{formatCurrency(c.totalSpend30d ?? 0)}</td>
                             <td className="px-4 py-3 text-[var(--color-text-secondary)]">{formatCompact(imp)}</td>
@@ -570,7 +570,7 @@ export default function DashboardPage() {
                         </Link>
                       );
                     })}
-                    {alerts.length > 10 && <p className="text-center text-[11px] text-[var(--color-text-primary)]0">+{alerts.length - 10} autres alertes</p>}
+                    {alerts.length > 10 && <p className="text-center text-[11px] text-[var(--color-text-tertiary)]">+{alerts.length - 10} autres alertes</p>}
                   </>
                 )}
               </div>
@@ -584,7 +584,7 @@ export default function DashboardPage() {
                   <Link key={c.id} href={`/clients/${c.id}`} className="flex shrink-0 items-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-3 py-2 transition-colors hover:border-primary-500/40">
                     {(c.platforms ?? []).slice(0, 1).map((p) => <AccountBadge key={p} platform={p} />)}
                     <span className="text-[12px] text-[var(--color-text-primary)]">{c.name}</span>
-                    <span className="text-[10px] text-[var(--color-text-primary)]0">{timeAgo(c.updatedAt)}</span>
+                    <span className="text-[10px] text-[var(--color-text-tertiary)]">{timeAgo(c.updatedAt)}</span>
                   </Link>
                 ))}
               </div>

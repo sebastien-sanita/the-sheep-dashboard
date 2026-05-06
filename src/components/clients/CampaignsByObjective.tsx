@@ -193,7 +193,7 @@ function ObjectiveBlock({
           <span className="text-base">{category.emoji}</span>
           <div>
             <span className="text-[13px] font-medium text-[var(--color-text-primary)]">{category.label}</span>
-            <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[var(--color-text-primary)]0">
+            <div className="mt-0.5 flex items-center gap-2 text-[11px] text-[var(--color-text-tertiary)]">
               {activeCount > 0 && <span className="text-emerald-400">{activeCount} active{activeCount > 1 ? "s" : ""}</span>}
               {activeCount > 0 && pausedCount > 0 && <span>·</span>}
               {pausedCount > 0 && <span className="text-amber-400">{pausedCount} en pause</span>}
@@ -213,7 +213,7 @@ function ObjectiveBlock({
           <div className="grid grid-cols-3 gap-2">
             {miniKpis.slice(0, 3).map((kpi) => (
               <div key={kpi.label} className={cn("rounded-lg p-2", category.bg)}>
-                <div className="text-[9px] font-medium uppercase tracking-wider text-[var(--color-text-primary)]0">{kpi.label}</div>
+                <div className="text-[9px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)]">{kpi.label}</div>
                 <div className={cn("mt-0.5 text-[14px] font-semibold", category.text)}>{kpi.value}</div>
               </div>
             ))}
@@ -243,7 +243,7 @@ function ObjectiveBlock({
           <div className="grid grid-cols-2 gap-3 px-6 py-4 md:grid-cols-4">
             {miniKpis.map((kpi) => (
               <div key={kpi.label} className={cn("rounded-lg p-3", category.bg)}>
-                <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-primary)]0">{kpi.label}</div>
+                <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)]">{kpi.label}</div>
                 <div className={cn("mt-1 text-[16px] font-semibold", category.text)}>{kpi.value}</div>
               </div>
             ))}
@@ -252,10 +252,10 @@ function ObjectiveBlock({
           {/* Spend distribution bar */}
           {spendBarData.length > 1 && totalSpend > 0 && (
             <div className="px-6 pb-3">
-              <div className="flex items-center justify-between text-[10px] text-[var(--color-text-primary)]0 mb-1.5">
+              <div className="flex items-center justify-between text-[10px] text-[var(--color-text-tertiary)] mb-1.5">
                 <span>Répartition budget</span>
                 {activeCount > 1 && (
-                  <button type="button" onClick={() => setShowComparison((s) => !s)} className={cn("inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors", showComparison ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)]" : "text-[var(--color-text-primary)]0 hover:text-[var(--color-text-secondary)]")} disabled={comparisonData.length < 2}>
+                  <button type="button" onClick={() => setShowComparison((s) => !s)} className={cn("inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium transition-colors", showComparison ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)]" : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]")} disabled={comparisonData.length < 2}>
                     <BarChart3 size={10} /> Comparer
                   </button>
                 )}
@@ -291,7 +291,7 @@ function ObjectiveBlock({
 
           <div className="px-6 pb-4">
             {visibleCampaigns.length === 0 ? (
-              <p className="py-4 text-center text-[12px] text-[var(--color-text-primary)]0">Aucune campagne visible</p>
+              <p className="py-4 text-center text-[12px] text-[var(--color-text-tertiary)]">Aucune campagne visible</p>
             ) : (
               <div className="overflow-hidden rounded-lg border border-[var(--color-border-subtle)]">
                 {visibleCampaigns.map((c, i) => {
@@ -309,7 +309,7 @@ function ObjectiveBlock({
                           isOpen && "bg-[var(--color-bg-elevated)]",
                         )}
                       >
-                        <ChevronRight size={14} className={cn("shrink-0 text-[var(--color-text-primary)]0 transition-transform duration-200", isOpen && "rotate-90")} />
+                        <ChevronRight size={14} className={cn("shrink-0 text-[var(--color-text-tertiary)] transition-transform duration-200", isOpen && "rotate-90")} />
                         <span className="min-w-0 flex-1 truncate text-[var(--color-text-primary)]" title={c.name}>{cleanCampaignName(c.name)}</span>
                         <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium", STATUS_BADGES[c.status] ?? "bg-slate-500/10 text-[var(--color-text-secondary)]")}>
                           {c.status}
@@ -397,7 +397,7 @@ export function CampaignsByObjective({ campaigns, loading, workspaceId, startDat
               <button key={key} type="button" onClick={() => setFilter(key)} className={cn("rounded-md px-3 py-1 text-[12px] font-medium transition-colors", filter === key ? "bg-primary-500/10 text-primary-400" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]")}>{label}</button>
             ))}
           </div>
-          <button type="button" onClick={() => setShowArchived((s) => !s)} className={cn("rounded-md px-2 py-1 text-[11px] transition-colors", showArchived ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)]" : "text-[var(--color-text-primary)]0 hover:text-[var(--color-text-secondary)]")}>{showArchived ? "Masquer archivées" : "Afficher archivées"}</button>
+          <button type="button" onClick={() => setShowArchived((s) => !s)} className={cn("rounded-md px-2 py-1 text-[11px] transition-colors", showArchived ? "bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)]" : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]")}>{showArchived ? "Masquer archivées" : "Afficher archivées"}</button>
         </div>
       </div>
 
@@ -413,7 +413,7 @@ export function CampaignsByObjective({ campaigns, loading, workspaceId, startDat
         </div>
       ) : (
         <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-5 py-12 text-center">
-          <p className="text-[13px] text-[var(--color-text-primary)]0">{filter === "all" ? "Aucune campagne synchronisée" : "Aucune campagne pour ce filtre"}</p>
+          <p className="text-[13px] text-[var(--color-text-tertiary)]">{filter === "all" ? "Aucune campagne synchronisée" : "Aucune campagne pour ce filtre"}</p>
         </div>
       )}
     </div>
