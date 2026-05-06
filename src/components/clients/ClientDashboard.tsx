@@ -163,10 +163,16 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
       <motion.div {...fadeIn} transition={{ ...fadeIn.transition, delay: 0.1 }}>
         <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">{activeChart.title}</h2>
-            <div className="flex gap-1.5">
+            <div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-text-muted)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Évolution · {activeChart.label}</div>
+              <h2 className="mt-1 text-[14px] font-medium text-[var(--color-text-primary)]">{activeChart.title}</h2>
+            </div>
+            <div className="flex" style={{ gap: 4 }}>
               {CHART_METRICS.map((m) => (
-                <button key={m.key} type="button" onClick={() => setChartMetric(m.key)} className={cn("rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors", chartMetric === m.key ? PILL_ACTIVE[m.key] : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)]")}>{m.label}</button>
+                <button key={m.key} type="button" onClick={() => setChartMetric(m.key)}
+                  className={cn("font-medium transition-colors", chartMetric === m.key ? PILL_ACTIVE[m.key] : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]")}
+                  style={{ height: 24, padding: "0 8px", fontSize: 11, borderRadius: "var(--radius-xs)", border: "none", background: chartMetric === m.key ? undefined : "transparent" }}
+                >{m.label}</button>
               ))}
             </div>
           </div>
@@ -185,10 +191,10 @@ export function ClientDashboard({ client, campaigns, campaignsLoading, metrics, 
                 </ResponsiveContainer>
               </div>
               {chartStats && (
-                <div className="mt-3 flex flex-wrap gap-4 text-[11px] text-[var(--color-text-primary)]0">
-                  <span>{chartStats.days} jours</span>
-                  <span>{chartStats.totalLabel} : <span className="font-medium text-[var(--color-text-secondary)]">{activeChart.format(chartStats.total)}</span></span>
-                  <span>Moy. quotidienne : <span className="font-medium text-[var(--color-text-secondary)]">{activeChart.format(chartStats.dailyAvg)}</span></span>
+                <div className="mt-3 flex flex-wrap items-center" style={{ gap: 16, fontSize: 11, color: "var(--color-text-muted)" }}>
+                  <span><span className="mono" style={{ color: "var(--color-text-secondary)" }}>{chartStats.days}</span> jours</span>
+                  <span>{chartStats.totalLabel} : <span className="mono" style={{ color: "var(--color-text-primary)", fontWeight: 500 }}>{activeChart.format(chartStats.total)}</span></span>
+                  <span>Moy. quotidienne : <span className="mono" style={{ color: "var(--color-text-primary)", fontWeight: 500 }}>{activeChart.format(chartStats.dailyAvg)}</span></span>
                 </div>
               )}
             </>

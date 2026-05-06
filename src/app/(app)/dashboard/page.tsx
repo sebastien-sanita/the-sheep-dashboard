@@ -395,10 +395,16 @@ export default function DashboardPage() {
             <motion.div {...fadeIn(0.05)}>
               <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-[14px] font-medium text-[var(--color-text-secondary)]">{activeChartDef.title}</h2>
-                  <div className="flex gap-1.5">
+                  <div>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--color-text-muted)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Évolution · {activeChartDef.label}</div>
+                    <h2 className="mt-1 text-[14px] font-medium text-[var(--color-text-primary)]">{activeChartDef.title}</h2>
+                  </div>
+                  <div className="flex" style={{ gap: 4 }}>
                     {CHART_METRICS.map((m) => (
-                      <button key={m.key} type="button" onClick={() => setChartMetric(m.key)} className={cn("rounded-md px-2.5 py-1 text-[12px] font-medium transition-colors", chartMetric === m.key ? PILL_ACTIVE[m.key] : "bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)]")}>{m.label}</button>
+                      <button key={m.key} type="button" onClick={() => setChartMetric(m.key)}
+                        className={cn("font-medium transition-colors", chartMetric === m.key ? PILL_ACTIVE[m.key] : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]")}
+                        style={{ height: 24, padding: "0 8px", fontSize: 11, borderRadius: "var(--radius-xs)", border: "none", background: chartMetric === m.key ? undefined : "transparent" }}
+                      >{m.label}</button>
                     ))}
                   </div>
                 </div>
