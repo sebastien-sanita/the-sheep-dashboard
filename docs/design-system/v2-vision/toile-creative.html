@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-accent="moss">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Sheep — Creative #3 · v2 vision</title>
+<link rel="stylesheet" href="../tokens.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="vision.css" />
+<style>
+.toile {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 32px 200px;
+}
+
+/* ── Hero : preview + variations ── */
+.creative-hero {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 40px;
+  margin: 32px 0 64px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .creative-hero { grid-template-columns: 1fr; }
+}
+
+.creative-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.creative-meta .pill { font-size: 9px; }
+
+.creative-title {
+  font-size: 32px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  margin: 0 0 8px;
+  max-width: 24ch;
+}
+.creative-title em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+.creative-sub {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  max-width: 60ch;
+  margin: 0 0 32px;
+  line-height: 1.65;
+}
+
+/* ── Mobile mockup — Instagram Story 9:16 ── */
+.preview-mockup {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.phone {
+  width: 220px;
+  height: 460px;
+  background: #0e0e14;
+  border: 1px solid var(--color-border-emphasis);
+  border-radius: 28px;
+  padding: 8px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-lg), 0 0 0 6px rgba(255,255,255,0.02);
+  position: relative;
+}
+.phone::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+}
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(127, 153, 109, 0.6) 0%, rgba(127, 153, 109, 0.2) 50%, rgba(214, 166, 74, 0.6) 100%),
+    radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.12) 0%, transparent 50%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 18px 32px;
+  font-size: 11px;
+  color: white;
+}
+.phone-status {
+  position: absolute;
+  top: 10px; left: 18px; right: 18px;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+}
+.phone-progress {
+  position: absolute;
+  top: 22px; left: 18px; right: 18px;
+  height: 1.5px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.phone-progress::before {
+  content: "";
+  display: block;
+  width: 60%;
+  height: 100%;
+  background: rgba(255,255,255,0.85);
+}
+.phone-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.95);
+}
+.phone-brand-icon {
+  width: 18px; height: 18px;
+  background: rgba(255,255,255,0.95);
+  color: #6b8459;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  font-weight: 700;
+}
+.phone-content {
+  text-align: center;
+  margin-top: auto;
+  margin-bottom: 32px;
+}
+.phone-content .pre {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 10px;
+}
+.phone-content .claim {
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: white;
+  letter-spacing: -0.015em;
+  margin-bottom: 14px;
+}
+.phone-content .price {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: rgba(0,0,0,0.32);
+  padding: 5px 12px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.phone-cta {
+  background: white;
+  color: #0e0e14;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px;
+  text-align: center;
+  border-radius: 999px;
+  letter-spacing: -0.01em;
+}
+
+.preview-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.preview-spec {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 12px;
+}
+.preview-spec .label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.preview-spec .value {
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Variations IA stack ── */
+.variations {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.variations-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.variation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.variation:hover { border-color: var(--color-border-emphasis); }
+.variation.active { border-color: var(--color-accent); background: var(--color-accent-subtle); }
+.variation-thumb {
+  width: 38px; height: 60px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.variation-thumb.v0 { background: linear-gradient(180deg, #7f996d 0%, #6b8459 60%, #d6a64a 100%); }
+.variation-thumb.v1 { background: linear-gradient(135deg, #1a1a24 0%, #6a9ad6 80%); }
+.variation-thumb.v2 { background: linear-gradient(180deg, #d6a64a 0%, #c98a3c 100%); }
+.variation-thumb.v3 { background: linear-gradient(135deg, #b07a9a 0%, #5a5a6e 100%); }
+.variation-info { flex: 1; min-width: 0; }
+.variation-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+.variation-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+.variation-score {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-success);
+  font-variant-numeric: tabular-nums;
+}
+.variation-score.warn { color: var(--color-warning); }
+
+.variations-cta {
+  margin-top: 6px;
+  padding: 14px;
+  border: 1px dashed var(--color-border-emphasis);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.variations-cta:hover { border-color: var(--color-accent); color: var(--color-accent-hover); }
+
+/* ── Brief IA ── */
+.brief {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: 36px 40px;
+  margin-bottom: 56px;
+  position: relative;
+  max-width: 760px;
+}
+.brief::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 36px;
+  width: 2px; height: 40px;
+  background: var(--color-accent);
+  border-radius: 1px;
+}
+.brief-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.brief-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--color-text-primary);
+  margin: 0 0 20px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+.brief-body {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+  margin: 0 0 14px;
+}
+.brief-body strong { color: var(--color-text-primary); font-weight: 500; }
+.brief-body em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+.brief-body .mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+/* ── Scoring multi-axes ── */
+.scoring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+.score {
+  padding: 18px 20px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+.score-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.score-value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  margin-bottom: 6px;
+}
+.score-value .max { color: var(--color-text-muted); font-size: 14px; font-weight: 400; margin-left: 2px; }
+.score-bar {
+  height: 3px;
+  background: var(--color-bg-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+.score-bar-fill.warn { background: var(--color-warning); }
+.score-note {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* ── Audience + perf inline ── */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 720px) {
+  .split { grid-template-columns: 1fr; }
+}
+
+.split-card {
+  padding: 24px 28px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+}
+.split-card h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 18px;
+  letter-spacing: -0.005em;
+}
+.audience-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 13px;
+}
+.audience-row:last-child { border-bottom: none; }
+.audience-row .label { color: var(--color-text-secondary); }
+.audience-row .value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  font-size: 12px;
+  letter-spacing: -0.01em;
+}
+.audience-row .bar {
+  width: 80px;
+  height: 4px;
+  background: var(--color-bg-elevated);
+  border-radius: 2px;
+  margin-left: 10px;
+  overflow: hidden;
+}
+.audience-row .bar-fill { height: 100%; background: var(--color-accent); }
+.audience-row .delta { color: var(--color-success); font-weight: 600; }
+
+/* ── Toile actions ── */
+.toile-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 32px 0;
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: 56px;
+}
+.toile-actions .btn { height: 36px; padding: 0 18px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="brand-mark" aria-label="Accueil">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="9" r="2.6"/>
+        <path d="M10.4 9 c1.4 -0.2 2.6 0.6 3.4 1.6 c0.6 -0.8 1.6 -1.2 2.6 -1 c1.4 0.3 2.2 1.6 1.9 3 c-0.2 0.9 -0.9 1.6 -1.7 1.9 c0.3 0.9 -0.1 2 -0.9 2.5 c-0.9 0.5 -2.1 0.3 -2.7 -0.5 c-0.6 0.5 -1.5 0.5 -2.1 0 c-0.6 0.7 -1.7 0.8 -2.4 0.2 c-0.7 -0.6 -0.8 -1.6 -0.4 -2.4 c-0.7 -0.4 -1.1 -1.1 -1.1 -1.9 c0 -1.4 1.1 -2.4 2.5 -2.4 z"/>
+        <circle cx="7.4" cy="9" r="0.45" fill="currentColor" stroke="none"/>
+        <path d="M9.5 17.5 v2"/><path d="M14 17.8 v2"/>
+      </svg>
+    </a>
+    <a href="index.html" class="scope">
+      <span class="scope-label">The Sheep</span>
+      <span class="scope-sep">/</span>
+      <span>Boulangerie Martin</span>
+      <span class="scope-sep">/</span>
+      <span style="color: var(--color-text-primary); font-weight: 500;">Creative #3</span>
+    </a>
+  </div>
+  <div class="topbar-right">
+    <div class="cmdk">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <span>Rechercher, dicter…</span>
+      <kbd>⌘K</kbd>
+    </div>
+    <div class="avatar" title="Hamza Boukraa">HB</div>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <a href="index.html" class="breadcrumb-back">← Le flux</a>
+  <a href="#">Boulangerie Martin</a>
+  <span class="breadcrumb-sep">/</span>
+  <a href="#">Creatives</a>
+  <span class="breadcrumb-sep">/</span>
+  <span class="breadcrumb-current">#3 — Vidéo galette</span>
+</div>
+
+<main class="toile">
+
+  <!-- Hero -->
+  <section class="creative-hero">
+    <div>
+      <div class="creative-meta">
+        <span class="pill platform-meta"><span class="pill-dot"></span>META · INSTAGRAM STORY</span>
+        <span class="pill live"><span class="pill-dot pulse"></span>EN DIFFUSION</span>
+        <span>9:16 · 8s · 1080p</span>
+      </div>
+      <h1 class="creative-title">
+        Vidéo galette,
+        <em>top performeuse</em>
+        de la semaine.
+      </h1>
+      <p class="creative-sub">
+        Mise en ligne lundi 28 avril. Capte 67&nbsp;% des leads de Boulangerie Martin sur les
+        7 derniers jours, à un CPL <em>34&nbsp;%</em> sous la moyenne du compte.
+      </p>
+
+      <div class="preview-mockup">
+        <div class="phone" aria-label="Aperçu Instagram Story">
+          <div class="phone-screen">
+            <div class="phone-status">
+              <span>9:41</span>
+              <span>5G</span>
+            </div>
+            <div class="phone-progress"></div>
+            <div class="phone-brand">
+              <span class="phone-brand-icon">B</span>
+              <span>boulangerie_martin</span>
+              <span style="color: rgba(255,255,255,0.5); font-size: 9px;">· Sponsorisé</span>
+            </div>
+            <div class="phone-content">
+              <div class="pre">Galette des rois</div>
+              <div class="claim">La pâte feuilletée<br/>de votre enfance.</div>
+              <div class="price">— 5,80 € · à emporter</div>
+            </div>
+            <div class="phone-cta">Commander en ligne →</div>
+          </div>
+        </div>
+
+        <div class="preview-side">
+          <div class="preview-spec">
+            <span class="label">Format</span>
+            <span class="value">Story 9:16</span>
+          </div>
+          <div class="preview-spec">
+            <span class="label">Durée</span>
+            <span class="value">8,0 s</span>
+          </div>
+          <div class="preview-spec">
+            <span class="label">Poids</span>
+            <span class="value">3,4 Mo</span>
+          </div>
+          <div class="preview-spec">
+            <span class="label">Mis en ligne</span>
+            <span class="value">28 avril 14:30</span>
+          </div>
+          <div class="preview-spec">
+            <span class="label">Auteur</span>
+            <span class="value" style="font-family: var(--font-sans); color: var(--color-text-primary);">IA · brief Boulangerie</span>
+          </div>
+          <div class="preview-spec">
+            <span class="label">Itérations</span>
+            <span class="value">v3 (3 révisions)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variations IA stack -->
+    <aside class="variations">
+      <div class="variations-label">Variantes IA · brief associé</div>
+
+      <div class="variation active">
+        <div class="variation-thumb v0"></div>
+        <div class="variation-info">
+          <div class="variation-title">Vidéo galette — actuel</div>
+          <div class="variation-meta">v3 · 28 avril</div>
+        </div>
+        <span class="variation-score">9,2</span>
+      </div>
+
+      <div class="variation">
+        <div class="variation-thumb v1"></div>
+        <div class="variation-info">
+          <div class="variation-title">Témoin client — Madame B.</div>
+          <div class="variation-meta">brouillon · IA</div>
+        </div>
+        <span class="variation-score">8,1</span>
+      </div>
+
+      <div class="variation">
+        <div class="variation-thumb v2"></div>
+        <div class="variation-info">
+          <div class="variation-title">Packshot social — feuilletage</div>
+          <div class="variation-meta">brouillon · IA</div>
+        </div>
+        <span class="variation-score">7,4</span>
+      </div>
+
+      <div class="variation">
+        <div class="variation-thumb v3"></div>
+        <div class="variation-info">
+          <div class="variation-title">Saint-Patrick — claim hero</div>
+          <div class="variation-meta">à générer</div>
+        </div>
+        <span class="variation-score warn">—</span>
+      </div>
+
+      <div class="variations-cta">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Demander à l'IA une variante
+      </div>
+    </aside>
+  </section>
+
+  <!-- Brief IA -->
+  <section class="section">
+    <header class="section-head">
+      <h2>Brief de l'IA</h2>
+      <span class="section-meta">Généré · 28 avril 14:14 · Claude Opus 4.7</span>
+    </header>
+    <article class="brief">
+      <div class="brief-label">Pourquoi ce creative · pourquoi maintenant</div>
+      <h3 class="brief-title">
+        "L'audience cible 25-34 actifs urbains est sensible à la nostalgie sensorielle plus qu'au prix."
+      </h3>
+      <p class="brief-body">
+        Cette vidéo s'appuie sur une hypothèse forte : pour une boulangerie de quartier, la galette
+        des rois est moins un produit qu'un <em>déclencheur de mémoire affective</em>. La cible identifiée
+        (femmes 25-34, CSP+, vivant en zone urbaine dense, intérêt "cuisine maison" actif) répond
+        historiquement <strong>3,4×</strong> mieux à un claim émotionnel court qu'à une promotion de prix
+        (étude interne 12 campagnes Boulangerie Martin sur 6 mois).
+      </p>
+      <p class="brief-body">
+        Le format <strong>Story 9:16 verticale</strong> a été choisi sur les insights de saturation : l'audience
+        consomme désormais <span class="mono">62&nbsp;%</span> de son temps Instagram en Story plutôt qu'en Feed,
+        et la fréquence de Story est divisible (auto-skip) sans pénaliser le brand recall — le coût de
+        sur-fréquence y est plus bas qu'en Feed.
+      </p>
+      <p class="brief-body">
+        Le claim "La pâte feuilletée de votre enfance" est volontairement pré-rationnel : pas de prix
+        en hero, pas de garanties produit, juste la promesse sensorielle. Le prix
+        (<span class="mono">5,80&nbsp;€</span>) apparaît en sous-couche pour ne pas rompre la rêverie.
+        L'IA recommande de <strong>tester une variante "témoin client"</strong> qui pousserait la promesse
+        sociale (déjà dans la liste de variations à droite).
+      </p>
+    </article>
+  </section>
+
+  <!-- Scoring multi-axes -->
+  <section class="section">
+    <header class="section-head">
+      <h2>Scoring multi-axes</h2>
+      <span class="section-meta">Évaluation IA · pondération brand · /10</span>
+    </header>
+    <div class="scoring-grid">
+      <div class="score">
+        <div class="score-label">Originalité</div>
+        <div class="score-value">8,4<span class="max">/10</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width: 84%;"></div></div>
+        <div class="score-note">Format peu utilisé par les boulangeries concurrentes locales (3 sur 28 audites).</div>
+      </div>
+      <div class="score">
+        <div class="score-label">Fit marque</div>
+        <div class="score-value">9,6<span class="max">/10</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width: 96%;"></div></div>
+        <div class="score-note">Tonalité sensorielle, palette beige/or alignée brand book BM.</div>
+      </div>
+      <div class="score">
+        <div class="score-label">Performance prédite</div>
+        <div class="score-value">9,2<span class="max">/10</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width: 92%;"></div></div>
+        <div class="score-note">Modèle prédictif basé sur 47 creatives BM passés. Confirmé sur 7j.</div>
+      </div>
+      <div class="score">
+        <div class="score-label">Conformité</div>
+        <div class="score-value">10<span class="max">/10</span></div>
+        <div class="score-bar"><div class="score-bar-fill" style="width: 100%;"></div></div>
+        <div class="score-note">Zéro claim non vérifiable, zéro mention santé, format Meta Ads valide.</div>
+      </div>
+      <div class="score">
+        <div class="score-label">Saturation</div>
+        <div class="score-value">6,8<span class="max">/10</span></div>
+        <div class="score-bar"><div class="score-bar-fill warn" style="width: 68%;"></div></div>
+        <div class="score-note">Frequency <span class="mono" style="color: var(--color-text-primary)">2,4</span> · marge avant seuil critique 4,5.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Performance + audience -->
+  <section class="section">
+    <header class="section-head">
+      <h2>Performance & audience</h2>
+      <span class="section-meta">Live · synchronisé Meta Ads · il y a 4&nbsp;min</span>
+    </header>
+    <div class="split">
+      <div class="split-card">
+        <h3>Performance · 7 derniers jours</h3>
+        <div class="audience-row"><span class="label">Impressions</span><span class="value">42&nbsp;380</span></div>
+        <div class="audience-row"><span class="label">Reach unique</span><span class="value">18&nbsp;640</span></div>
+        <div class="audience-row"><span class="label">Fréquence moy.</span><span class="value">2,4</span></div>
+        <div class="audience-row"><span class="label">CTR</span><span class="value">2,7&nbsp;%<span class="delta" style="margin-left: 8px;">+0,8 pt</span></span></div>
+        <div class="audience-row"><span class="label">Leads</span><span class="value">52</span></div>
+        <div class="audience-row"><span class="label">CPL</span><span class="value">9,80&nbsp;€<span class="delta" style="margin-left: 8px;">−34&nbsp;%</span></span></div>
+        <div class="audience-row"><span class="label">Dépense</span><span class="value">510&nbsp;€</span></div>
+      </div>
+      <div class="split-card">
+        <h3>Audience touchée</h3>
+        <div class="audience-row"><span class="label">Femmes 25-34</span><span class="value">52&nbsp;%<span class="bar"><span class="bar-fill" style="width: 52%;"></span></span></span></div>
+        <div class="audience-row"><span class="label">Femmes 35-44</span><span class="value">23&nbsp;%<span class="bar"><span class="bar-fill" style="width: 23%;"></span></span></span></div>
+        <div class="audience-row"><span class="label">Hommes 25-34</span><span class="value">14&nbsp;%<span class="bar"><span class="bar-fill" style="width: 14%;"></span></span></span></div>
+        <div class="audience-row"><span class="label">Hommes 35-44</span><span class="value">8&nbsp;%<span class="bar"><span class="bar-fill" style="width: 8%;"></span></span></span></div>
+        <div class="audience-row"><span class="label">Autres</span><span class="value">3&nbsp;%</span></div>
+        <div class="audience-row" style="margin-top: 8px;"><span class="label" style="color: var(--color-text-muted); font-size: 12px;">Top 3 villes</span><span class="value" style="color: var(--color-text-secondary);">Paris · Lyon · Toulouse</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Actions -->
+  <section class="toile-actions">
+    <button class="btn btn-apply">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Générer 3 variantes
+    </button>
+    <a class="btn btn-edit" href="chat.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Modifier via le chat
+    </a>
+    <button class="btn btn-edit">Dupliquer pour autre client</button>
+    <button class="btn btn-edit">Programmer la fin de diffusion</button>
+    <button class="btn btn-ghost" style="margin-left: auto; color: var(--color-danger);">Pause cette campagne</button>
+  </section>
+
+</main>
+
+<!-- Chat dock -->
+<a class="chat-dock" href="chat.html">
+  <span class="chat-scope">
+    <span class="chat-scope-dot"></span>
+    Scope · Creative #3
+  </span>
+  <span class="chat-dock-icon">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </span>
+  <span class="chat-dock-input" style="color: var(--color-text-tertiary);">Demande une variante, change le claim…</span>
+  <kbd>⌘K</kbd>
+</a>
+
+<!-- Footer nav -->
+<nav class="surface-nav">
+  <div class="surface-nav-label">Surfaces v2 · Vision</div>
+  <div class="surface-nav-grid">
+    <a class="surface-nav-link" href="index.html"><span class="surface-nav-num">01</span> Le flux</a>
+    <a class="surface-nav-link" href="chat.html"><span class="surface-nav-num">02</span> Toile chat</a>
+    <a class="surface-nav-link" href="toile-campagne.html"><span class="surface-nav-num">03</span> Toile campagne</a>
+    <a class="surface-nav-link active" href="toile-creative.html"><span class="surface-nav-num">04</span> Toile creative</a>
+    <a class="surface-nav-link" href="toile-lead.html"><span class="surface-nav-num">05</span> Toile lead</a>
+  </div>
+</nav>
+
+</body>
+</html>

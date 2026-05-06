@@ -13,9 +13,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
 
+<!-- Shared v2 vision stylesheet (topbar, cards, mutation pattern, chat dock, animations) -->
+<link rel="stylesheet" href="vision.css" />
+
 <style>
 /* ============================================================
-   v2 Vision — additions au-dessus de Calm Precision
+   Page-specific styles for the home flux only — shared bits
+   live in vision.css. Kept here : hero typography (display 32px),
+   anything specific to the home layout.
    ============================================================ */
 
 :root {
@@ -798,7 +803,7 @@ body::before {
           <path d="M0,18 L20,16 L40,17 L60,14 L80,15 L100,12 L120,13 L140,10 L160,11 L180,8 L200,9 L220,7 L240,5 L260,6 L280,4 L300,3 L320,2 L320,28 L0,28 Z"
                 fill="var(--color-accent)" opacity="0.08" />
         </svg>
-        <a class="card-link">Ouvrir la toile Boulangerie Martin →</a>
+        <a class="card-link" href="toile-campagne.html">Ouvrir la toile campagne →</a>
       </div>
     </article>
 
@@ -821,7 +826,7 @@ body::before {
           <path d="M0,22 L20,20 L40,21 L60,18 L80,16 L100,17 L120,14 L140,15 L160,12 L180,10 L200,11 L220,8 L240,9 L260,6 L280,5 L300,4 L320,3"
                 fill="none" stroke="var(--color-info)" stroke-width="1.4" />
         </svg>
-        <a class="card-link">Voir les 22 leads →</a>
+        <a class="card-link" href="toile-lead.html">Voir les 22 leads →</a>
       </div>
     </article>
   </section>
@@ -866,7 +871,7 @@ body::before {
         <span class="timeline-time">Hier</span>
         <span class="timeline-text">
           L'IA a <strong>généré 3 variantes de creative</strong> pour <em>Brendy's</em> à ta demande.
-          <a href="#" style="color: var(--color-accent-hover); text-decoration: underline; text-decoration-color: var(--color-accent-muted); text-underline-offset: 3px;">Ouvrir la toile creative →</a>
+          <a href="toile-creative.html" style="color: var(--color-accent-hover); text-decoration: underline; text-decoration-color: var(--color-accent-muted); text-underline-offset: 3px;">Ouvrir la toile creative →</a>
         </span>
       </li>
     </ol>
@@ -875,7 +880,7 @@ body::before {
 </main>
 
 <!-- ── Chat dock (état collapsed, pill bottom-right) ── -->
-<div class="chat-dock" id="chat-dock">
+<a class="chat-dock" id="chat-dock" href="chat.html">
   <span class="chat-scope">
     <span class="chat-scope-dot"></span>
     Scope · Tous les clients
@@ -885,9 +890,21 @@ body::before {
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
   </span>
-  <input class="chat-dock-input" type="text" placeholder="Demande à l'IA, dicte une mutation…" />
+  <span class="chat-dock-input" style="color: var(--color-text-tertiary);">Demande à l'IA, dicte une mutation…</span>
   <kbd>⌘K</kbd>
-</div>
+</a>
+
+<!-- ── Footer nav (exploration design — mockup only) ── -->
+<nav class="surface-nav">
+  <div class="surface-nav-label">Surfaces v2 · Vision</div>
+  <div class="surface-nav-grid">
+    <a class="surface-nav-link active" href="index.html"><span class="surface-nav-num">01</span> Le flux</a>
+    <a class="surface-nav-link" href="chat.html"><span class="surface-nav-num">02</span> Toile chat</a>
+    <a class="surface-nav-link" href="toile-campagne.html"><span class="surface-nav-num">03</span> Toile campagne</a>
+    <a class="surface-nav-link" href="toile-creative.html"><span class="surface-nav-num">04</span> Toile creative</a>
+    <a class="surface-nav-link" href="toile-lead.html"><span class="surface-nav-num">05</span> Toile lead</a>
+  </div>
+</nav>
 
 </body>
 </html>

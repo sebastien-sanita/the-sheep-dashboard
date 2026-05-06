@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-accent="moss">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Sheep — Marie K. · v2 vision</title>
+<link rel="stylesheet" href="../tokens.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="vision.css" />
+<style>
+.toile {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 32px 200px;
+}
+
+/* ── Hero lead ── */
+.lead-hero {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  margin: 32px 0 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+.lead-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7f996d 0%, #6b8459 100%);
+  display: grid;
+  place-items: center;
+  color: var(--color-accent-contrast);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  border: 1px solid var(--color-border-emphasis);
+  box-shadow: var(--shadow-md);
+}
+.lead-identity {
+  min-width: 0;
+}
+.lead-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.lead-name {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  margin: 0 0 4px;
+}
+.lead-contact {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  flex-wrap: wrap;
+}
+.lead-contact .mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  letter-spacing: -0.01em;
+}
+.lead-contact a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--color-border-emphasis);
+  transition: color var(--transition-fast);
+}
+.lead-contact a:hover { color: var(--color-accent-hover); }
+
+.lead-score-block {
+  text-align: right;
+}
+.lead-score-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.lead-score-value {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-success);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+.lead-score-value .max { color: var(--color-text-muted); font-size: 16px; font-weight: 400; }
+.lead-score-bar {
+  margin-top: 8px;
+  width: 100px;
+  height: 3px;
+  background: var(--color-bg-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.lead-score-bar-fill {
+  height: 100%;
+  background: var(--color-success);
+  border-radius: 2px;
+}
+
+@media (max-width: 720px) {
+  .lead-hero { grid-template-columns: 1fr; text-align: left; }
+  .lead-score-block { text-align: left; }
+}
+
+/* ── Story (timeline narrée) ── */
+.story {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: 36px 40px;
+  margin-bottom: 56px;
+  position: relative;
+}
+.story::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 36px;
+  width: 2px; height: 40px;
+  background: var(--color-accent);
+  border-radius: 1px;
+}
+.story-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.story-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--color-text-primary);
+  margin: 0 0 20px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  max-width: 50ch;
+}
+.story-body {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+  margin: 0 0 14px;
+  max-width: 60ch;
+}
+.story-body strong { color: var(--color-text-primary); font-weight: 500; }
+.story-body em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+.story-body .mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+.story-body a {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent-muted);
+  text-underline-offset: 3px;
+}
+
+/* ── Visual timeline ── */
+.timeline-visual {
+  position: relative;
+  margin: 32px 0 56px;
+}
+.timeline-line {
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--color-border-default);
+  border-radius: 1px;
+}
+.timeline-line-progress {
+  position: absolute;
+  left: 0; top: 0;
+  height: 100%;
+  width: 88%;
+  background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-success) 100%);
+  border-radius: 1px;
+}
+.timeline-points {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 32px 0;
+}
+.tp {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  border: 2px solid var(--color-text-tertiary);
+  z-index: 2;
+  cursor: pointer;
+}
+.tp.touch { border-color: var(--color-info); background: var(--color-info-muted); }
+.tp.click { border-color: var(--color-accent); background: var(--color-accent-muted); }
+.tp.form { border-color: var(--color-success); background: var(--color-success-muted); }
+.tp.convert {
+  border-color: var(--color-success);
+  background: var(--color-success);
+  box-shadow: 0 0 0 4px var(--color-success-muted);
+}
+.tp-label {
+  position: absolute;
+  left: 50%;
+  bottom: -52px;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+.tp-label .day {
+  display: block;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.tp-event {
+  position: absolute;
+  left: 50%;
+  top: -56px;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+.tp-event::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border: 4px solid transparent;
+  border-top-color: var(--color-border-default);
+}
+
+/* ── Attribution + scoring ── */
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 56px;
+}
+@media (max-width: 720px) {
+  .split-grid { grid-template-columns: 1fr; }
+}
+.attribution {
+  padding: 24px 28px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+}
+.attribution h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 16px;
+  letter-spacing: -0.005em;
+}
+.attribution-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 13px;
+}
+.attribution-row:last-child { border-bottom: none; }
+.attribution-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.attribution-thumb.c1 { background: linear-gradient(180deg, #7f996d 0%, #d6a64a 100%); }
+.attribution-thumb.c2 { background: linear-gradient(135deg, #1a1a24 0%, #6a9ad6 80%); }
+.attribution-thumb.c4 { background: linear-gradient(135deg, #b07a9a 0%, #5a5a6e 100%); }
+.attribution-info { flex: 1; min-width: 0; }
+.attribution-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+.attribution-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+.attribution-weight {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-success);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Stage pipeline ── */
+.pipeline {
+  padding: 24px 28px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+}
+.pipeline h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 16px;
+  letter-spacing: -0.005em;
+}
+.pipeline-stages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+.stage {
+  flex: 1;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+}
+.stage.done { color: var(--color-success); border-color: var(--color-success-muted); background: var(--color-success-muted); }
+.stage.current {
+  color: var(--color-accent-hover);
+  border-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+  font-weight: 600;
+}
+.pipeline-meta {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+.pipeline-meta strong { color: var(--color-text-primary); font-weight: 500; }
+.pipeline-meta .mono { font-family: var(--font-mono); color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+
+/* ── Form data captured ── */
+.captured {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.captured-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 13px;
+}
+.captured-row:last-child { border-bottom: none; }
+.captured-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.captured-value { color: var(--color-text-primary); }
+
+/* ── Toile actions ── */
+.toile-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 32px 0;
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: 56px;
+}
+.toile-actions .btn { height: 36px; padding: 0 18px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="brand-mark" aria-label="Accueil">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="9" r="2.6"/>
+        <path d="M10.4 9 c1.4 -0.2 2.6 0.6 3.4 1.6 c0.6 -0.8 1.6 -1.2 2.6 -1 c1.4 0.3 2.2 1.6 1.9 3 c-0.2 0.9 -0.9 1.6 -1.7 1.9 c0.3 0.9 -0.1 2 -0.9 2.5 c-0.9 0.5 -2.1 0.3 -2.7 -0.5 c-0.6 0.5 -1.5 0.5 -2.1 0 c-0.6 0.7 -1.7 0.8 -2.4 0.2 c-0.7 -0.6 -0.8 -1.6 -0.4 -2.4 c-0.7 -0.4 -1.1 -1.1 -1.1 -1.9 c0 -1.4 1.1 -2.4 2.5 -2.4 z"/>
+        <circle cx="7.4" cy="9" r="0.45" fill="currentColor" stroke="none"/>
+        <path d="M9.5 17.5 v2"/><path d="M14 17.8 v2"/>
+      </svg>
+    </a>
+    <a href="index.html" class="scope">
+      <span class="scope-label">The Sheep</span>
+      <span class="scope-sep">/</span>
+      <span>Boulangerie Martin</span>
+      <span class="scope-sep">/</span>
+      <span style="color: var(--color-text-primary); font-weight: 500;">Marie K.</span>
+    </a>
+  </div>
+  <div class="topbar-right">
+    <div class="cmdk">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <span>Rechercher, dicter…</span>
+      <kbd>⌘K</kbd>
+    </div>
+    <div class="avatar" title="Hamza Boukraa">HB</div>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <a href="index.html" class="breadcrumb-back">← Le flux</a>
+  <a href="#">Boulangerie Martin</a>
+  <span class="breadcrumb-sep">/</span>
+  <a href="#">Leads</a>
+  <span class="breadcrumb-sep">/</span>
+  <span class="breadcrumb-current">Marie K.</span>
+</div>
+
+<main class="toile">
+
+  <!-- Hero lead -->
+  <section class="lead-hero">
+    <div class="lead-avatar">M</div>
+    <div class="lead-identity">
+      <div class="lead-meta">
+        <span class="pill platform-meta"><span class="pill-dot"></span>META · INSTAGRAM</span>
+        <span class="pill" style="background: var(--color-success-muted); color: var(--color-success);"><span class="pill-dot"></span>QUALIFIÉ</span>
+        <span>Lead n° 187 · Boulangerie Martin</span>
+      </div>
+      <h1 class="lead-name">Marie K.</h1>
+      <div class="lead-contact">
+        <a href="mailto:marie.k@example.fr">marie.k@example.fr</a>
+        <span class="mono">+33 6 84 32 ** **</span>
+        <span>Paris 11<sup>e</sup></span>
+      </div>
+    </div>
+    <div class="lead-score-block">
+      <div class="lead-score-label">Score IA</div>
+      <div class="lead-score-value">8,4<span class="max">/10</span></div>
+      <div class="lead-score-bar"><div class="lead-score-bar-fill" style="width: 84%;"></div></div>
+    </div>
+  </section>
+
+  <!-- Story -->
+  <section>
+    <article class="story">
+      <div class="story-label">L'histoire de Marie · narrée par l'IA</div>
+      <h2 class="story-title">
+        "Marie a vu trois ads avant de cliquer, puis a rempli le formulaire 4 jours plus tard."
+      </h2>
+      <p class="story-body">
+        Marie a découvert <strong>Boulangerie Martin</strong> le <span class="mono">12 mars</span> via une story Instagram
+        sponsorisée — la <a href="toile-creative.html">vidéo galette</a>, vue 8 secondes mais skippée. Trois jours après,
+        la même story lui est représentée (frequency&nbsp;<span class="mono">2</span>) ; elle s'arrête plus longtemps
+        cette fois (<span class="mono">14&nbsp;s</span>) sans cliquer.
+      </p>
+      <p class="story-body">
+        Le <span class="mono">18 mars</span>, un creative connexe (carrousel produit, #2) la touche en feed.
+        Elle clique cette fois, atterrit sur <em>la page galette</em>, scroll 75 % puis ferme l'onglet sans convertir.
+        Un retargeting J+3 la ramène le <span class="mono">20 mars</span> ; cette fois elle remplit le formulaire
+        (e-mail + téléphone + ville), demande de réservation pour <em>2 galettes 6 personnes</em>.
+      </p>
+      <p class="story-body">
+        Profil prédictif : <strong>femme 28-32 ans</strong>, urbaine, intérêt fort pour la cuisine maison
+        et le slow living, déjà cliente potentielle de <em>Maison Plisson</em> et <em>Du Pain et des Idées</em>
+        (signaux Meta). <strong>Score 8,4/10</strong> : très probable conversion en cliente régulière si
+        la première expérience est bonne. <a href="#">Voir comment qualifier</a>.
+      </p>
+    </article>
+  </section>
+
+  <!-- Visual timeline -->
+  <section>
+    <div class="timeline-visual">
+      <div class="timeline-line">
+        <div class="timeline-line-progress"></div>
+      </div>
+      <div class="timeline-points">
+        <div class="tp touch">
+          <div class="tp-event">Vue Story #3</div>
+          <div class="tp-label"><span class="day">12 mars</span>14:32</div>
+        </div>
+        <div class="tp touch">
+          <div class="tp-label"><span class="day">15 mars</span>18:04</div>
+        </div>
+        <div class="tp click">
+          <div class="tp-event">Clic Carrousel #2</div>
+          <div class="tp-label"><span class="day">18 mars</span>21:17</div>
+        </div>
+        <div class="tp touch">
+          <div class="tp-label"><span class="day">19 mars</span>10:08</div>
+        </div>
+        <div class="tp form">
+          <div class="tp-label"><span class="day">20 mars</span>20:42</div>
+        </div>
+        <div class="tp convert">
+          <div class="tp-event">Lead converti · qualifié</div>
+          <div class="tp-label"><span class="day">21 mars</span>09:00</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Attribution + Pipeline -->
+  <section class="split-grid">
+    <div class="attribution">
+      <h3>Attribution multi-touch</h3>
+      <div class="attribution-row">
+        <div class="attribution-thumb c1"></div>
+        <div class="attribution-info">
+          <div class="attribution-title">#3 — Vidéo galette</div>
+          <div class="attribution-meta">3 vues · 1 skip · awareness</div>
+        </div>
+        <span class="attribution-weight">52 %</span>
+      </div>
+      <div class="attribution-row">
+        <div class="attribution-thumb c2"></div>
+        <div class="attribution-info">
+          <div class="attribution-title">#2 — Carrousel produit</div>
+          <div class="attribution-meta">1 clic · landing · consideration</div>
+        </div>
+        <span class="attribution-weight">31 %</span>
+      </div>
+      <div class="attribution-row">
+        <div class="attribution-thumb c4"></div>
+        <div class="attribution-info">
+          <div class="attribution-title">#4 — Reels recette (retargeting)</div>
+          <div class="attribution-meta">1 vue · conversion driver</div>
+        </div>
+        <span class="attribution-weight">17 %</span>
+      </div>
+    </div>
+
+    <div class="pipeline">
+      <h3>Stage actuel</h3>
+      <div class="pipeline-stages">
+        <span class="stage done">Touch</span>
+        <span class="stage done">Click</span>
+        <span class="stage done">Form</span>
+        <span class="stage current">Qualifié</span>
+        <span class="stage">Acheté</span>
+        <span class="stage">Récurrent</span>
+      </div>
+      <p class="pipeline-meta">
+        Stage actuel depuis <strong>3 jours</strong>. La probabilité de conversion en
+        <strong>première vente</strong> dans les 7 prochains jours est estimée à
+        <span class="mono" style="color: var(--color-success);">73&nbsp;%</span>
+        si le contact est pris dans les 48h, sinon retombe à
+        <span class="mono">42&nbsp;%</span> sous 7j.
+      </p>
+    </div>
+  </section>
+
+  <!-- Captured form data -->
+  <section class="section">
+    <header class="section-head">
+      <h2>Données du formulaire</h2>
+      <span class="section-meta">Soumis le 20 mars · 20:42</span>
+    </header>
+    <div class="captured">
+      <div class="captured-row">
+        <span class="captured-label">Nom complet</span>
+        <span class="captured-value">Marie K.</span>
+      </div>
+      <div class="captured-row">
+        <span class="captured-label">E-mail</span>
+        <span class="captured-value">marie.k@example.fr</span>
+      </div>
+      <div class="captured-row">
+        <span class="captured-label">Téléphone</span>
+        <span class="captured-value" style="font-family: var(--font-mono);">+33 6 84 32 ** **</span>
+      </div>
+      <div class="captured-row">
+        <span class="captured-label">Demande</span>
+        <span class="captured-value"><em style="font-family: var(--font-serif); color: var(--color-text-secondary);">"Réservation 2 galettes 6 personnes pour le 25 mars."</em></span>
+      </div>
+      <div class="captured-row">
+        <span class="captured-label">Acceptation RGPD</span>
+        <span class="captured-value" style="color: var(--color-success);">✓ Marketing autorisé</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Actions -->
+  <section class="toile-actions">
+    <button class="btn btn-apply">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Marquer comme contacté
+    </button>
+    <a class="btn btn-edit" href="chat.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Demander un suivi à l'IA
+    </a>
+    <button class="btn btn-edit">Exporter en CSV</button>
+    <button class="btn btn-edit">Ajouter à une audience custom</button>
+    <button class="btn btn-ghost" style="margin-left: auto; color: var(--color-danger);">Refuser ce lead</button>
+  </section>
+
+</main>
+
+<a class="chat-dock" href="chat.html">
+  <span class="chat-scope">
+    <span class="chat-scope-dot"></span>
+    Scope · Marie K.
+  </span>
+  <span class="chat-dock-icon">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </span>
+  <span class="chat-dock-input" style="color: var(--color-text-tertiary);">Demande un suivi, qualifie, attribue…</span>
+  <kbd>⌘K</kbd>
+</a>
+
+<nav class="surface-nav">
+  <div class="surface-nav-label">Surfaces v2 · Vision</div>
+  <div class="surface-nav-grid">
+    <a class="surface-nav-link" href="index.html"><span class="surface-nav-num">01</span> Le flux</a>
+    <a class="surface-nav-link" href="chat.html"><span class="surface-nav-num">02</span> Toile chat</a>
+    <a class="surface-nav-link" href="toile-campagne.html"><span class="surface-nav-num">03</span> Toile campagne</a>
+    <a class="surface-nav-link" href="toile-creative.html"><span class="surface-nav-num">04</span> Toile creative</a>
+    <a class="surface-nav-link active" href="toile-lead.html"><span class="surface-nav-num">05</span> Toile lead</a>
+  </div>
+</nav>
+
+</body>
+</html>

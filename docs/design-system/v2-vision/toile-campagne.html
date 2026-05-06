@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-accent="moss">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Sheep — Galette Janvier · v2 vision</title>
+<link rel="stylesheet" href="../tokens.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="vision.css" />
+<style>
+.toile {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 32px 200px;
+}
+
+/* ── Hero campagne ── */
+.camp-hero {
+  margin: 32px 0 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+.camp-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.camp-title {
+  font-size: 36px;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  margin: 0 0 12px;
+  max-width: 28ch;
+}
+.camp-title em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+.camp-sub {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  max-width: 60ch;
+  margin: 0;
+  line-height: 1.65;
+}
+.camp-sub strong { color: var(--color-text-primary); font-weight: 500; }
+.camp-sub em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-success);
+}
+.camp-sub .mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+/* ── Audience target résumé ── */
+.audience-summary {
+  margin-top: 24px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.audience-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+.audience-tag-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ── Chart ── */
+.chart-card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+}
+.chart-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 18px;
+}
+.chart-card-head .left .pretitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.chart-card-head .left h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+.chart-tabs {
+  display: flex;
+  gap: 4px;
+}
+.chart-tab {
+  height: 24px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-xs);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.chart-tab:hover { background: var(--color-bg-elevated); color: var(--color-text-primary); }
+.chart-tab.active { background: var(--color-accent); color: var(--color-accent-contrast); }
+
+.chart-area { height: 180px; position: relative; }
+.chart-area svg { width: 100%; height: 100%; display: block; }
+
+.chart-stats {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+.chart-stats .mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+/* ── Creatives gallery ── */
+.creatives-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+.creative-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  color: inherit;
+}
+.creative-card:hover { border-color: var(--color-border-emphasis); transform: translateY(-1px); }
+.creative-thumb {
+  height: 200px;
+  display: grid;
+  place-items: end;
+  padding: 14px;
+}
+.creative-thumb.c1 { background: linear-gradient(180deg, rgba(127,153,109,0.6) 0%, rgba(127,153,109,0.2) 50%, rgba(214,166,74,0.6) 100%); }
+.creative-thumb.c2 { background: linear-gradient(135deg, #1a1a24 0%, #6a9ad6 80%); }
+.creative-thumb.c3 { background: linear-gradient(180deg, #d6a64a 0%, #c98a3c 100%); }
+.creative-thumb.c4 { background: linear-gradient(135deg, #b07a9a 0%, #5a5a6e 100%); }
+.creative-thumb-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+  background: rgba(0,0,0,0.32);
+  padding: 3px 7px;
+  border-radius: 3px;
+}
+.creative-info {
+  padding: 12px 14px;
+  border-top: 1px solid var(--color-border-default);
+  background: var(--color-bg-base);
+}
+.creative-info-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.creative-info-stats {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--color-text-secondary);
+}
+.creative-info-stats .cpl { color: var(--color-success); font-weight: 600; }
+.creative-info-stats .cpl.warn { color: var(--color-warning); }
+
+/* ── Audit log ── */
+.audit {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.audit-row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 18px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 13px;
+  align-items: baseline;
+}
+.audit-row:last-child { border-bottom: none; }
+.audit-time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.audit-text {
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+.audit-text strong { color: var(--color-text-primary); font-weight: 500; }
+.audit-text .mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+.audit-actor {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ── Toile actions ── */
+.toile-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 32px 0;
+  border-top: 1px solid var(--color-border-subtle);
+  margin-top: 56px;
+}
+.toile-actions .btn { height: 36px; padding: 0 18px; font-size: 13px; }
+
+/* ── Two-column for chart + side info ── */
+.camp-chart-row {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+  margin-bottom: 56px;
+}
+@media (max-width: 900px) {
+  .camp-chart-row { grid-template-columns: 1fr; }
+}
+.camp-side-card {
+  padding: 22px 24px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+}
+.camp-side-card h4 {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+.camp-side-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 12px;
+}
+.camp-side-row:last-child { border-bottom: none; }
+.camp-side-row .label { color: var(--color-text-secondary); }
+.camp-side-row .value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="brand-mark" aria-label="Accueil">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="9" r="2.6"/>
+        <path d="M10.4 9 c1.4 -0.2 2.6 0.6 3.4 1.6 c0.6 -0.8 1.6 -1.2 2.6 -1 c1.4 0.3 2.2 1.6 1.9 3 c-0.2 0.9 -0.9 1.6 -1.7 1.9 c0.3 0.9 -0.1 2 -0.9 2.5 c-0.9 0.5 -2.1 0.3 -2.7 -0.5 c-0.6 0.5 -1.5 0.5 -2.1 0 c-0.6 0.7 -1.7 0.8 -2.4 0.2 c-0.7 -0.6 -0.8 -1.6 -0.4 -2.4 c-0.7 -0.4 -1.1 -1.1 -1.1 -1.9 c0 -1.4 1.1 -2.4 2.5 -2.4 z"/>
+        <circle cx="7.4" cy="9" r="0.45" fill="currentColor" stroke="none"/>
+        <path d="M9.5 17.5 v2"/><path d="M14 17.8 v2"/>
+      </svg>
+    </a>
+    <a href="index.html" class="scope">
+      <span class="scope-label">The Sheep</span>
+      <span class="scope-sep">/</span>
+      <span>Boulangerie Martin</span>
+      <span class="scope-sep">/</span>
+      <span style="color: var(--color-text-primary); font-weight: 500;">Galette Janvier</span>
+    </a>
+  </div>
+  <div class="topbar-right">
+    <div class="cmdk">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <span>Rechercher, dicter…</span>
+      <kbd>⌘K</kbd>
+    </div>
+    <div class="avatar" title="Hamza Boukraa">HB</div>
+  </div>
+</header>
+
+<div class="breadcrumb">
+  <a href="index.html" class="breadcrumb-back">← Le flux</a>
+  <a href="#">Boulangerie Martin</a>
+  <span class="breadcrumb-sep">/</span>
+  <a href="#">Campagnes</a>
+  <span class="breadcrumb-sep">/</span>
+  <span class="breadcrumb-current">Galette Janvier</span>
+</div>
+
+<main class="toile">
+
+  <!-- Hero campagne -->
+  <section class="camp-hero">
+    <div class="camp-meta">
+      <span class="pill platform-meta"><span class="pill-dot"></span>META · INSTAGRAM + FEED</span>
+      <span class="pill live"><span class="pill-dot pulse"></span>EN DIFFUSION</span>
+      <span>Lancée le 12 janvier 2026</span>
+      <span style="color: var(--color-text-tertiary);">·</span>
+      <span>Génération de leads</span>
+    </div>
+    <h1 class="camp-title">
+      Galette Janvier — la campagne qui a
+      <em>fait basculer le mois</em>.
+    </h1>
+    <p class="camp-sub">
+      Dépense totale <span class="mono">2&nbsp;086&nbsp;€</span>, <span class="mono">99&nbsp;leads</span> générés
+      à <span class="mono">12,40&nbsp;€</span> par lead. La campagne porte <em>67&nbsp;%</em> des conversions
+      du compte sur la période, principalement grâce au creative <a href="toile-creative.html">#3 vidéo galette</a>
+      et à un retargeting intelligent sur les visiteurs site web non-convertis (J+7).
+    </p>
+
+    <div class="audience-summary">
+      <span class="audience-tag"><span class="audience-tag-label">CIBLE</span>Femmes 25-44</span>
+      <span class="audience-tag"><span class="audience-tag-label">GÉO</span>Paris · Lyon · Toulouse · 30km</span>
+      <span class="audience-tag"><span class="audience-tag-label">INTÉRÊTS</span>Cuisine maison, pâtisserie, marchés locaux</span>
+      <span class="audience-tag"><span class="audience-tag-label">EXCLUSION</span>Convertis &lt; 30j</span>
+      <span class="audience-tag"><span class="audience-tag-label">BUDGET</span>50 € / jour · plafond 2 200 €</span>
+    </div>
+  </section>
+
+  <!-- Stats strip -->
+  <section class="stats">
+    <div class="stat">
+      <span class="stat-label">Dépense</span>
+      <span class="stat-value">2&nbsp;086&nbsp;€<span class="stat-trend up">+5,8&nbsp;%</span></span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Leads</span>
+      <span class="stat-value">99<span class="stat-trend up">+22</span></span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">CPL</span>
+      <span class="stat-value">12,40&nbsp;€<span class="stat-trend up">−8,2&nbsp;%</span></span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">CTR</span>
+      <span class="stat-value">2,3&nbsp;%<span class="stat-trend up">+0,4 pt</span></span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Fréquence</span>
+      <span class="stat-value">2,4</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">ROAS estimé</span>
+      <span class="stat-value">3,1</span>
+    </div>
+  </section>
+
+  <!-- Chart + side -->
+  <section class="camp-chart-row">
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <div class="left">
+          <div class="pretitle">Évolution · Dépense</div>
+          <h3>Dépense quotidienne · 30 derniers jours</h3>
+        </div>
+        <div class="chart-tabs">
+          <button class="chart-tab active">Dépense</button>
+          <button class="chart-tab">Leads</button>
+          <button class="chart-tab">CTR</button>
+          <button class="chart-tab">CPL</button>
+        </div>
+      </div>
+      <div class="chart-area">
+        <svg viewBox="0 0 800 180" preserveAspectRatio="none">
+          <!-- gridlines -->
+          <line x1="0" y1="40" x2="800" y2="40" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4" />
+          <line x1="0" y1="80" x2="800" y2="80" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4" />
+          <line x1="0" y1="120" x2="800" y2="120" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4" />
+          <line x1="0" y1="160" x2="800" y2="160" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2 4" />
+          <!-- area -->
+          <path d="M0,150 L27,148 L53,135 L80,140 L107,118 L133,125 L160,108 L187,115 L213,98 L240,110 L267,90 L293,82 L320,72 L347,64 L373,56 L400,52 L427,48 L453,42 L480,38 L507,32 L533,28 L560,22 L587,30 L613,24 L640,18 L667,12 L693,16 L720,10 L747,8 L773,12 L800,6 L800,180 L0,180 Z"
+                fill="var(--color-accent)" opacity="0.1" />
+          <!-- line -->
+          <path d="M0,150 L27,148 L53,135 L80,140 L107,118 L133,125 L160,108 L187,115 L213,98 L240,110 L267,90 L293,82 L320,72 L347,64 L373,56 L400,52 L427,48 L453,42 L480,38 L507,32 L533,28 L560,22 L587,30 L613,24 L640,18 L667,12 L693,16 L720,10 L747,8 L773,12 L800,6"
+                fill="none" stroke="var(--color-accent)" stroke-width="1.6" />
+          <!-- hover dot -->
+          <circle cx="640" cy="18" r="4" fill="var(--vision-bg)" stroke="var(--color-accent)" stroke-width="1.6" />
+          <line x1="640" y1="0" x2="640" y2="180" stroke="rgba(255,255,255,0.06)" />
+        </svg>
+      </div>
+      <div class="chart-stats">
+        <span>30 jours<span class="mono">2 086 €</span></span>
+        <span>Moy. quotidienne<span class="mono">69,5 €</span></span>
+        <span>Pic<span class="mono">112 € · 27 janv.</span></span>
+      </div>
+    </div>
+
+    <aside class="camp-side-card">
+      <h4>Récap budget</h4>
+      <div class="camp-side-row"><span class="label">Plafond mensuel</span><span class="value">2 200 €</span></div>
+      <div class="camp-side-row"><span class="label">Dépensé</span><span class="value">2 086 €</span></div>
+      <div class="camp-side-row"><span class="label">Reste</span><span class="value" style="color: var(--color-success);">114 €</span></div>
+      <div class="camp-side-row"><span class="label">Tempo</span><span class="value">+12 %</span></div>
+      <div class="camp-side-row"><span class="label">Fin prévue</span><span class="value">31 janv.</span></div>
+      <h4 style="margin-top: 24px;">Pacing · IA</h4>
+      <p style="font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; margin: 0;">
+        À ce rythme, le plafond est atteint <strong style="color: var(--color-text-primary);">1 jour avant la fin</strong>.
+        Marge confortable, pas d'action requise.
+      </p>
+    </aside>
+  </section>
+
+  <!-- Creatives -->
+  <section class="section">
+    <header class="section-head">
+      <h2>Creatives</h2>
+      <span class="section-meta">4 actifs · 2 archivés</span>
+      <a class="section-cta" href="toile-creative.html">Tout voir →</a>
+    </header>
+    <div class="creatives-grid">
+      <a class="creative-card" href="toile-creative.html">
+        <div class="creative-thumb c1"><span class="creative-thumb-tag">STORY 9:16</span></div>
+        <div class="creative-info">
+          <div class="creative-info-title">#3 — Vidéo galette</div>
+          <div class="creative-info-stats">
+            <span>52 leads</span>
+            <span class="cpl">9,80 €</span>
+          </div>
+        </div>
+      </a>
+      <a class="creative-card" href="#">
+        <div class="creative-thumb c2"><span class="creative-thumb-tag">CARROUSEL</span></div>
+        <div class="creative-info">
+          <div class="creative-info-title">#2 — Carrousel produit</div>
+          <div class="creative-info-stats">
+            <span>19 leads</span>
+            <span class="cpl warn">14,20 €</span>
+          </div>
+        </div>
+      </a>
+      <a class="creative-card" href="#">
+        <div class="creative-thumb c3"><span class="creative-thumb-tag">FEED 4:5</span></div>
+        <div class="creative-info">
+          <div class="creative-info-title">#1 — Story brand</div>
+          <div class="creative-info-stats">
+            <span>7 leads</span>
+            <span class="cpl warn">18,40 €</span>
+          </div>
+        </div>
+      </a>
+      <a class="creative-card" href="#">
+        <div class="creative-thumb c4"><span class="creative-thumb-tag">REELS</span></div>
+        <div class="creative-info">
+          <div class="creative-info-title">#4 — Reels recette</div>
+          <div class="creative-info-stats">
+            <span>21 leads</span>
+            <span class="cpl">11,30 €</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Audit log -->
+  <section class="section">
+    <header class="section-head">
+      <h2>Historique des mutations</h2>
+      <span class="section-meta">Audit log · 30 derniers jours</span>
+    </header>
+    <div class="audit">
+      <div class="audit-row">
+        <span class="audit-time">28 avril · 14:30</span>
+        <span class="audit-text">
+          <strong>Creative #3 (Vidéo galette)</strong> mis en ligne suite à génération IA. Brief associé : <em>nostalgie sensorielle</em>.
+        </span>
+        <span class="audit-actor">IA · auto</span>
+      </div>
+      <div class="audit-row">
+        <span class="audit-time">22 avril · 11:42</span>
+        <span class="audit-text">
+          Budget journalier passé de <span class="mono">40&nbsp;€</span> à <span class="mono">50&nbsp;€</span>
+          via le chat (raison : "plus de leads avant fin de mois").
+        </span>
+        <span class="audit-actor">Hamza</span>
+      </div>
+      <div class="audit-row">
+        <span class="audit-time">18 avril · 09:15</span>
+        <span class="audit-text">
+          Audience exclusion ajoutée : <span class="mono">Convertis &lt; 30j</span>. Le retour : −22 % de fréquence sur l'audience principale.
+        </span>
+        <span class="audit-actor">IA · suggestion appliquée</span>
+      </div>
+      <div class="audit-row">
+        <span class="audit-time">12 janvier · 08:00</span>
+        <span class="audit-text">
+          Campagne <strong>créée</strong> via le chat. Objectif : <em>génération de leads</em>. Plafond initial 2 200 € / mois.
+        </span>
+        <span class="audit-actor">Hamza</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Actions -->
+  <section class="toile-actions">
+    <a class="btn btn-apply" href="chat.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Modifier via le chat
+    </a>
+    <button class="btn btn-edit">Dupliquer cette campagne</button>
+    <button class="btn btn-edit">Ajouter un creative</button>
+    <button class="btn btn-edit">Programmer la fin</button>
+    <button class="btn btn-ghost" style="margin-left: auto; color: var(--color-warning);">Pause</button>
+    <button class="btn btn-ghost" style="color: var(--color-danger);">Archiver</button>
+  </section>
+
+</main>
+
+<a class="chat-dock" href="chat.html">
+  <span class="chat-scope">
+    <span class="chat-scope-dot"></span>
+    Scope · Galette Janvier
+  </span>
+  <span class="chat-dock-icon">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </span>
+  <span class="chat-dock-input" style="color: var(--color-text-tertiary);">Demande, ajuste le budget, change l'audience…</span>
+  <kbd>⌘K</kbd>
+</a>
+
+<nav class="surface-nav">
+  <div class="surface-nav-label">Surfaces v2 · Vision</div>
+  <div class="surface-nav-grid">
+    <a class="surface-nav-link" href="index.html"><span class="surface-nav-num">01</span> Le flux</a>
+    <a class="surface-nav-link" href="chat.html"><span class="surface-nav-num">02</span> Toile chat</a>
+    <a class="surface-nav-link active" href="toile-campagne.html"><span class="surface-nav-num">03</span> Toile campagne</a>
+    <a class="surface-nav-link" href="toile-creative.html"><span class="surface-nav-num">04</span> Toile creative</a>
+    <a class="surface-nav-link" href="toile-lead.html"><span class="surface-nav-num">05</span> Toile lead</a>
+  </div>
+</nav>
+
+</body>
+</html>
