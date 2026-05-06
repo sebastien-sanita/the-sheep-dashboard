@@ -91,39 +91,39 @@ export function ComparisonChart({ block }: ComparisonChartProps) {
           <CartesianGrid
             horizontal
             vertical={false}
-            strokeDasharray="3 3"
-            stroke="#334155"
+            strokeDasharray="2 4"
+            stroke="rgba(255,255,255,0.06)"
           />
           <XAxis
             dataKey="metric"
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
-            axisLine={{ stroke: "#334155" }}
+            tick={{ fill: "#5a5a6e", fontSize: 11, fontFamily: "var(--font-mono)" }}
+            axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            tick={{ fill: "#5a5a6e", fontSize: 11, fontFamily: "var(--font-mono)" }}
             axisLine={false}
             tickLine={false}
             width={60}
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ fill: "rgba(148, 163, 184, 0.05)" }}
+            cursor={{ fill: "rgba(255, 255, 255, 0.04)" }}
           />
           <Legend
-            wrapperStyle={{ fontSize: 12, color: "#94a3b8" }}
+            wrapperStyle={{ fontSize: 11, color: "#8b8b9e" }}
           />
           <Bar
             dataKey="previous"
             name="Precedent"
-            fill="#475569"
+            fill="rgba(255,255,255,0.08)"
             radius={[4, 4, 0, 0]}
           />
           <Bar dataKey="current" name="Actuel" radius={[4, 4, 0, 0]}>
             {data.map((row) => (
               <Cell
                 key={row.metric}
-                fill={row.variation >= 0 ? "#818cf8" : "#fb7185"}
+                fill={row.variation >= 0 ? "#7f996d" : "#d96a6a"}
               />
             ))}
           </Bar>

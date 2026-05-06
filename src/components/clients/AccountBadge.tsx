@@ -10,7 +10,7 @@ const PLATFORM_CONFIG: Record<string, { bg: string; text: string; label: string 
   INSTAGRAM_ADS: { bg: "var(--color-instagram-muted)", text: "var(--color-instagram)", label: "Instagram Ads" },
   GOOGLE: { bg: "var(--color-google-muted)", text: "var(--color-google)", label: "Google Ads" },
   GOOGLE_ADS: { bg: "var(--color-google-muted)", text: "var(--color-google)", label: "Google Ads" },
-  GOOGLE_ANALYTICS: { bg: "rgba(251,191,36,0.12)", text: "#fbbf24", label: "Analytics" },
+  GOOGLE_ANALYTICS: { bg: "var(--color-warning-muted)", text: "var(--color-warning)", label: "Analytics" },
   LINKEDIN: { bg: "var(--color-linkedin-muted)", text: "var(--color-linkedin)", label: "LinkedIn" },
   LINKEDIN_ADS: { bg: "var(--color-linkedin-muted)", text: "var(--color-linkedin)", label: "LinkedIn Ads" },
   TIKTOK: { bg: "var(--color-tiktok-muted)", text: "var(--color-tiktok)", label: "TikTok" },

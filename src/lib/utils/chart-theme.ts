@@ -1,5 +1,9 @@
+// Chart series palette aligned with Calm Precision v2 tokens.
+// Recharts cannot resolve var(--token) in props, so we hardcode hex
+// matching the CSS vars. Order: accent, success, warning, info, danger,
+// teal, amber-strong, soft-violet, moss-hover, soft-pink.
 export const chartColors = {
-  series: ["#6366f1", "#34d399", "#fbbf24", "#f43f5e", "#60a5fa", "#a78bfa", "#f97316", "#ec4899"],
+  series: ["#7f996d", "#5cb88e", "#d6a64a", "#6a9ad6", "#d96a6a", "#3d8585", "#c98a3c", "#a89bd2", "#94ad84", "#b07a9a"],
   platforms: {
     meta: "#1877F2",
     google: "#EA4335",

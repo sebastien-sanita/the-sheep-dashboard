@@ -332,7 +332,7 @@ export function generateDashboardBlocks(toolCalls: RawToolCall[]): DashboardBloc
       type: "bar_chart",
       title: "Comparaison des dépenses",
       xAxisKey: "name",
-      series: [{ key: "spend", label: "Dépense (€)", color: "#818cf8" }],
+      series: [{ key: "spend", label: "Dépense (€)", color: "#7f996d" }],
       data: metricsEntries.map((e) => ({ name: e.name.length > 15 ? e.name.slice(0, 15) + "…" : e.name, spend: e.spend })),
     });
   }

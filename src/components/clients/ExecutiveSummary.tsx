@@ -45,25 +45,28 @@ function detect(c: Campaign): CategoryKey {
 // Visuals
 // ---------------------------------------------------------------------------
 
+// Calm Precision palette : couleurs posées, désaturées, alignées sur les tokens v2.
+// Recharts ne résout pas var(--token), donc hex direct ; les classes Tailwind
+// border/text utilisent les paliers recalibrés (success-400, warning-400, danger-400, info, etc.).
 const VIS: Record<CategoryKey, { icon: typeof Target; label: string; color: string; border: string; text: string; labelColor: string }> = {
-  leads: { icon: Target, label: "Génération de leads", color: "#34d399", border: "border-l-emerald-500", text: "text-emerald-400", labelColor: "text-emerald-500/70" },
-  traffic: { icon: MousePointerClick, label: "Trafic", color: "#60a5fa", border: "border-l-blue-500", text: "text-blue-400", labelColor: "text-blue-500/70" },
-  awareness: { icon: Eye, label: "Notoriété", color: "#a78bfa", border: "border-l-purple-500", text: "text-purple-400", labelColor: "text-purple-500/70" },
-  engagement: { icon: Heart, label: "Engagement", color: "#fbbf24", border: "border-l-amber-500", text: "text-amber-400", labelColor: "text-amber-500/70" },
-  video: { icon: Play, label: "Vidéo", color: "#22d3ee", border: "border-l-cyan-500", text: "text-cyan-400", labelColor: "text-cyan-500/70" },
-  sales: { icon: ShoppingCart, label: "Ventes", color: "#fb7185", border: "border-l-rose-500", text: "text-rose-400", labelColor: "text-rose-500/70" },
-  messages: { icon: MessageCircle, label: "Messages", color: "#22d3ee", border: "border-l-cyan-500", text: "text-cyan-400", labelColor: "text-cyan-500/70" },
-  other: { icon: Wallet, label: "Autre", color: "#94a3b8", border: "border-l-slate-500", text: "text-[var(--color-text-secondary)]", labelColor: "text-[var(--color-text-primary)]0/70" },
+  leads:      { icon: Target,             label: "Génération de leads", color: "#5cb88e", border: "border-l-success-400",  text: "text-success-400",  labelColor: "text-success-400/70" },
+  traffic:    { icon: MousePointerClick,  label: "Trafic",              color: "#6a9ad6", border: "border-l-[#6a9ad6]",    text: "text-[#6a9ad6]",    labelColor: "text-[#6a9ad6]/70" },
+  awareness:  { icon: Eye,                label: "Notoriété",           color: "#a89bd2", border: "border-l-[#a89bd2]",    text: "text-[#a89bd2]",    labelColor: "text-[#a89bd2]/70" },
+  engagement: { icon: Heart,              label: "Engagement",          color: "#d6a64a", border: "border-l-warning-400",  text: "text-warning-400",  labelColor: "text-warning-400/70" },
+  video:      { icon: Play,               label: "Vidéo",               color: "#3d8585", border: "border-l-[#3d8585]",    text: "text-[#3d8585]",    labelColor: "text-[#3d8585]/70" },
+  sales:      { icon: ShoppingCart,       label: "Ventes",              color: "#d96a6a", border: "border-l-danger-400",   text: "text-danger-400",   labelColor: "text-danger-400/70" },
+  messages:   { icon: MessageCircle,      label: "Messages",            color: "#3d8585", border: "border-l-[#3d8585]",    text: "text-[#3d8585]",    labelColor: "text-[#3d8585]/70" },
+  other:      { icon: Wallet,             label: "Autre",               color: "#5a5a6e", border: "border-l-slate-500",    text: "text-[var(--color-text-secondary)]", labelColor: "text-[var(--color-text-primary)]0/70" },
 };
-const DONUT_COLORS = ["#818cf8", "#34d399", "#fbbf24", "#60a5fa", "#fb7185", "#a78bfa"];
+const DONUT_COLORS = ["#7f996d", "#5cb88e", "#d6a64a", "#6a9ad6", "#d96a6a", "#a89bd2"];
 
 // ---------------------------------------------------------------------------
 // Recharts styles
 // ---------------------------------------------------------------------------
 
-const GRID_PROPS = { strokeDasharray: "3 3", stroke: "#334155", strokeOpacity: 0.5 };
-const AX_TICK = { fontSize: 10, fill: "#94a3b8" };
-const TT_STYLE = { backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 8 };
+const GRID_PROPS = { strokeDasharray: "2 4", stroke: "rgba(255,255,255,0.06)" };
+const AX_TICK = { fontSize: 10, fill: "#5a5a6e", fontFamily: "var(--font-mono)" };
+const TT_STYLE = { backgroundColor: "#1a1a24", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8 };
 function Tt({ active, payload, label, fmt }: { active?: boolean; payload?: Array<{ value: number }>; label?: string; fmt: (v: number) => string }) {
   if (!active || !payload?.length) return null;
   return <div style={TT_STYLE} className="px-2 py-1 shadow-xl"><p className="text-[10px] text-[var(--color-text-secondary)]">{label}</p><p className="text-[12px] font-semibold text-[var(--color-text-primary)]">{fmt(payload[0].value)}</p></div>;
@@ -142,7 +145,7 @@ function CompactBlock({ obj, totalSpend, onClick }: { obj: ObjData; totalSpend: 
         <div className="ml-auto relative w-10 h-10 shrink-0">
           <PieChart width={40} height={40}>
             <Pie data={[{ value: obj.spend }, { value: Math.max(0, totalSpend - obj.spend) }]} cx={20} cy={20} innerRadius={12} outerRadius={18} dataKey="value" stroke="none" startAngle={90} endAngle={-270}>
-              <Cell fill={v.color} /><Cell fill="#1e293b" />
+              <Cell fill={v.color} /><Cell fill="#1a1a24" />
             </Pie>
             <text x={20} y={20} textAnchor="middle" dominantBaseline="central" fill="white" fontSize={9} fontWeight={600}>{Math.round(obj.pct)}%</text>
           </PieChart>

@@ -52,24 +52,29 @@ interface ChartMetricDef {
 }
 
 const CHART_METRICS: ChartMetricDef[] = [
-  { key: "spend", label: "Dépenses", title: "Dépenses globales", color: "#818cf8", format: formatCurrency, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k€` : `${Math.round(v)}€`, aggregate: "sum", totalLabel: "Total" },
-  { key: "impressions", label: "Impressions", title: "Impressions globales", color: "#60a5fa", format: formatCompact, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k` : String(Math.round(v)), aggregate: "sum", totalLabel: "Total" },
-  { key: "clicks", label: "Clics", title: "Clics globaux", color: "#34d399", format: formatCompact, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(Math.round(v)), aggregate: "sum", totalLabel: "Total" },
-  { key: "ctr", label: "CTR", title: "CTR global", color: "#fbbf24", format: (v) => formatPercent(v, 2), yFormat: (v) => `${v.toFixed(1)}%`, aggregate: "ratio", totalLabel: "Moyenne" },
-  { key: "cpc", label: "CPC", title: "CPC global", color: "#fb7185", format: formatCurrency, yFormat: (v) => `${v.toFixed(2)}€`, aggregate: "ratio", totalLabel: "Moyenne" },
-  { key: "cpm", label: "CPM", title: "CPM global", color: "#a78bfa", format: formatCurrency, yFormat: (v) => `${v.toFixed(1)}€`, aggregate: "ratio", totalLabel: "Moyenne" },
+  { key: "spend", label: "Dépenses", title: "Dépenses globales", color: "#7f996d", format: formatCurrency, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k€` : `${Math.round(v)}€`, aggregate: "sum", totalLabel: "Total" },
+  { key: "impressions", label: "Impressions", title: "Impressions globales", color: "#6a9ad6", format: formatCompact, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(v >= 10000 ? 0 : 1)}k` : String(Math.round(v)), aggregate: "sum", totalLabel: "Total" },
+  { key: "clicks", label: "Clics", title: "Clics globaux", color: "#5cb88e", format: formatCompact, yFormat: (v) => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : String(Math.round(v)), aggregate: "sum", totalLabel: "Total" },
+  { key: "ctr", label: "CTR", title: "CTR global", color: "#d6a64a", format: (v) => formatPercent(v, 2), yFormat: (v) => `${v.toFixed(1)}%`, aggregate: "ratio", totalLabel: "Moyenne" },
+  { key: "cpc", label: "CPC", title: "CPC global", color: "#d96a6a", format: formatCurrency, yFormat: (v) => `${v.toFixed(2)}€`, aggregate: "ratio", totalLabel: "Moyenne" },
+  { key: "cpm", label: "CPM", title: "CPM global", color: "#a89bd2", format: formatCurrency, yFormat: (v) => `${v.toFixed(1)}€`, aggregate: "ratio", totalLabel: "Moyenne" },
 ];
 
+// Active tab pill colors — match each metric's chart series color (Calm Precision palette).
 const PILL_ACTIVE: Record<ChartMetricKey, string> = {
-  spend: "bg-indigo-500 text-white", impressions: "bg-blue-500 text-white", clicks: "bg-emerald-500 text-white",
-  ctr: "bg-amber-500 text-white", cpc: "bg-rose-500 text-white", cpm: "bg-purple-500 text-white",
+  spend:       "bg-[#7f996d] text-white",
+  impressions: "bg-[#6a9ad6] text-white",
+  clicks:      "bg-[#5cb88e] text-white",
+  ctr:         "bg-[#d6a64a] text-white",
+  cpc:         "bg-[#d96a6a] text-white",
+  cpm:         "bg-[#a89bd2] text-white",
 };
 
 // ---------------------------------------------------------------------------
 // Donut colors
 // ---------------------------------------------------------------------------
 
-const DONUT_COLORS = ["#818cf8", "#34d399", "#fbbf24", "#60a5fa", "#fb7185", "#a78bfa", "#2dd4bf", "#22d3ee", "#f97316", "#f472b6"];
+const DONUT_COLORS = ["#7f996d", "#5cb88e", "#d6a64a", "#6a9ad6", "#d96a6a", "#a89bd2", "#3d8585", "#c98a3c", "#94ad84", "#b07a9a"];
 
 const PLATFORM_COLORS: Record<string, string> = {
   META: "#1877F2", META_ADS: "#1877F2", FACEBOOK: "#1877F2", FACEBOOK_PAGE: "#1877F2",
@@ -402,9 +407,9 @@ export default function DashboardPage() {
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 0, left: -10 }}>
                         <defs><linearGradient id={`dash_${activeChartDef.key}`} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={activeChartDef.color} stopOpacity={0.2} /><stop offset="95%" stopColor={activeChartDef.color} stopOpacity={0} /></linearGradient></defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" strokeOpacity={0.5} />
-                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={{ stroke: "#334155" }} tickLine={false} />
-                        <YAxis domain={[0, "auto"]} tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} tickFormatter={activeChartDef.yFormat} />
+                        <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.06)" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#5a5a6e", fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} />
+                        <YAxis domain={[0, "auto"]} tick={{ fontSize: 11, fill: "#5a5a6e", fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} tickFormatter={activeChartDef.yFormat} />
                         <Tooltip content={({ active, payload, label }) => active && payload?.length ? <div className="rounded-lg border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] px-3 py-2 shadow-xl"><p className="text-[11px] text-[var(--color-text-secondary)]">{label}</p><p className="text-[14px] font-semibold text-[var(--color-text-primary)]">{activeChartDef.format(payload[0].value as number)}</p></div> : null} />
                         <Area type="monotone" dataKey={chartMetric} stroke={activeChartDef.color} strokeWidth={2} fill={`url(#dash_${activeChartDef.key})`} animationDuration={500} />
                       </AreaChart>
