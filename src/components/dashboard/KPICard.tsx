@@ -18,9 +18,9 @@ const TREND_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 function TrendIcon({ direction }: { direction?: string }) {
-  if (direction === "up") return <TrendingUp size={13} />;
-  if (direction === "down") return <TrendingDown size={13} />;
-  return <Minus size={13} />;
+  if (direction === "up") return <TrendingUp size={12} strokeWidth={2.2} />;
+  if (direction === "down") return <TrendingDown size={12} strokeWidth={2.2} />;
+  return <Minus size={12} strokeWidth={2.2} />;
 }
 
 export function KPICard({ item }: { item: KPIItem }) {
@@ -47,8 +47,8 @@ export function KPICard({ item }: { item: KPIItem }) {
       <div className="text-metric-lg" style={{ color: "var(--color-text-primary)" }}>{item.value}</div>
 
       {item.trend && (
-        <div className="mt-2.5 flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1" style={{ padding: "2px 7px", borderRadius: "var(--radius-xs)", background: trend.bg, color: trend.text, fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 600 }}>
+        <div className="flex items-center" style={{ marginTop: 10, gap: 8 }}>
+          <span className="inline-flex items-center" style={{ gap: 4, padding: "2px 7px", borderRadius: "var(--radius-xs)", background: trend.bg, color: trend.text, fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600 }}>
             <TrendIcon direction={item.trendDirection} />
             {item.trend}
           </span>
