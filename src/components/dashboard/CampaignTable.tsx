@@ -10,11 +10,12 @@ interface CampaignTableProps {
   block: TableBlock;
 }
 
-const STATUS_BADGES: Record<string, string> = {
-  ACTIVE: "bg-emerald-500/10 text-emerald-400",
-  PAUSED: "bg-amber-500/10 text-amber-400",
-  DELETED: "bg-slate-500/10 text-[var(--color-text-secondary)]",
-  ARCHIVED: "bg-slate-500/10 text-[var(--color-text-secondary)]",
+// Status badges aligned with Calm Precision tokens (success / warning / muted).
+const STATUS_BADGES: Record<string, { bg: string; text: string }> = {
+  ACTIVE:   { bg: "var(--color-success-muted)", text: "var(--color-success)" },
+  PAUSED:   { bg: "var(--color-warning-muted)", text: "var(--color-warning)" },
+  DELETED:  { bg: "var(--color-danger-muted)",  text: "var(--color-danger)" },
+  ARCHIVED: { bg: "var(--color-bg-elevated)",   text: "var(--color-text-secondary)" },
 };
 
 function formatCell(value: unknown, format?: ColumnFormat): React.ReactNode {
@@ -22,13 +23,9 @@ function formatCell(value: unknown, format?: ColumnFormat): React.ReactNode {
 
   // Status badge detection
   if (typeof value === "string" && STATUS_BADGES[value]) {
+    const s = STATUS_BADGES[value];
     return (
-      <span
-        className={cn(
-          "inline-block rounded-full px-2 py-0.5 text-[11px] font-medium",
-          STATUS_BADGES[value],
-        )}
-      >
+      <span style={{ display: "inline-block", padding: "2px 7px", borderRadius: 999, fontSize: 10, fontWeight: 500, background: s.bg, color: s.text }}>
         {value}
       </span>
     );
@@ -47,6 +44,9 @@ function formatCell(value: unknown, format?: ColumnFormat): React.ReactNode {
       return String(value);
   }
 }
+
+// Numeric formats are right-aligned + JetBrains Mono per DS rule.
+const isNumeric = (f?: ColumnFormat) => f === "currency" || f === "percent" || f === "number";
 
 export function CampaignTable({ block }: CampaignTableProps) {
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -80,48 +80,72 @@ export function CampaignTable({ block }: CampaignTableProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-surface)]">
       {block.title && (
-        <h3 className="p-4 pb-0 text-[13px] font-medium text-[var(--color-text-secondary)]">
-          {block.title}
-        </h3>
+        <div className="flex items-center justify-between" style={{ padding: "10px 16px", borderBottom: "1px solid var(--color-border-default)" }}>
+          <div className="flex items-center" style={{ gap: 10 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)" }}>{block.title}</span>
+            <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--color-text-muted)" }}>· {sortedRows.length} résultats</span>
+          </div>
+        </div>
       )}
       <div className={manyRows ? "max-h-[400px] overflow-y-auto" : ""}>
-        <table className="w-full text-[13px]">
-          <thead className="sticky top-0 bg-[var(--color-bg-subtle)]/80 backdrop-blur-sm">
+        <table className="w-full" style={{ fontSize: 12, borderCollapse: "collapse" }}>
+          <thead className="sticky top-0" style={{ background: "rgba(13,13,20,0.85)", backdropFilter: "blur(4px)" }}>
             <tr>
-              {block.columns.map((col) => (
-                <th
-                  key={col.key}
-                  onClick={() => handleSort(col.key)}
-                  className={cn(
-                    "px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)]",
-                    block.sortable && "cursor-pointer select-none hover:text-[var(--color-text-primary)]",
-                  )}
-                >
-                  <span className="inline-flex items-center gap-1">
-                    {col.label}
-                    {block.sortable && sortKey === col.key && (
-                      sortDir === "asc" ? (
-                        <ChevronUp size={12} />
-                      ) : (
-                        <ChevronDown size={12} />
-                      )
-                    )}
-                  </span>
-                </th>
-              ))}
+              {block.columns.map((col) => {
+                const numeric = isNumeric(col.format);
+                return (
+                  <th
+                    key={col.key}
+                    onClick={() => handleSort(col.key)}
+                    style={{
+                      padding: "9px 14px",
+                      textAlign: numeric ? "right" : "left",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 10,
+                      fontWeight: 600,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: "var(--color-text-muted)",
+                      borderBottom: "1px solid var(--color-border-default)",
+                      cursor: block.sortable ? "pointer" : "default",
+                      userSelect: "none",
+                    }}
+                  >
+                    <span className="inline-flex items-center" style={{ gap: 4, justifyContent: numeric ? "flex-end" : "flex-start", width: "100%" }}>
+                      {col.label}
+                      {block.sortable && sortKey === col.key && (
+                        sortDir === "asc" ? <ChevronUp size={11} /> : <ChevronDown size={11} />
+                      )}
+                    </span>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
             {sortedRows.map((row, i) => (
               <tr
                 key={i}
-                className="border-t border-[var(--color-border-subtle)] transition-colors hover:bg-[var(--color-bg-elevated)]"
+                className="transition-colors hover:bg-[var(--color-bg-elevated)]"
+                style={{ borderTop: "1px solid var(--color-border-subtle)" }}
               >
-                {block.columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3 text-[var(--color-text-primary)]">
-                    {formatCell(row[col.key], col.format)}
-                  </td>
-                ))}
+                {block.columns.map((col) => {
+                  const numeric = isNumeric(col.format);
+                  return (
+                    <td
+                      key={col.key}
+                      style={{
+                        padding: "10px 14px",
+                        textAlign: numeric ? "right" : "left",
+                        fontFamily: numeric ? "var(--font-mono)" : undefined,
+                        fontVariantNumeric: numeric ? "tabular-nums" : undefined,
+                        color: "var(--color-text-primary)",
+                      }}
+                    >
+                      {formatCell(row[col.key], col.format)}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
