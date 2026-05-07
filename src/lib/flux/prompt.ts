@@ -100,9 +100,10 @@ export const FLUX_OUTPUT_SCHEMA = {
   additionalProperties: false,
   properties: {
     cards: {
+      // Note : Anthropic structured outputs n'accepte pas minItems > 1 ou
+      // maxItems sur les arrays. La contrainte "3 à 5 cards" est imposée
+      // par le system prompt à la place.
       type: "array",
-      minItems: 2,
-      maxItems: 5,
       items: {
         oneOf: [
           {
