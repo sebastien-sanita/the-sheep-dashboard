@@ -105,7 +105,10 @@ export const FLUX_OUTPUT_SCHEMA = {
       // par le system prompt à la place.
       type: "array",
       items: {
-        oneOf: [
+        // Anthropic structured outputs accepte anyOf mais pas oneOf
+        // (un mot près, sémantique identique pour des unions discriminées
+        // par un champ "type": "narrative"|"mutation").
+        anyOf: [
           {
             type: "object",
             required: ["type", "tone", "caption", "headline_html", "body_html"],
