@@ -100,6 +100,11 @@
   /* ── Typography ── */
   --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  /* Newsreader italic — emphases éditoriales (titres de cards de flux,
+     intros de toile, citations IA). Variable injectée par next/font
+     dans <html className={newsreader.variable}>. Fallbacks chainés
+     dans les composants via font-family: var(--font-serif), 'Iowan…',
+     serif. Jamais dans les KPI, jamais dans les UI controls. */
 
   /* ── Type scale (px, base 13) ── */
   --text-display:   32px;
