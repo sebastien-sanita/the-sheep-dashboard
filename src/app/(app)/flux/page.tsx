@@ -3,8 +3,10 @@
 import { useMemo } from "react";
 import { useWorkspaces } from "@/lib/hooks/useWorkspace";
 import { useAuthStore } from "@/lib/stores/auth-store";
+import { useFluxCards } from "@/lib/hooks/useFluxCards";
 import { FluxCard, FluxMutationCard } from "@/components/flux/FluxCard";
 import { FluxChatDock } from "@/components/flux/FluxChatDock";
+import type { FluxCardData } from "@/lib/flux/types";
 
 /**
  * Page /flux — la home v2 conversation-led.
@@ -42,6 +44,7 @@ const numberFormatter = new Intl.NumberFormat("fr-FR");
 export default function FluxPage() {
   const user = useAuthStore((s) => s.user);
   const { data: workspaces } = useWorkspaces();
+  const fluxCards = useFluxCards(workspaces);
 
   const stats = useMemo(() => {
     if (!workspaces?.length) {
@@ -205,98 +208,17 @@ export default function FluxPage() {
           />
         </section>
 
-        {/* ── Section : à traiter ── */}
-        <section style={{ marginBottom: 88 }}>
-          <SectionHead title="À traiter" meta="2 actions en attente" />
-
-          <FluxMutationCard
-            caption="Alerte · Fréquence · Pizzeria Roma"
-            delta="SATURATION 4,2 / 4,5"
-            headlineHtml={
-              `<em style="font-family: var(--font-serif), 'Iowan Old Style', serif; font-style: italic; font-weight: 400; color: var(--color-warning);">Pizzeria Roma — Promo Été</em> approche le seuil de saturation publicitaire.`
-            }
-            bodyHtml={
-              `La même audience a vu cette campagne <span style="font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--color-text-primary);">4,2&nbsp;fois</span> en moyenne sur les 7 derniers jours, contre un seuil critique fixé à <span style="font-family: var(--font-mono); color: var(--color-text-primary);">4,5</span>. Continuer dépense <span style="font-family: var(--font-mono); color: var(--color-text-primary);">~287&nbsp;€</span> dans les prochaines 24h sans gain marginal probable. L'IA suggère une <strong style="color: var(--color-text-primary); font-weight: 500;">pause immédiate</strong>, à reprendre quand la fréquence redescendra sous 3,5 (estimation : 4 jours).`
-            }
-            mutationLabel="Mutation MCP · Meta Ads · pause_campaign"
-            mutationDetailHtml={
-              `pause(<span style="color: var(--color-warning);">campaign_id: 23847391</span>)`
-            }
-            saving="+ 287 € économisés"
-            effect="· effet immédiat · réversible"
-            mcpReady={false}
+        {/* ── Sections IA : "À traiter" + "Cette semaine" ── */}
+        {fluxCards.isLoading ? (
+          <FluxLoadingPlaceholders />
+        ) : fluxCards.isError ? (
+          <FluxErrorBanner
+            message={fluxCards.error?.message ?? "Erreur inconnue"}
+            onRetry={() => fluxCards.refetch()}
           />
-
-          <FluxCard
-            caption="Suggestion · Concept Store Élise"
-            delta="BUDGET J-7 · 80 %"
-            deltaTone="success"
-            headlineHtml={
-              `<em style="font-family: var(--font-serif), 'Iowan Old Style', serif; font-style: italic; font-weight: 400; color: var(--color-accent-hover);">Concept Store Élise</em> a consommé 80 % de son budget mensuel à 7 jours de la fin.`
-            }
-            bodyHtml={
-              `Sur la dernière semaine, le tempo de dépense s'est accéléré (<span style="font-family: var(--font-mono); color: var(--color-text-primary);">+34&nbsp;%</span> vs début de mois) sans gain proportionnel sur les conversions. Tu peux soit <a href="#" style="color: var(--color-accent-hover); text-decoration: underline; text-decoration-color: var(--color-accent-muted); text-underline-offset: 3px;">réduire le budget journalier de 25&nbsp;%</a>, soit <a href="#" style="color: var(--color-accent-hover); text-decoration: underline; text-decoration-color: var(--color-accent-muted); text-underline-offset: 3px;">augmenter le plafond mensuel de 200&nbsp;€</a> si la fin de mois reste prioritaire.`
-            }
-          />
-        </section>
-
-        {/* ── Section : cette semaine ── */}
-        <section style={{ marginBottom: 88 }}>
-          <SectionHead title="Cette semaine" meta="29 avril → 5 mai · curation IA" />
-
-          <FluxCard
-            caption="CPL global · 47 clients"
-            delta="−8,2 %"
-            deltaTone="success"
-            headlineHtml={
-              `Le CPL moyen a <em style="font-family: var(--font-serif), 'Iowan Old Style', serif; font-style: italic; font-weight: 400; color: var(--color-success);">baissé de 8,2&nbsp;%</em>, principalement grâce à <em style="font-family: var(--font-serif), 'Iowan Old Style', serif; font-style: italic; font-weight: 400; color: var(--color-accent-hover);">Boulangerie Martin</em>.`
-            }
-            bodyHtml={
-              `<strong style="color: var(--color-text-primary); font-weight: 500;">Boulangerie Martin</strong> a généré <span style="font-family: var(--font-mono); color: var(--color-text-primary);">12&nbsp;leads</span> pour <span style="font-family: var(--font-mono); color: var(--color-text-primary);">11,40&nbsp;€</span> en moyenne, contre <span style="font-family: var(--font-mono); color: var(--color-text-primary);">14,80&nbsp;€</span> la semaine précédente. Le creative <span style="font-family: var(--font-mono); color: var(--color-text-primary);">#3</span> (vidéo galette) sur-performe : <span style="font-family: var(--font-mono); color: var(--color-text-primary);">2,7&nbsp;%</span> de CTR contre <span style="font-family: var(--font-mono); color: var(--color-text-primary);">1,9&nbsp;%</span> pour le pool moyen. L'effet est isolé : les autres clients restent stables.`
-            }
-            sparkline={
-              <svg viewBox="0 0 320 28" preserveAspectRatio="none" style={{ height: 28, display: "block", width: "100%" }}>
-                <path
-                  d="M0,18 L20,16 L40,17 L60,14 L80,15 L100,12 L120,13 L140,10 L160,11 L180,8 L200,9 L220,7 L240,5 L260,6 L280,4 L300,3 L320,2"
-                  fill="none"
-                  stroke="var(--color-accent)"
-                  strokeWidth="1.4"
-                />
-                <path
-                  d="M0,18 L20,16 L40,17 L60,14 L80,15 L100,12 L120,13 L140,10 L160,11 L180,8 L200,9 L220,7 L240,5 L260,6 L280,4 L300,3 L320,2 L320,28 L0,28 Z"
-                  fill="var(--color-accent)"
-                  opacity="0.08"
-                />
-              </svg>
-            }
-            href="/dashboard"
-            hrefLabel="Ouvrir la toile campagne →"
-          />
-
-          <FluxCard
-            caption="Nouveaux leads · 7 derniers jours"
-            delta="+22 %"
-            deltaTone="success"
-            headlineHtml={
-              `<em style="font-family: var(--font-serif), 'Iowan Old Style', serif; font-style: italic; font-weight: 400; color: var(--color-success);">22 leads</em> nouveaux cette semaine, dont <em style="font-family: var(--font-serif), 'Iowan Old Style', serif; font-style: italic; font-weight: 400; color: var(--color-accent-hover);">14 sur Boulangerie Martin</em>.`
-            }
-            bodyHtml={
-              `La part Meta Ads atteint <span style="font-family: var(--font-mono); color: var(--color-text-primary);">73&nbsp;%</span> cette semaine, en hausse de <span style="font-family: var(--font-mono); color: var(--color-text-primary);">12&nbsp;points</span> vs la moyenne 30j. Google Ads continue de baisser (<span style="font-family: var(--font-mono); color: var(--color-text-primary);">8&nbsp;leads</span> contre <span style="font-family: var(--font-mono); color: var(--color-text-primary);">18</span> la semaine dernière) mais à un coût stable, ce qui n'inquiète pas. <a href="#" style="color: var(--color-accent-hover); text-decoration: underline; text-decoration-color: var(--color-accent-muted); text-underline-offset: 3px;">Voir la répartition par plateforme →</a>`
-            }
-            sparkline={
-              <svg viewBox="0 0 320 28" preserveAspectRatio="none" style={{ height: 28, display: "block", width: "100%" }}>
-                <path
-                  d="M0,22 L20,20 L40,21 L60,18 L80,16 L100,17 L120,14 L140,15 L160,12 L180,10 L200,11 L220,8 L240,9 L260,6 L280,5 L300,4 L320,3"
-                  fill="none"
-                  stroke="var(--color-info)"
-                  strokeWidth="1.4"
-                />
-              </svg>
-            }
-            href="/clients"
-            hrefLabel="Voir les 22 leads →"
-          />
-        </section>
+        ) : fluxCards.data?.cards?.length ? (
+          <FluxIaSections cards={fluxCards.data.cards} />
+        ) : null}
 
         {/* ── Section : récemment ── */}
         <section style={{ marginBottom: 88 }}>
@@ -327,21 +249,33 @@ export default function FluxPage() {
               marginBottom: 6,
             }}
           >
-            Première implémentation · état v0.1
+            État v0.2 · IA branchée, MCP en cours
           </div>
-          Les KPIs au-dessus (
-          <span style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-secondary)" }}>
-            dépense, leads, CPL, CTR
-          </span>
-          ) sont agrégés depuis tes données réelles. Les{" "}
-          <span style={{ color: "var(--color-text-secondary)" }}>cards narratives</span> et la{" "}
-          <span style={{ color: "var(--color-text-secondary)" }}>timeline</span> sont mockées en
-          attendant que le backend Claude génère les insights ; les boutons{" "}
+          Les KPIs et les{" "}
+          <span style={{ color: "var(--color-text-secondary)" }}>cards éditoriales</span>{" "}
+          (« À traiter », « Cette semaine ») sont générés en live à partir de tes vraies données 30j
+          {fluxCards.data && (
+            <>
+              {" "}par{" "}
+              <span style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-secondary)" }}>
+                {fluxCards.data.model}
+              </span>
+              {" · "}
+              <span style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-tertiary)" }}>
+                {fluxCards.data.usage.input_tokens}↓ / {fluxCards.data.usage.output_tokens}↑ tokens
+                {fluxCards.data.usage.cache_read_input_tokens
+                  ? `, ${fluxCards.data.usage.cache_read_input_tokens} cached`
+                  : ""}
+              </span>
+            </>
+          )}
+          . La <span style={{ color: "var(--color-text-secondary)" }}>timeline</span>{" "}
+          « Récemment » reste mockée tant que l'audit log API n'existe pas. Les boutons{" "}
           <span style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-secondary)" }}>
             Apply
           </span>{" "}
-          des mutations sont désactivés tant que les MCP servers (meta-ads, google-ads, …) ne
-          sont pas wirés. Pas d'effet réel pour l'instant.
+          des mutations sont désactivés tant que les MCP servers (meta-ads, google-ads, …) ne sont
+          pas wirés.
         </aside>
       </main>
 
@@ -388,6 +322,193 @@ function SectionHead({ title, meta }: { title: string; meta?: string }) {
         </span>
       )}
     </header>
+  );
+}
+
+/* ============================================================
+   IA-driven sections — loading, error, success
+   ============================================================ */
+
+function FluxIaSections({ cards }: { cards: FluxCardData[] }) {
+  // Split par tone : alert/mutation → "À traiter", insight/suggestion → "Cette semaine"
+  const traiter = cards.filter(
+    (c) => c.type === "mutation" || (c.type === "narrative" && c.tone === "alert"),
+  );
+  const semaine = cards.filter(
+    (c) => c.type === "narrative" && (c.tone === "insight" || c.tone === "suggestion"),
+  );
+
+  return (
+    <>
+      {traiter.length > 0 && (
+        <section style={{ marginBottom: 88 }}>
+          <SectionHead
+            title="À traiter"
+            meta={`${traiter.length} ${traiter.length > 1 ? "actions" : "action"} en attente`}
+          />
+          {traiter.map((card, i) => (
+            <FluxCardRenderer key={`t-${i}`} card={card} />
+          ))}
+        </section>
+      )}
+      {semaine.length > 0 && (
+        <section style={{ marginBottom: 88 }}>
+          <SectionHead title="Cette semaine" meta="Curation IA · 30 derniers jours" />
+          {semaine.map((card, i) => (
+            <FluxCardRenderer key={`s-${i}`} card={card} />
+          ))}
+        </section>
+      )}
+    </>
+  );
+}
+
+function FluxCardRenderer({ card }: { card: FluxCardData }) {
+  if (card.type === "mutation") {
+    return (
+      <FluxMutationCard
+        caption={card.caption}
+        delta={card.delta ?? undefined}
+        headlineHtml={card.headline_html}
+        bodyHtml={card.body_html}
+        mutationLabel={card.mutation_label}
+        mutationDetailHtml={card.mutation_detail_html}
+        saving={card.saving ?? undefined}
+        effect={card.effect ?? undefined}
+        mcpReady={false}
+      />
+    );
+  }
+  return (
+    <FluxCard
+      caption={card.caption}
+      delta={card.delta ?? undefined}
+      deltaTone={card.delta_tone ?? "success"}
+      headlineHtml={card.headline_html}
+      bodyHtml={card.body_html}
+      href={card.href ?? undefined}
+      hrefLabel={card.href_label ?? undefined}
+    />
+  );
+}
+
+function FluxLoadingPlaceholders() {
+  return (
+    <section style={{ marginBottom: 88 }}>
+      <SectionHead title="Curation IA en cours" meta="Claude analyse tes 30 derniers jours…" />
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          aria-hidden
+          style={{
+            padding: "32px 40px",
+            border: "1px solid var(--color-border-default)",
+            borderRadius: "var(--radius-lg)",
+            background: "var(--color-bg-surface)",
+            marginBottom: 18,
+            opacity: 0.6,
+          }}
+        >
+          <div
+            className="skeleton-shimmer"
+            style={{ height: 12, width: 220, borderRadius: 4, marginBottom: 16 }}
+          />
+          <div
+            className="skeleton-shimmer"
+            style={{ height: 22, width: "70%", borderRadius: 4, marginBottom: 14 }}
+          />
+          <div
+            className="skeleton-shimmer"
+            style={{ height: 12, width: "90%", borderRadius: 4, marginBottom: 8 }}
+          />
+          <div
+            className="skeleton-shimmer"
+            style={{ height: 12, width: "82%", borderRadius: 4, marginBottom: 8 }}
+          />
+          <div
+            className="skeleton-shimmer"
+            style={{ height: 12, width: "60%", borderRadius: 4 }}
+          />
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function FluxErrorBanner({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <section style={{ marginBottom: 88 }}>
+      <SectionHead title="Curation IA · indisponible" />
+      <div
+        style={{
+          padding: "28px 32px",
+          border: "1px solid var(--color-danger-muted)",
+          borderRadius: "var(--radius-lg)",
+          background: "linear-gradient(180deg, rgba(217, 106, 106, 0.04) 0%, var(--color-bg-surface) 100%)",
+          fontSize: 14,
+          lineHeight: 1.6,
+          color: "var(--color-text-secondary)",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: 10,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--color-text-muted)",
+            marginBottom: 10,
+          }}
+        >
+          Erreur · génération des cards
+        </div>
+        <p style={{ margin: "0 0 14px", maxWidth: "60ch" }}>
+          Les insights IA n'ont pas pu être générés. Détail :{" "}
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 12,
+              color: "var(--color-text-primary)",
+            }}
+          >
+            {message}
+          </span>
+        </p>
+        <button
+          type="button"
+          onClick={onRetry}
+          style={{
+            height: 30,
+            padding: "0 14px",
+            borderRadius: "var(--radius-sm)",
+            fontFamily: "var(--font-sans)",
+            fontSize: 12,
+            fontWeight: 500,
+            cursor: "pointer",
+            background: "transparent",
+            color: "var(--color-text-secondary)",
+            border: "1px solid var(--color-border-emphasis)",
+            transition: "all var(--transition-fast)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--color-text-primary)";
+            e.currentTarget.style.background = "var(--color-bg-elevated)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--color-text-secondary)";
+            e.currentTarget.style.background = "transparent";
+          }}
+        >
+          Réessayer
+        </button>
+      </div>
+    </section>
   );
 }
 
