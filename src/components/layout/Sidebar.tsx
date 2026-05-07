@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, MessageSquare, Users, Settings, ChevronsLeft, ChevronsRight, LogOut } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Users, Settings, ChevronsLeft, ChevronsRight, LogOut, Sparkles } from "lucide-react";
 import { useAppStore } from "@/lib/stores/app-store";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useWorkspaces } from "@/lib/hooks/useWorkspace";
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils/cn";
 import { SheepMark } from "@/components/ui/SheepMark";
 
 const NAV_ITEMS = [
+  { label: "Le flux", href: "/flux", icon: Sparkles },
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Chat IA", href: "/chat", icon: MessageSquare },
   { label: "Clients", href: "/clients", icon: Users },
