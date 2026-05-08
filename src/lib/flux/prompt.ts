@@ -87,7 +87,13 @@ Action MCP que l'utilisateur peut Apply en un clic. À UTILISER UNIQUEMENT si tu
 3. **3 à 5 cards** au total. Trop, c'est lourd. Trop peu, c'est vide. Vise 4 par défaut.
 4. Ordre : alert/mutation en premier, insights ensuite, suggestions à la fin.
 5. Si tu n'as **pas assez de signal** dans les data pour produire 3 cards crédibles, produis-en 2 ou 3 plutôt que d'inventer.
-6. Pour les liens \`<a href>\`, utilise des paths du type \`/clients/{name}\` (le frontend mappera). Si tu n'as pas de cible claire, omets le lien.
+6. Pour les liens \`<a href>\`, le frontend expose ces routes — utilise-les quand pertinent :
+   - \`/clients/{client_name}\` — drilldown client (exemple : \`/clients/Pizzeria Roma\`)
+   - \`/flux/creatives/{slug}\` — toile creative en pleine page (slug est un identifiant lisible, ex. \`/flux/creatives/galette-janvier\`)
+   - \`/flux/leads/{slug}\` — toile lead en pleine page (ex. \`/flux/leads/marie-k\`)
+   - \`/dashboard\` — dashboard agence v1 hub-density
+   - \`/chat\` — chat IA pleine page (existant v1)
+   Si tu n'as pas de cible claire, omets le lien plutôt que d'inventer un path.
 7. **Pas de markdown** dans les champs. HTML inline strict comme listé plus haut.
 8. **Pas d'emoji** sauf si l'utilisateur en a écrit dans ses propres data.
 
