@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import type { ClientSummary } from "@/lib/types/workspace";
-import { aggregateForPrompt } from "@/lib/flux/aggregator";
+import { aggregateForPrompt, type MutableCampaignInput } from "@/lib/flux/aggregator";
 import {
   FLUX_SYSTEM_PROMPT,
   FLUX_OUTPUT_SCHEMA,
@@ -40,15 +40,19 @@ export async function POST(request: Request) {
         error: true,
         type: "configuration",
         message:
-          "ANTHROPIC_API_KEY est manquante côté serveur. Ajouter la variable dans Coolify (prod) ou .env.local (dev).",
+          "ANTHROPIC_API_KEY est manquante côté serveur. Ajouter la variable dans Railway (prod) ou .env.local (dev).",
       },
       { status: 500 },
     );
   }
 
   let workspaces: ClientSummary[];
+  let mutableCampaigns: MutableCampaignInput[] | undefined;
   try {
-    const body = (await request.json()) as { workspaces?: ClientSummary[] };
+    const body = (await request.json()) as {
+      workspaces?: ClientSummary[];
+      mutable_campaigns?: MutableCampaignInput[];
+    };
     if (!Array.isArray(body.workspaces)) {
       return NextResponse.json<FluxCardsError>(
         {
@@ -60,6 +64,9 @@ export async function POST(request: Request) {
       );
     }
     workspaces = body.workspaces;
+    mutableCampaigns = Array.isArray(body.mutable_campaigns)
+      ? body.mutable_campaigns
+      : undefined;
   } catch {
     return NextResponse.json<FluxCardsError>(
       { error: true, type: "validation", message: "Body JSON invalide." },
@@ -78,7 +85,7 @@ export async function POST(request: Request) {
     });
   }
 
-  const promptInput = aggregateForPrompt(workspaces);
+  const promptInput = aggregateForPrompt(workspaces, mutableCampaigns);
   const client = new Anthropic({ apiKey });
 
   try {

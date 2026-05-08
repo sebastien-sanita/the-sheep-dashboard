@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ClientSummary } from "@/lib/types/workspace";
 import type { FluxCardsResponse, FluxCardsError } from "@/lib/flux/types";
+import type { MutableCampaignInput } from "@/lib/flux/aggregator";
 
 /**
  * Hook qui appelle /api/flux/cards (Next.js Route Handler) et retourne
@@ -9,10 +10,15 @@ import type { FluxCardsResponse, FluxCardsError } from "@/lib/flux/types";
  * staleTime : 1h — les cards restent stables une heure côté client. Pas
  * besoin de refetch sur focus / mount tant que les data 30j n'ont pas
  * eu le temps de bouger significativement.
+ *
+ * mutableCampaigns : optionnel — set de campagnes (UUID) que Claude peut
+ * référencer dans ses mutation cards. Sans ça, Claude n'émet aucune
+ * mutation (règle bloquante du system prompt).
  */
 
 async function fetchFluxCards(
   workspaces: ClientSummary[],
+  mutableCampaigns?: MutableCampaignInput[],
 ): Promise<FluxCardsResponse> {
   // Le path /api/flux/cards est servi par le filesystem Next.js, pas par
   // le rewrite vers api.the-sheep.fr (Next vérifie le filesystem avant
@@ -20,7 +26,10 @@ async function fetchFluxCards(
   const res = await fetch("/api/flux/cards", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ workspaces }),
+    body: JSON.stringify({
+      workspaces,
+      ...(mutableCampaigns ? { mutable_campaigns: mutableCampaigns } : {}),
+    }),
   });
   if (!res.ok) {
     const err = (await res.json().catch(() => null)) as FluxCardsError | null;
@@ -29,10 +38,19 @@ async function fetchFluxCards(
   return (await res.json()) as FluxCardsResponse;
 }
 
-export function useFluxCards(workspaces: ClientSummary[] | undefined) {
+export function useFluxCards(
+  workspaces: ClientSummary[] | undefined,
+  mutableCampaigns?: MutableCampaignInput[],
+) {
   return useQuery<FluxCardsResponse>({
-    queryKey: ["flux-cards", workspaces?.length ?? 0],
-    queryFn: () => fetchFluxCards(workspaces!),
+    // queryKey inclut le set d'IDs des mutable_campaigns pour invalider
+    // proprement le cache quand le set change (ajout d'une campagne, etc.).
+    queryKey: [
+      "flux-cards",
+      workspaces?.length ?? 0,
+      mutableCampaigns?.map((c) => c.campaign_id).sort().join(",") ?? "",
+    ],
+    queryFn: () => fetchFluxCards(workspaces!, mutableCampaigns),
     enabled: !!workspaces && workspaces.length > 0,
     staleTime: 60 * 60 * 1000, // 1 heure — voir commentaire en tête de fichier
     gcTime: 4 * 60 * 60 * 1000, // 4h — garde la réponse en cache mémoire

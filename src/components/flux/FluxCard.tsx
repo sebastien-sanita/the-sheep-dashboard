@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import {
+  useApplyMutation,
+  MutationToolError,
+} from "@/lib/hooks/useApplyMutation";
+import type {
+  FluxMutationToolName,
+  FluxMutationToolInput,
+} from "@/lib/flux/types";
 
 /**
  * FluxCard — card éditoriale narrative pour le flux v2.
@@ -170,8 +178,13 @@ interface FluxMutationCardProps {
   saving?: string;
   /** Texte muted à droite du saving, ex. "effet immédiat · réversible". */
   effect?: string;
-  /** L'IA backend MCP n'est pas encore wirée — Apply est désactivé pour le moment. */
-  mcpReady?: boolean;
+  /** Workspace cible — utilisé pour POST /api/workspaces/:id/mutations/apply.
+   *  Si absent, le bouton Apply reste désactivé. */
+  workspaceId?: string;
+  /** Tool MCP whitelisté côté backend. Si absent, Apply désactivé. */
+  toolName?: FluxMutationToolName;
+  /** Paramètres du tool (campaign_id UUID, etc.). Si absent, Apply désactivé. */
+  toolInput?: FluxMutationToolInput;
 }
 
 export function FluxMutationCard({
@@ -183,8 +196,41 @@ export function FluxMutationCard({
   mutationDetailHtml,
   saving,
   effect,
-  mcpReady = false,
+  workspaceId,
+  toolName,
+  toolInput,
 }: FluxMutationCardProps) {
+  const apply = useApplyMutation();
+  const [auditId, setAuditId] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [dismissed, setDismissed] = useState(false);
+
+  const canApply = !!workspaceId && !!toolName && !!toolInput;
+  const isApplying = apply.isPending;
+  const isSuccess = !!auditId;
+
+  function handleApply() {
+    if (!canApply || isApplying || isSuccess) return;
+    setErrorMsg(null);
+    apply.mutate(
+      { workspaceId: workspaceId!, toolName: toolName!, toolInput: toolInput! },
+      {
+        onSuccess: (data) => {
+          setAuditId(data.audit_id);
+        },
+        onError: (err) => {
+          if (err instanceof MutationToolError) {
+            setErrorMsg(`${err.toolError} (audit ${err.auditId})`);
+          } else {
+            setErrorMsg(err.message || "Erreur réseau");
+          }
+        },
+      },
+    );
+  }
+
+  if (dismissed) return null;
+
   return (
     <article
       style={{
@@ -318,14 +364,19 @@ export function FluxMutationCard({
             )}
           </div>
         )}
-        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+        <div style={{ display: "flex", gap: 8, marginTop: 14, alignItems: "center" }}>
           <button
             type="button"
-            disabled={!mcpReady}
+            onClick={handleApply}
+            disabled={!canApply || isApplying || isSuccess}
             title={
-              mcpReady
-                ? "Exécute la mutation MCP"
-                : "L'intégration MCP backend n'est pas encore wirée — bouton désactivé."
+              isSuccess
+                ? `Mutation appliquée · audit ${auditId}`
+                : !canApply
+                  ? "Cette mutation n'a pas les paramètres requis (workspace_id / tool_name / tool_input)."
+                  : isApplying
+                    ? "Application en cours…"
+                    : "Exécute la mutation côté backend (effet immédiat)"
             }
             style={{
               height: 30,
@@ -337,18 +388,28 @@ export function FluxMutationCard({
               fontFamily: "var(--font-sans)",
               fontSize: 12,
               fontWeight: 500,
-              cursor: mcpReady ? "pointer" : "not-allowed",
+              cursor:
+                !canApply || isApplying || isSuccess ? "not-allowed" : "pointer",
               border: "1px solid transparent",
-              background: "var(--color-accent)",
-              color: "var(--color-accent-contrast)",
-              opacity: mcpReady ? 1 : 0.45,
+              background: isSuccess
+                ? "var(--color-success-muted)"
+                : "var(--color-accent)",
+              color: isSuccess
+                ? "var(--color-success)"
+                : "var(--color-accent-contrast)",
+              opacity: !canApply ? 0.45 : 1,
               transition: "all var(--transition-fast)",
             }}
           >
-            Apply
+            {isSuccess
+              ? "Appliqué ✓"
+              : isApplying
+                ? "Application…"
+                : "Apply"}
           </button>
           <button
             type="button"
+            disabled={isApplying || isSuccess}
             style={{
               height: 30,
               padding: "0 14px",
@@ -356,17 +417,21 @@ export function FluxMutationCard({
               fontFamily: "var(--font-sans)",
               fontSize: 12,
               fontWeight: 500,
-              cursor: "pointer",
+              cursor: isApplying || isSuccess ? "not-allowed" : "pointer",
               background: "transparent",
               color: "var(--color-text-secondary)",
               border: "1px solid var(--color-border-emphasis)",
+              opacity: isApplying || isSuccess ? 0.4 : 1,
               transition: "all var(--transition-fast)",
             }}
+            title="Édition manuelle non encore implémentée"
           >
             Modifier
           </button>
           <button
             type="button"
+            onClick={() => setDismissed(true)}
+            disabled={isApplying}
             style={{
               height: 30,
               padding: "0 14px",
@@ -374,7 +439,7 @@ export function FluxMutationCard({
               fontFamily: "var(--font-sans)",
               fontSize: 12,
               fontWeight: 500,
-              cursor: "pointer",
+              cursor: isApplying ? "not-allowed" : "pointer",
               background: "transparent",
               color: "var(--color-text-tertiary)",
               border: "none",
@@ -384,7 +449,38 @@ export function FluxMutationCard({
             Ignorer
           </button>
         </div>
-        {!mcpReady && (
+
+        {/* Feedback inline — état Apply */}
+        {isSuccess && (
+          <div
+            style={{
+              marginTop: 12,
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              color: "var(--color-success)",
+              letterSpacing: "0.02em",
+            }}
+          >
+            ✓ Mutation appliquée · audit_id&nbsp;
+            <span style={{ color: "var(--color-text-secondary)" }}>{auditId}</span>
+          </div>
+        )}
+        {errorMsg && !isSuccess && (
+          <div
+            style={{
+              marginTop: 12,
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              color: "var(--color-danger)",
+              letterSpacing: "0.02em",
+              maxWidth: "60ch",
+              lineHeight: 1.5,
+            }}
+          >
+            ✗ {errorMsg}
+          </div>
+        )}
+        {!canApply && !isSuccess && !errorMsg && (
           <div
             style={{
               marginTop: 10,
@@ -394,7 +490,7 @@ export function FluxMutationCard({
               letterSpacing: "0.04em",
             }}
           >
-            ⓘ MCP integration en cours · Apply désactivé pour ce sprint
+            ⓘ Mutation card sans paramètres MCP — Apply désactivé
           </div>
         )}
       </div>

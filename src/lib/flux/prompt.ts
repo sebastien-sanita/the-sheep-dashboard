@@ -74,11 +74,24 @@ Un signal d'alerte qui ne nécessite pas (encore) une mutation : "tel client n'a
 
 ## Card mutation
 Action MCP que l'utilisateur peut Apply en un clic. À UTILISER UNIQUEMENT si tu identifies une action concrète, réversible, et clairement bénéfique. Pas de mutation purement spéculative.
+
+**RÈGLE BLOQUANTE** : tu ne peux émettre une mutation card QUE si tu peux référencer une campagne présente dans le champ \`mutable_campaigns\` du contexte. Si \`mutable_campaigns\` est absent ou vide, tu N'ÉMETS PAS de mutation card. Pas de \`campaign_id\` inventé.
+
+Champs de la mutation card :
 - mutation_label : "Mutation MCP · Meta Ads · pause_campaign" (mono uppercase)
 - mutation_detail_html : la signature de l'action en mono. Tu peux y mettre des span colorés pour mettre en avant les paramètres :
-  \`pause(<span style="color: var(--color-warning)">campaign_id: 23847391</span>)\`
+  \`pause(<span style="color: var(--color-warning)">campaign_id: a42cb5a7-…</span>)\`
 - saving : économie estimée en mono success-tone. Ex. "+ 287 € économisés"
 - effect : descripteur muted à droite. Ex. "· effet immédiat · réversible"
+
+**Champs structurés requis** (utilisés par le bouton Apply pour appeler le backend) :
+- workspace_id : UUID du workspace, recopié depuis \`mutable_campaigns[i].workspace_id\`
+- tool_name : un des trois \`pause_campaign\` / \`resume_campaign\` / \`update_campaign_budget\`
+- tool_input :
+  * pour pause_campaign / resume_campaign : \`{ "campaign_id": "<UUID UnifiedCampaign>" }\`
+  * pour update_campaign_budget : \`{ "campaign_id": "<UUID>", "new_budget_eur": <number> }\`
+- Le \`campaign_id\` DOIT être un \`mutable_campaigns[i].campaign_id\` exact. Le \`workspace_id\` DOIT correspondre à \`mutable_campaigns[i].workspace_id\` (même client).
+- Cohérence : si la campagne est déjà PAUSED, propose \`resume_campaign\`. Si elle est ACTIVE, propose \`pause_campaign\` ou \`update_campaign_budget\` (jamais \`resume_campaign\`).
 
 # Règles éditoriales
 
@@ -143,6 +156,9 @@ export const FLUX_OUTPUT_SCHEMA = {
               "body_html",
               "mutation_label",
               "mutation_detail_html",
+              "workspace_id",
+              "tool_name",
+              "tool_input",
             ],
             additionalProperties: false,
             properties: {
@@ -155,6 +171,42 @@ export const FLUX_OUTPUT_SCHEMA = {
               mutation_detail_html: { type: "string" },
               saving: { type: "string" },
               effect: { type: "string" },
+              workspace_id: {
+                type: "string",
+                description:
+                  "UUID du workspace cible — recopié depuis mutable_campaigns[i].workspace_id.",
+              },
+              tool_name: {
+                type: "string",
+                enum: [
+                  "pause_campaign",
+                  "resume_campaign",
+                  "update_campaign_budget",
+                ],
+              },
+              // tool_input est polymorphe selon tool_name. anyOf accepté
+              // (oneOf rejeté par Anthropic structured outputs).
+              tool_input: {
+                anyOf: [
+                  {
+                    type: "object",
+                    required: ["campaign_id"],
+                    additionalProperties: false,
+                    properties: {
+                      campaign_id: { type: "string" },
+                    },
+                  },
+                  {
+                    type: "object",
+                    required: ["campaign_id", "new_budget_eur"],
+                    additionalProperties: false,
+                    properties: {
+                      campaign_id: { type: "string" },
+                      new_budget_eur: { type: "number" },
+                    },
+                  },
+                ],
+              },
             },
           },
         ],

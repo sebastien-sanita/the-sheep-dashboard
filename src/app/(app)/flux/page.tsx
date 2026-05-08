@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useWorkspaces } from "@/lib/hooks/useWorkspace";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { useFluxCards } from "@/lib/hooks/useFluxCards";
+import { useMutableCampaigns } from "@/lib/hooks/useMutableCampaigns";
 import { FluxCard, FluxMutationCard } from "@/components/flux/FluxCard";
 import { FluxChatDock } from "@/components/flux/FluxChatDock";
 import type { FluxCardData } from "@/lib/flux/types";
@@ -44,7 +45,11 @@ const numberFormatter = new Intl.NumberFormat("fr-FR");
 export default function FluxPage() {
   const user = useAuthStore((s) => s.user);
   const { data: workspaces } = useWorkspaces();
-  const fluxCards = useFluxCards(workspaces);
+  // Fetch les top campaigns du top spender → Claude peut référencer
+  // des campaign_id réels dans ses mutation cards. Sans ça, mutable_campaigns
+  // reste vide et Claude n'émet aucune mutation (règle prompt).
+  const { data: mutableCampaigns } = useMutableCampaigns(workspaces);
+  const fluxCards = useFluxCards(workspaces, mutableCampaigns);
 
   const stats = useMemo(() => {
     if (!workspaces?.length) {
@@ -249,7 +254,7 @@ export default function FluxPage() {
               marginBottom: 6,
             }}
           >
-            État v0.2 · IA branchée, MCP en cours
+            État v0.3 · IA branchée · Mutations Meta Ads live
           </div>
           Les KPIs et les{" "}
           <span style={{ color: "var(--color-text-secondary)" }}>cards éditoriales</span>{" "}
@@ -269,13 +274,13 @@ export default function FluxPage() {
               </span>
             </>
           )}
-          . La <span style={{ color: "var(--color-text-secondary)" }}>timeline</span>{" "}
-          « Récemment » reste mockée tant que l'audit log API n'existe pas. Les boutons{" "}
+          . Les boutons{" "}
           <span style={{ fontFamily: "var(--font-mono)", color: "var(--color-text-secondary)" }}>
             Apply
           </span>{" "}
-          des mutations sont désactivés tant que les MCP servers (meta-ads, google-ads, …) ne sont
-          pas wirés.
+          appliquent la mutation sur Meta Ads (pause / resume / update_budget) avec audit log et
+          mirror local. La <span style={{ color: "var(--color-text-secondary)" }}>timeline</span>{" "}
+          « Récemment » reste mockée tant que l'audit log API n'est pas exposée côté lecture.
         </aside>
       </main>
 
@@ -375,7 +380,9 @@ function FluxCardRenderer({ card }: { card: FluxCardData }) {
         mutationDetailHtml={card.mutation_detail_html}
         saving={card.saving ?? undefined}
         effect={card.effect ?? undefined}
-        mcpReady={false}
+        workspaceId={card.workspace_id}
+        toolName={card.tool_name}
+        toolInput={card.tool_input}
       />
     );
   }

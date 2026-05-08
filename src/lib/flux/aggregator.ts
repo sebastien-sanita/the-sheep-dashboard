@@ -10,6 +10,18 @@
 
 import type { ClientSummary } from "../types/workspace";
 
+/** Campagne candidate à mutation MCP (utilisée par Claude pour grounder
+ *  un tool_input.campaign_id réel). UUID = UnifiedCampaign.id, pas Meta. */
+export interface MutableCampaignInput {
+  workspace_id: string;
+  workspace_name: string;
+  campaign_id: string;
+  campaign_name: string;
+  status: "ACTIVE" | "PAUSED" | string;
+  platform: string | null;
+  daily_budget_eur: number | null;
+}
+
 /** Input du prompt Claude. Compact, structuré, sans champ orphelin. */
 export interface FluxPromptInput {
   date: string;
@@ -25,6 +37,7 @@ export interface FluxPromptInput {
     total_clients: number;
   };
   clients: Array<{
+    id: string;
     name: string;
     spend_30d: number;
     impressions_30d: number;
@@ -37,6 +50,9 @@ export interface FluxPromptInput {
     active_campaigns: number;
     days_since_update: number;
   }>;
+  /** Campagnes que Claude peut référencer dans une mutation card. Si vide
+   *  ou absent, Claude n'émet PAS de mutation card (cf. system prompt). */
+  mutable_campaigns?: MutableCampaignInput[];
 }
 
 /**
@@ -48,7 +64,10 @@ export interface FluxPromptInput {
  *   - On limite à top 25 clients par dépense pour rester sous ~6KB d'input.
  *     Les autres restent agrégés dans totals_30d.
  */
-export function aggregateForPrompt(workspaces: ClientSummary[]): FluxPromptInput {
+export function aggregateForPrompt(
+  workspaces: ClientSummary[],
+  mutableCampaigns?: MutableCampaignInput[],
+): FluxPromptInput {
   const now = Date.now();
   const totals = {
     spend: 0,
@@ -83,6 +102,7 @@ export function aggregateForPrompt(workspaces: ClientSummary[]): FluxPromptInput
         (now - new Date(ws.updatedAt).getTime()) / (1000 * 60 * 60 * 24),
       );
       return {
+        id: ws.id,
         name: ws.name,
         spend_30d: round(spend),
         impressions_30d: impressions,
@@ -111,6 +131,9 @@ export function aggregateForPrompt(workspaces: ClientSummary[]): FluxPromptInput
       total_clients: workspaces.length,
     },
     clients: topClients,
+    ...(mutableCampaigns && mutableCampaigns.length > 0
+      ? { mutable_campaigns: mutableCampaigns }
+      : {}),
   };
 }
 

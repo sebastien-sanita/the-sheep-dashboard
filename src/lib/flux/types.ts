@@ -37,7 +37,26 @@ export interface FluxNarrativeCard {
   href_label?: string | null;
 }
 
-/** Card mutation MCP — bloc de preview action + boutons Apply/Modifier/Ignorer. */
+/** Tools whitelistés par le backend mutations endpoint. */
+export type FluxMutationToolName =
+  | "pause_campaign"
+  | "resume_campaign"
+  | "update_campaign_budget";
+
+/** tool_input attendu pour chaque tool_name. */
+export type FluxMutationToolInput =
+  | { campaign_id: string } // pause_campaign / resume_campaign
+  | { campaign_id: string; new_budget_eur: number }; // update_campaign_budget
+
+/** Card mutation MCP — bloc de preview action + boutons Apply/Modifier/Ignorer.
+ *
+ * Pour qu'Apply soit fonctionnel, la card DOIT contenir :
+ *   - workspace_id : UUID workspace cible (le backend force ce champ depuis l'URL)
+ *   - tool_name    : un des 3 tools whitelistés
+ *   - tool_input   : { campaign_id: UUID UnifiedCampaign, ... }
+ * Le campaign_id doit pointer vers une UnifiedCampaign présente dans
+ * `mutable_campaigns` (cf. FluxPromptInput) — pas de hallucination.
+ */
 export interface FluxMutationCardData {
   type: "mutation";
   /** Caption mono uppercase. */
@@ -56,6 +75,12 @@ export interface FluxMutationCardData {
   saving?: string | null;
   /** Texte muted à droite du saving, ex. "effet immédiat · réversible". */
   effect?: string | null;
+  /** Workspace cible (UUID). Forwardé au path POST /api/workspaces/:id/mutations/apply. */
+  workspace_id: string;
+  /** Tool MCP à exécuter côté backend. */
+  tool_name: FluxMutationToolName;
+  /** Paramètres du tool. campaign_id = UUID UnifiedCampaign (PAS le platformCampaignId Meta). */
+  tool_input: FluxMutationToolInput;
 }
 
 /** Union discriminée de tous les types de cards. */
