@@ -81,11 +81,14 @@ export function FluxCard({
           marginBottom: 14,
         }}
       >
-        <span>{caption}</span>
+        {/* HTML rendering pour décoder &nbsp; et autres entités. Claude
+            produit ces champs strictement (pas d'input utilisateur). */}
+        <span dangerouslySetInnerHTML={{ __html: caption }} />
         {delta && (
-          <span style={{ color: DELTA_COLORS[deltaTone], fontWeight: 600 }}>
-            {delta}
-          </span>
+          <span
+            style={{ color: DELTA_COLORS[deltaTone], fontWeight: 600 }}
+            dangerouslySetInnerHTML={{ __html: delta }}
+          />
         )}
       </header>
 
@@ -220,11 +223,12 @@ export function FluxMutationCard({
           marginBottom: 14,
         }}
       >
-        <span>{caption}</span>
+        <span dangerouslySetInnerHTML={{ __html: caption }} />
         {delta && (
-          <span style={{ color: "var(--color-warning)", fontWeight: 600 }}>
-            {delta}
-          </span>
+          <span
+            style={{ color: "var(--color-warning)", fontWeight: 600 }}
+            dangerouslySetInnerHTML={{ __html: delta }}
+          />
         )}
       </header>
 
