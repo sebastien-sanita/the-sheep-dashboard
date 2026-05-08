@@ -86,6 +86,27 @@ export async function POST(request: Request) {
   }
 
   const promptInput = aggregateForPrompt(workspaces, mutableCampaigns);
+
+  // Telemetry — visible in Railway logs. Sert à diagnostiquer les anomalies
+  // d'unité (cents vs euros) ou les hallucinations Claude. Pas de PII : juste
+  // counts + plage de budgets observée.
+  if (mutableCampaigns?.length) {
+    const budgets = mutableCampaigns
+      .map((c) => c.daily_budget_eur)
+      .filter((b): b is number => typeof b === "number");
+    console.log(
+      `[flux/cards] mutable_campaigns: ${mutableCampaigns.length} candidates · ` +
+        `workspaces: ${new Set(mutableCampaigns.map((c) => c.workspace_id)).size} · ` +
+        `budget range: ${budgets.length ? Math.min(...budgets) : "n/a"}–${
+          budgets.length ? Math.max(...budgets) : "n/a"
+        } €/j`,
+    );
+  } else {
+    console.log(
+      `[flux/cards] mutable_campaigns: empty · workspaces in scope: ${workspaces.length}`,
+    );
+  }
+
   const client = new Anthropic({ apiKey });
 
   try {

@@ -95,6 +95,9 @@ Champs de la mutation card :
 
 # Règles éditoriales
 
+0. **Plausibilité avant éditorial**. Avant d'écrire une card qui cite un nombre venant de \`mutable_campaigns\`, vérifie sa cohérence avec \`spend_30d\` du même client :
+   - Si \`daily_budget_eur × 30 ≫ spend_30d\` (ratio > 5×), la donnée est suspecte (probablement une incohérence d'unité côté backend) — n'utilise PAS ce chiffre dans une mutation card. Tu peux mentionner le client dans une \`alert\` qui dit explicitement « budget incohérent à vérifier manuellement, sync Meta probablement décalée ».
+   - Plus généralement : si tu ne peux pas justifier un chiffre par les autres data du contexte, ne l'utilise pas. Ne déduis pas un budget par extrapolation.
 1. **Chaque card doit reposer sur des chiffres précis du contexte fourni**. Pas de chiffre inventé.
 2. Pas plus d'**une mutation card** par flux (l'utilisateur ne peut pas tout valider d'un coup).
 3. **3 à 5 cards** au total. Trop, c'est lourd. Trop peu, c'est vide. Vise 4 par défaut.

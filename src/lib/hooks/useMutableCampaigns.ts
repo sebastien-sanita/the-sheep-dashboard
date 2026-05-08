@@ -21,6 +21,17 @@ import type { MutableCampaignInput } from "@/lib/flux/aggregator";
 const TOP_WORKSPACES = 3;
 const TOP_CAMPAIGNS_PER_WORKSPACE = 3;
 
+/** Si la somme des daily_budgets × 30 dépasse N× la spend_30d réelle du
+ *  workspace, on suspecte une incohérence d'unité (cents vs euros) côté
+ *  backend mirror et on exclut le workspace de mutable_campaigns.
+ *  Voir incident 2026-05-08 : Body House remontait dailyBudget=33010 (= cents
+ *  pour ~330 €/j) mais affiché comme 33 010 €/j à Claude → mutation card
+ *  proposant de baisser à 2 000 €/j sur de la donnée fausse. */
+const BUDGET_SANITY_RATIO = 10;
+/** Plancher de spend_30d pour activer le ratio check. Sous ce seuil, on
+ *  n'a pas assez de signal pour juger l'unité — on garde le workspace. */
+const MIN_SPEND_FOR_RATIO_CHECK = 100;
+
 export function useMutableCampaigns(workspaces: ClientSummary[] | undefined) {
   const targetWorkspaces = (workspaces ?? [])
     .filter((w) => (w.totalSpend30d ?? 0) > 0)
@@ -61,6 +72,27 @@ export function useMutableCampaigns(workspaces: ClientSummary[] | undefined) {
         )
         .sort((a, b) => (b.budget ?? 0) - (a.budget ?? 0))
         .slice(0, TOP_CAMPAIGNS_PER_WORKSPACE);
+
+      // Sanity check : somme des daily_budgets × 30 vs spend_30d réelle.
+      // Si ratio > BUDGET_SANITY_RATIO, le backend renvoie probablement des
+      // cents Meta natifs au lieu d'euros — on skip le workspace pour éviter
+      // que Claude bâtisse une mutation card sur de la donnée fausse.
+      const spend30d = ws.totalSpend30d ?? 0;
+      const expectedMonthly = top.reduce((s, c) => s + (c.budget ?? 0), 0) * 30;
+      const ratio =
+        spend30d >= MIN_SPEND_FOR_RATIO_CHECK ? expectedMonthly / spend30d : 0;
+
+      if (ratio > BUDGET_SANITY_RATIO) {
+        if (typeof window !== "undefined") {
+          console.warn(
+            `[useMutableCampaigns] Skipping "${ws.name}" — implausible budgets ` +
+              `(expected monthly ${Math.round(expectedMonthly)}€ vs actual spend_30d ` +
+              `${Math.round(spend30d)}€, ratio ${ratio.toFixed(1)}×). ` +
+              `Likely cents/euros unit mismatch in backend mirror.`,
+          );
+        }
+        continue;
+      }
 
       for (const c of top) {
         mutableCampaigns.push({
