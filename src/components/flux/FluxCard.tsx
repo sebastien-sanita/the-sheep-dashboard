@@ -300,12 +300,17 @@ export function FluxMutationCard({
                   fontWeight: 600,
                   marginRight: 8,
                 }}
-              >
-                {saving}
-              </span>
+                // Rendu en HTML pour décoder &nbsp; et autres entités que
+                // Claude peut produire (la locale fr-FR exige les espaces
+                // insécables entre chiffres et €/%).
+                dangerouslySetInnerHTML={{ __html: saving }}
+              />
             )}
             {effect && (
-              <span style={{ color: "var(--color-text-muted)" }}>{effect}</span>
+              <span
+                style={{ color: "var(--color-text-muted)" }}
+                dangerouslySetInnerHTML={{ __html: effect }}
+              />
             )}
           </div>
         )}
